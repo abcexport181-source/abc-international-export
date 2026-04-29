@@ -426,7 +426,7 @@ export default function AdminDashboard() {
                         {item.is_visible ? 'Visible' : 'Hidden'}
                       </span>
                     </td>
-                    <td style={td} className="muted" style={{ fontSize: '0.85rem' }}>
+                    <td className="muted" style={{ ...td, fontSize: '0.85rem' }}>
                       {new Date(item.created_at || Date.now()).toLocaleDateString()}
                     </td>
                     <td style={{ ...td, textAlign: 'right' }}>
@@ -461,7 +461,7 @@ export default function AdminDashboard() {
                         {item.is_visible ? 'Visible' : 'Hidden'}
                       </span>
                     </td>
-                    <td style={td} className="muted" style={{ fontSize: '0.85rem' }}>
+                    <td className="muted" style={{ ...td, fontSize: '0.85rem' }}>
                       {new Date(item.created_at || Date.now()).toLocaleDateString()}
                     </td>
                     <td style={{ ...td, textAlign: 'right' }}>

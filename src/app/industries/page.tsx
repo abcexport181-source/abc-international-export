@@ -12,7 +12,7 @@ export default function IndustriesPage() {
   useEffect(() => {
     async function fetchIndustries() {
       if (!isSupabaseConfigured) {
-        setIndustries(industriesData.map(i => ({...i, is_visible: true, full_info: i.fullInfo})));
+        setIndustries(industriesData.map(i => ({...i, is_visible: true, full_info: i.fullInfo, description_short: i.desc})));
         setLoading(false);
         return;
       }

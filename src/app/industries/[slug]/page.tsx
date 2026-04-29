@@ -17,7 +17,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
       if (!isSupabaseConfigured) {
         const ind = industriesData.find(i => i.id === slug);
         if (ind) {
-          setIndustry({...ind, is_visible: true, full_info: ind.fullInfo});
+          setIndustry({...ind, is_visible: true, full_info: ind.fullInfo, description_short: ind.desc});
           setProducts(productsData.filter(p => p.category === slug).map(p => ({...p, category_id: p.category, export_details: p.exportDetails, is_visible: true})));
         }
         setLoading(false);
