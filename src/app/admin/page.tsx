@@ -152,22 +152,28 @@ export default function AdminDashboard() {
     if (Object.keys(pendingChanges).length === 0) return;
     
     setIsSaving(true);
+    console.log('Attempting to save changes:', pendingChanges);
     try {
-      const updates = Object.entries(pendingChanges).map(([id, value]) => 
-        supabase.from('site_content').update({ content_value: value }).eq('id', id)
-      );
+      const updates = Object.entries(pendingChanges).map(async ([id, value]) => {
+        console.log(`Updating ID ${id} with value: ${value.substring(0, 50)}...`);
+        const { error } = await supabase.from('site_content').update({ content_value: value }).eq('id', id);
+        if (error) console.error(`Failed to update ${id}:`, error);
+        return { id, error };
+      });
       
       const results = await Promise.all(updates);
       const errors = results.filter(r => r.error);
       
       if (errors.length === 0) {
+        console.log('Database update successful for all items');
         setMessage({ text: 'All changes saved successfully!', type: 'success' });
         setPendingChanges({});
         await fetchSiteContent();
       } else {
-        throw new Error('Some changes failed to save.');
+        throw new Error(`${errors.length} items failed to save. Check console.`);
       }
     } catch (err: any) {
+      console.error('Save operation failed:', err);
       setMessage({ text: 'Error saving: ' + err.message, type: 'error' });
     }
     setIsSaving(false);
