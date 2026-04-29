@@ -406,6 +406,14 @@ export default function AdminDashboard() {
         { page: 'contact', section: 'Stats', key: 'countries_desc', val: 'Countries served' },
         { page: 'contact', section: 'Stats', key: 'suppliers', val: '1000+' },
         { page: 'contact', section: 'Stats', key: 'suppliers_desc', val: 'Verified suppliers' },
+        { page: 'sourcing', section: 'Hero', key: 'title', val: 'Global Product Sourcing from India' },
+        { page: 'sourcing', section: 'Hero', key: 'desc', val: 'End-to-end sourcing from India with verified suppliers and product solutions tailored for your market.' },
+        { page: 'logistics', section: 'Hero', key: 'title', val: 'Logistics Backed Export Expertise' },
+        { page: 'logistics', section: 'Hero', key: 'desc', val: 'From cargo planning to documentation, we ensure products move efficiently to global markets.' },
+        { page: 'industries', section: 'Hero', key: 'title', val: 'Industries We Serve' },
+        { page: 'industries', section: 'Hero', key: 'desc', val: 'Comprehensive sourcing expertise across diverse manufacturing sectors in India.' },
+        { page: 'quality-packaging', section: 'Hero', key: 'title', val: 'Quality Assurance & Export Packaging' },
+        { page: 'quality-packaging', section: 'Hero', key: 'desc', val: 'Reliable quality checks and secure export packaging to deliver consistent products worldwide.' },
 
         // IMAGES
         { page: 'home', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000' },
