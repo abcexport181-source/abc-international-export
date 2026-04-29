@@ -28,7 +28,7 @@ export const useWebsiteData = () => {
             } else if (data) {
               console.log(`Successfully fetched ${data.length} content items!`);
               // Log the Hero Title specifically to see if it updated
-              const heroTitle = data.find(c => c.id === 'home_hero_title');
+              const heroTitle = data.find((c: any) => c.id === 'home_hero_title');
               if (heroTitle) console.log('Live Hero Title in DB:', heroTitle.content_value);
               
               setContent(data);
