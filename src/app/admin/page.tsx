@@ -196,91 +196,94 @@ export default function AdminDashboard() {
       // Sync Site Content - COMPLETE LIST
       const initialContent = [
         // HOME PAGE
-        { page: 'home', section: 'Hero', key: 'title', val: 'Your Trusted Merchant Exporter from India', limit: 60 },
-        { page: 'home', section: 'Hero', key: 'desc', val: 'Global sourcing expertise backed by comprehensive logistics support.', limit: 100 },
+        { page: 'home', section: 'Hero', key: 'title', val: 'Your Trusted Merchant Exporter from India' },
+        { page: 'home', section: 'Hero', key: 'desc', val: 'Global sourcing expertise backed by comprehensive logistics support.' },
         
-        { page: 'home', section: 'Who We Are', key: 'title', val: 'Who We Are', limit: 20 },
-        { page: 'home', section: 'Who We Are', key: 'p1', val: 'ABC International is a trusted merchant exporter and comprehensive sourcing partner based in India.', limit: 140 },
-        { page: 'home', section: 'Who We Are', key: 'p2', val: "Backed by Linear Global's logistics expertise, we provide end-to-end export solutions from identifying the right suppliers to ensuring compliant, timely delivery to global markets.", limit: 310 },
+        { page: 'home', section: 'Who We Are', key: 'title', val: 'Who We Are' },
+        { page: 'home', section: 'Who We Are', key: 'p1', val: 'ABC International is a trusted merchant exporter and comprehensive sourcing partner based in India.' },
+        { page: 'home', section: 'Who We Are', key: 'p2', val: "Backed by Linear Global's logistics expertise, we provide end-to-end export solutions from identifying the right suppliers to ensuring compliant, timely delivery to global markets." },
 
-        { page: 'home', section: 'Services', key: 'title', val: 'What We Do', limit: 20 },
-        { page: 'home', section: 'Services', key: 's1_title', val: 'Product Sourcing', limit: 25 },
-        { page: 'home', section: 'Services', key: 's1_desc', val: 'Comprehensive sourcing from verified Indian manufacturers', limit: 85 },
-        { page: 'home', section: 'Services', key: 's2_title', val: 'Global Export', limit: 25 },
-        { page: 'home', section: 'Services', key: 's2_desc', val: 'Seamless export services to markets worldwide', limit: 85 },
-        { page: 'home', section: 'Services', key: 's3_title', val: 'Quality Control', limit: 25 },
-        { page: 'home', section: 'Services', key: 's3_desc', val: 'Rigorous inspection and verification processes', limit: 85 },
-        { page: 'home', section: 'Services', key: 's4_title', val: 'Logistics Support', limit: 25 },
-        { page: 'home', section: 'Services', key: 's4_desc', val: 'End-to-end logistics and documentation expertise', limit: 85 },
+        { page: 'home', section: 'Services', key: 'title', val: 'What We Do' },
+        { page: 'home', section: 'Services', key: 's1_title', val: 'Product Sourcing' },
+        { page: 'home', section: 'Services', key: 's1_desc', val: 'Comprehensive sourcing from verified Indian manufacturers' },
+        { page: 'home', section: 'Services', key: 's2_title', val: 'Global Export' },
+        { page: 'home', section: 'Services', key: 's2_desc', val: 'Seamless export services to markets worldwide' },
+        { page: 'home', section: 'Services', key: 's3_title', val: 'Quality Control' },
+        { page: 'home', section: 'Services', key: 's3_desc', val: 'Rigorous inspection and verification processes' },
+        { page: 'home', section: 'Services', key: 's4_title', val: 'Logistics Support' },
+        { page: 'home', section: 'Services', key: 's4_desc', val: 'End-to-end logistics and documentation expertise' },
 
-        { page: 'home', section: 'Logistics', key: 'title', val: 'Logistics Expertise That Sets Us Apart', limit: 60 },
-        { page: 'home', section: 'Logistics', key: 'desc', val: "With Linear Global's proven logistics network, we handle every aspect of export logistics—from documentation to customs clearance to final delivery.", limit: 250 },
-        { page: 'home', section: 'Logistics', key: 'item1', val: 'Complete export documentation (COO, certificates, etc.)', limit: 80 },
-        { page: 'home', section: 'Logistics', key: 'item2', val: 'Air and sea freight management', limit: 80 },
-        { page: 'home', section: 'Logistics', key: 'item3', val: 'Customs compliance and clearance', limit: 80 },
+        { page: 'home', section: 'Logistics', key: 'title', val: 'Logistics Expertise That Sets Us Apart' },
+        { page: 'home', section: 'Logistics', key: 'desc', val: "With Linear Global's proven logistics network, we handle every aspect of export logistics—from documentation to customs clearance to final delivery." },
+        { page: 'home', section: 'Logistics', key: 'item1', val: 'Complete export documentation (COO, certificates, etc.)' },
+        { page: 'home', section: 'Logistics', key: 'item2', val: 'Air and sea freight management' },
+        { page: 'home', section: 'Logistics', key: 'item3', val: 'Customs compliance and clearance' },
 
-        { page: 'home', section: 'Sourcing', key: 'title', val: 'Comprehensive Sourcing Capability', limit: 60 },
-        { page: 'home', section: 'Sourcing', key: 'desc', val: 'We source a wide range of products, raw materials, and packaging solutions from India\'s most reliable manufacturers.', limit: 170 },
+        { page: 'home', section: 'Sourcing', key: 'title', val: 'Comprehensive Sourcing Capability' },
+        { page: 'home', section: 'Sourcing', key: 'desc', val: 'We source a wide range of products, raw materials, and packaging solutions from India\'s most reliable manufacturers.' },
 
-        { page: 'home', section: 'Quality', key: 'title', val: 'Quality Assurance & Export Packaging', limit: 60 },
-        { page: 'home', section: 'Quality', key: 'desc', val: 'We ensure every product meets international standards with rigorous quality control and professional export-grade packaging.', limit: 200 },
-        { page: 'home', section: 'Quality', key: 'item1_title', val: 'Quality Inspection', limit: 25 },
-        { page: 'home', section: 'Quality', key: 'item1_desc', val: 'Pre-shipment inspection, sample approval, and supplier verification', limit: 100 },
-        { page: 'home', section: 'Quality', key: 'item2_title', val: 'Export Packaging', limit: 25 },
-        { page: 'home', section: 'Quality', key: 'item2_desc', val: 'Professional packaging solutions for safe international transit', limit: 100 },
-        { page: 'home', section: 'Quality', key: 'item3_title', val: 'Compliance', limit: 25 },
-        { page: 'home', section: 'Quality', key: 'item3_desc', val: 'Country-specific labeling and regulatory compliance', limit: 100 },
+        { page: 'home', section: 'Quality', key: 'title', val: 'Quality Assurance & Export Packaging' },
+        { page: 'home', section: 'Quality', key: 'desc', val: 'We ensure every product meets international standards with rigorous quality control and professional export-grade packaging.' },
+        { page: 'home', section: 'Quality', key: 'item1_title', val: 'Quality Inspection' },
+        { page: 'home', section: 'Quality', key: 'item1_desc', val: 'Pre-shipment inspection, sample approval, and supplier verification' },
+        { page: 'home', section: 'Quality', key: 'item2_title', val: 'Export Packaging' },
+        { page: 'home', section: 'Quality', key: 'item2_desc', val: 'Professional packaging solutions for safe international transit' },
+        { page: 'home', section: 'Quality', key: 'item3_title', val: 'Compliance' },
+        { page: 'home', section: 'Quality', key: 'item3_desc', val: 'Country-specific labeling and regulatory compliance' },
 
-        { page: 'home', section: 'Process', key: 'title', val: 'How We Work', limit: 25 },
-        { page: 'home', section: 'Process', key: 'step1_title', val: 'Requirement Analysis', limit: 30 },
-        { page: 'home', section: 'Process', key: 'step1_desc', val: 'We understand your specific needs', limit: 55 },
-        { page: 'home', section: 'Process', key: 'step2_title', val: 'Supplier Matching', limit: 30 },
-        { page: 'home', section: 'Process', key: 'step2_desc', val: 'Connect with verified manufacturers', limit: 55 },
-        { page: 'home', section: 'Process', key: 'step3_title', val: 'Quality Verification', limit: 30 },
-        { page: 'home', section: 'Process', key: 'step3_desc', val: 'Rigorous quality checks and samples', limit: 55 },
-        { page: 'home', section: 'Process', key: 'step4_title', val: 'Documentation', limit: 30 },
-        { page: 'home', section: 'Process', key: 'step4_desc', val: 'Complete export compliance handling', limit: 55 },
-        { page: 'home', section: 'Process', key: 'step5_title', val: 'Global Shipping', limit: 30 },
-        { page: 'home', section: 'Process', key: 'step5_desc', val: 'Reliable logistics to your destination', limit: 55 },
+        { page: 'home', section: 'Process', key: 'title', val: 'How We Work' },
+        { page: 'home', section: 'Process', key: 'step1_title', val: 'Requirement Analysis' },
+        { page: 'home', section: 'Process', key: 'step1_desc', val: 'We understand your specific needs' },
+        { page: 'home', section: 'Process', key: 'step2_title', val: 'Supplier Matching' },
+        { page: 'home', section: 'Process', key: 'step2_desc', val: 'Connect with verified manufacturers' },
+        { page: 'home', section: 'Process', key: 'step3_title', val: 'Quality Verification' },
+        { page: 'home', section: 'Process', key: 'step3_desc', val: 'Rigorous quality checks and samples' },
+        { page: 'home', section: 'Process', key: 'step4_title', val: 'Documentation' },
+        { page: 'home', section: 'Process', key: 'step4_desc', val: 'Complete export compliance handling' },
+        { page: 'home', section: 'Process', key: 'step5_title', val: 'Global Shipping' },
+        { page: 'home', section: 'Process', key: 'step5_desc', val: 'Reliable logistics to your destination' },
 
-        { page: 'home', section: 'CTA', key: 'title', val: 'Ready to Source from India?', limit: 50 },
-        { page: 'home', section: 'CTA', key: 'desc', val: "Let's discuss your requirements. Our sourcing team is ready to help you find the right products at the right price.", limit: 200 },
+        { page: 'home', section: 'CTA', key: 'title', val: 'Ready to Source from India?' },
+        { page: 'home', section: 'CTA', key: 'desc', val: "Let's discuss your requirements. Our sourcing team is ready to help you find the right products at the right price." },
 
         // ABOUT PAGE
-        { page: 'about', section: 'Hero', key: 'title', val: 'About ABC International', limit: 40 },
-        { page: 'about', section: 'Hero', key: 'desc', val: 'Your trusted partner for high-quality sourcing and global export support from India.', limit: 120 },
-        { page: 'about', section: 'Main', key: 'content', val: "ABC International is a premier merchant exporter and comprehensive sourcing partner based in India.\n\nWe bridge the gap between global buyers and India's vast manufacturing ecosystem, helping businesses worldwide access quality products at competitive prices.\n\nWhat sets us apart is our backing by Linear Global—a trusted name in logistics—giving us unparalleled expertise in export documentation, shipping, and compliance.\n\nWhether you need raw materials, finished products, packaging, or private label manufacturing, we have the network, knowledge, and logistics capability to deliver.", limit: 1000 },
+        { page: 'about', section: 'Hero', key: 'title', val: 'About ABC International' },
+        { page: 'about', section: 'Hero', key: 'desc', val: 'Your trusted partner for high-quality sourcing and global export support from India.' },
+        { page: 'about', section: 'Main', key: 'content', val: "ABC International is a premier merchant exporter and comprehensive sourcing partner based in India.\n\nWe bridge the gap between global buyers and India's vast manufacturing ecosystem, helping businesses worldwide access quality products at competitive prices.\n\nWhat sets us apart is our backing by Linear Global—a trusted name in logistics—giving us unparalleled expertise in export documentation, shipping, and compliance.\n\nWhether you need raw materials, finished products, packaging, or private label manufacturing, we have the network, knowledge, and logistics capability to deliver." },
 
         // CONTACT PAGE
-        { page: 'contact', section: 'Hero', key: 'title', val: 'Get in Touch', limit: 25 },
-        { page: 'contact', section: 'Hero', key: 'desc', val: 'Ready to start sourcing from India? Contact our team to discuss your requirements.', limit: 120 },
-        { page: 'contact', section: 'Info', key: 'email', val: 'info@abc-international.co.in', limit: 45 },
-        { page: 'contact', section: 'Info', key: 'phone', val: '+91 XXXX XXXXXX', limit: 30 },
-        { page: 'contact', section: 'Info', key: 'address', val: 'Mumbai, Maharashtra, India', limit: 50 },
-        { page: 'contact', section: 'Stats', key: 'res_time', val: '24h', limit: 10 },
-        { page: 'contact', section: 'Stats', key: 'res_desc', val: 'Average response time', limit: 40 },
-        { page: 'contact', section: 'Stats', key: 'countries', val: '100+', limit: 10 },
-        { page: 'contact', section: 'Stats', key: 'countries_desc', val: 'Countries served', limit: 40 },
-        { page: 'contact', section: 'Stats', key: 'suppliers', val: '1000+', limit: 10 },
-        { page: 'contact', section: 'Stats', key: 'suppliers_desc', val: 'Verified suppliers', limit: 40 },
+        { page: 'contact', section: 'Hero', key: 'title', val: 'Get in Touch' },
+        { page: 'contact', section: 'Hero', key: 'desc', val: 'Ready to start sourcing from India? Contact our team to discuss your requirements.' },
+        { page: 'contact', section: 'Info', key: 'email', val: 'info@abc-international.co.in' },
+        { page: 'contact', section: 'Info', key: 'phone', val: '+91 XXXX XXXXXX' },
+        { page: 'contact', section: 'Info', key: 'address', val: 'Mumbai, Maharashtra, India' },
+        { page: 'contact', section: 'Stats', key: 'res_time', val: '24h' },
+        { page: 'contact', section: 'Stats', key: 'res_desc', val: 'Average response time' },
+        { page: 'contact', section: 'Stats', key: 'countries', val: '100+' },
+        { page: 'contact', section: 'Stats', key: 'countries_desc', val: 'Countries served' },
+        { page: 'contact', section: 'Stats', key: 'suppliers', val: '1000+' },
+        { page: 'contact', section: 'Stats', key: 'suppliers_desc', val: 'Verified suppliers' },
 
         // IMAGES
-        { page: 'home', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000', limit: 500 },
-        { page: 'home', section: 'Logistics', key: 'side_img', val: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=1000', limit: 500 },
-        { page: 'home', section: 'Sourcing', key: 'side_img', val: 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000', limit: 500 },
-        { page: 'about', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2000', limit: 500 },
-        { page: 'about', section: 'Main', key: 'side_img', val: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000', limit: 500 },
-        { page: 'contact', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000', limit: 500 }
+        { page: 'home', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000' },
+        { page: 'home', section: 'Logistics', key: 'side_img', val: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=1000' },
+        { page: 'home', section: 'Sourcing', key: 'side_img', val: 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000' },
+        { page: 'about', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2000' },
+        { page: 'about', section: 'Main', key: 'side_img', val: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000' },
+        { page: 'contact', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000' }
       ];
 
       for (const c of initialContent) {
+        // Automatically calculate limit as 50% more than current text (min 40)
+        const calculatedLimit = Math.max(Math.ceil(c.val.length * 1.5), 40);
+        
         await supabase.from('site_content').upsert({
           id: `${c.page}_${c.section.replace(/\s+/g, '_').toLowerCase()}_${c.key}`,
           page_name: c.page,
           section_name: c.section,
           content_key: c.key,
           content_value: c.val,
-          char_limit: c.limit
+          char_limit: c.limit && c.limit > 40 ? c.limit : calculatedLimit // Use hardcoded only if provided and reasonable, else calculate
         });
       }
       
