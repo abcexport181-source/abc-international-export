@@ -1,5 +1,8 @@
+'use client'
+import React from 'react';
 import { FiPackage, FiGlobe, FiShield, FiTruck, FiCheckCircle, FiTarget, FiFileText, FiBriefcase, FiArrowRight } from 'react-icons/fi';
 import { FaLeaf, FaBoxOpen, FaCogs, FaFlask, FaShoppingBag, FaPalette } from 'react-icons/fa';
+import { useWebsiteData } from '@/hooks/useWebsiteData';
 
 const services = [
   {
@@ -23,16 +26,17 @@ const services = [
 const industries = ['Agro & Food', 'Packaging', 'Industrial', 'Chemicals', 'Consumer Products', 'Handicrafts']
 
 export default function Home() {
+  const { getContent, loading } = useWebsiteData();
+
   return (
     <>
       <section className="heroBand">
         <div className="container">
           <h1>
-            Your Trusted Merchant <br />
-            Exporter from India
+            {getContent('home', 'Hero', 'title', 'Your Trusted Merchant Exporter from India')}
           </h1>
           <p>
-            Global sourcing expertise backed by comprehensive logistics support
+            {getContent('home', 'Hero', 'desc', 'Global sourcing expertise backed by comprehensive logistics support')}
           </p>
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.6rem' }}>
             <a href="/sourcing" className="btnPrimary">
@@ -48,15 +52,12 @@ export default function Home() {
       <section className="section sectionSoft">
         <div className="container">
           <div className="sectionHeader">
-            <h2>Who We Are</h2>
+            <h2>{getContent('home', 'Who We Are', 'title', 'Who We Are')}</h2>
             <p>
-              ABC International is a trusted <strong>merchant exporter</strong> and comprehensive{' '}
-              <strong>sourcing partner</strong> based in India.
+              {getContent('home', 'Who We Are', 'p1', 'ABC International is a trusted merchant exporter and comprehensive sourcing partner based in India.')}
             </p>
             <p style={{ marginTop: '0.8rem' }}>
-              Backed by <strong>Linear Global&apos;s logistics expertise</strong>, we provide end-to-end export
-              solutions-from identifying the right suppliers to ensuring compliant, timely delivery to
-              global markets.
+              {getContent('home', 'Who We Are', 'p2', "Backed by Linear Global's logistics expertise, we provide end-to-end export solutions from identifying the right suppliers to ensuring compliant, timely delivery to global markets.")}
             </p>
           </div>
         </div>
@@ -90,10 +91,9 @@ export default function Home() {
       <section className="section heroBand" style={{ padding: '3rem 0' }}>
         <div className="container split">
           <div>
-            <h2 style={{ color: '#fff' }}>Logistics Expertise That Sets Us Apart</h2>
+            <h2 style={{ color: '#fff' }}>{getContent('home', 'Logistics', 'title', 'Logistics Expertise That Sets Us Apart')}</h2>
             <p style={{ color: '#dbe8ff', marginTop: '0.65rem' }}>
-              With Linear Global&apos;s proven logistics network, we handle every aspect of export
-              logistics-from documentation to customs clearance to final delivery.
+              {getContent('home', 'Logistics', 'desc', "With Linear Global's proven logistics network, we handle every aspect of export logistics—from documentation to customs clearance to final delivery.")}
             </p>
             <ul className="checkList" style={{ color: '#dbe8ff', marginTop: '1rem' }}>
               <li><FiCheckCircle className="checkIcon" style={{ color: '#ffffff' }} /> Complete export documentation (COO, certificates, etc.)</li>
@@ -296,10 +296,9 @@ export default function Home() {
 
       <section className="ctaBand">
         <div className="container">
-          <h3>Ready to Source from India?</h3>
+          <h3>{getContent('home', 'CTA', 'title', 'Ready to Source from India?')}</h3>
           <p style={{ color: '#dbe8ff' }}>
-            Let&apos;s discuss your requirements. Our sourcing team is ready to help you find the right
-            products at the right price.
+            {getContent('home', 'CTA', 'desc', "Let's discuss your requirements. Our sourcing team is ready to help you find the right products at the right price.")}
           </p>
           <div style={{ marginTop: '0.9rem', display: 'flex', gap: '0.6rem', justifyContent: 'center' }}>
             <a href="/sourcing" className="btnPrimary">

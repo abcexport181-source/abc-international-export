@@ -177,15 +177,31 @@ export default function AdminDashboard() {
       }
       // Sync Site Content
       const initialContent = [
-        { page: 'home', section: 'Hero', key: 'title', val: 'Direct Sourcing from India\'s Leading Manufacturers', limit: 120 },
-        { page: 'home', section: 'Hero', key: 'desc', val: 'ABC International connects global buyers with verified Indian suppliers across 10+ industries.', limit: 300 },
-        { page: 'about', section: 'Hero', key: 'title', val: 'Your Trusted Sourcing Partner in India', limit: 100 },
-        { page: 'industries', section: 'Hero', key: 'title', val: 'Industries We Serve', limit: 100 }
+        // Home Page
+        { page: 'home', section: 'Hero', key: 'title', val: 'Your Trusted Merchant Exporter from India', limit: 100 },
+        { page: 'home', section: 'Hero', key: 'desc', val: 'Global sourcing expertise backed by comprehensive logistics support.', limit: 300 },
+        { page: 'home', section: 'Who We Are', key: 'title', val: 'Who We Are', limit: 50 },
+        { page: 'home', section: 'Who We Are', key: 'p1', val: 'ABC International is a trusted merchant exporter and comprehensive sourcing partner based in India.', limit: 400 },
+        { page: 'home', section: 'Who We Are', key: 'p2', val: "Backed by Linear Global's logistics expertise, we provide end-to-end export solutions from identifying the right suppliers to ensuring compliant, timely delivery to global markets.", limit: 400 },
+        { page: 'home', section: 'What We Do', key: 'title', val: 'What We Do', limit: 50 },
+        { page: 'home', section: 'Logistics', key: 'title', val: 'Logistics Expertise That Sets Us Apart', limit: 100 },
+        { page: 'home', section: 'Logistics', key: 'desc', val: "With Linear Global's proven logistics network, we handle every aspect of export logistics—from documentation to customs clearance to final delivery.", limit: 400 },
+        { page: 'home', section: 'CTA', key: 'title', val: 'Ready to Source from India?', limit: 100 },
+        { page: 'home', section: 'CTA', key: 'desc', val: "Let's discuss your requirements. Our sourcing team is ready to help you find the right products at the right price.", limit: 300 },
+
+        // About Page
+        { page: 'about', section: 'Hero', key: 'title', val: 'About ABC International', limit: 100 },
+        { page: 'about', section: 'Hero', key: 'desc', val: 'Your bridge to India\'s manufacturing excellence.', limit: 300 },
+        { page: 'about', section: 'Main', key: 'content', val: "ABC International is a premier merchant exporter and comprehensive sourcing partner based in India.\n\nWe bridge the gap between global buyers and India's vast manufacturing ecosystem, helping businesses worldwide access quality products at competitive prices.\n\nWhat sets us apart is our backing by Linear Global—a trusted name in logistics—giving us unparalleled expertise in export documentation, shipping, and compliance.", limit: 1000 },
+
+        // Contact Page
+        { page: 'contact', section: 'Hero', key: 'title', val: 'Get in Touch', limit: 100 },
+        { page: 'contact', section: 'Hero', key: 'desc', val: 'Ready to start sourcing from India? Contact our team to discuss your requirements.', limit: 300 }
       ];
 
       for (const c of initialContent) {
         await supabase.from('site_content').upsert({
-          id: `${c.page}_${c.key}`,
+          id: `${c.page}_${c.section.replace(/\s+/g, '_').toLowerCase()}_${c.key}`,
           page_name: c.page,
           section_name: c.section,
           content_key: c.key,

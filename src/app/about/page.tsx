@@ -1,5 +1,8 @@
+'use client'
+import React from 'react';
 import { FiPackage, FiGlobe, FiCheckCircle, FiArrowRight, FiFileText, FiShield, FiTruck } from 'react-icons/fi';
 import { FaIndustry } from 'react-icons/fa';
+import { useWebsiteData } from '@/hooks/useWebsiteData';
 
 const approach = [
   { title: 'Understand Requirement', description: 'Deep dive into your specific product and market needs' },
@@ -18,12 +21,14 @@ const reasons = [
 ]
 
 export default function AboutPage() {
+  const { getContent, loading } = useWebsiteData();
+
   return (
     <>
       <section className="heroBand">
         <div className="container">
-          <h1>About ABC International</h1>
-          <p>Your trusted partner for high-quality sourcing and global export support from India.</p>
+          <h1>{getContent('about', 'Hero', 'title', 'About ABC International')}</h1>
+          <p>{getContent('about', 'Hero', 'desc', 'Your trusted partner for high-quality sourcing and global export support from India.')}</p>
         </div>
       </section>
 
@@ -31,22 +36,15 @@ export default function AboutPage() {
         <div className="container split">
           <div>
             <h2>Who We Are</h2>
-            <p className="muted" style={{ lineHeight: '1.6', marginBottom: '1.2rem' }}>
-              ABC International is a premier merchant exporter and comprehensive sourcing partner 
-              based in India.
-            </p>
-            <p className="muted" style={{ lineHeight: '1.6', marginBottom: '1.2rem' }}>
-              We bridge the gap between global buyers and India&apos;s vast manufacturing ecosystem, 
-              helping businesses worldwide access quality products at competitive prices.
-            </p>
-            <p className="muted" style={{ lineHeight: '1.6', marginBottom: '1.2rem' }}>
-              What sets us apart is our backing by Linear Global—a trusted name in logistics—giving 
-              us unparalleled expertise in export documentation, shipping, and compliance.
-            </p>
-            <p className="muted" style={{ lineHeight: '1.6' }}>
-              Whether you need raw materials, finished products, packaging, or private label 
-              manufacturing, we have the network, knowledge, and logistics capability to deliver.
-            </p>
+            <div className="muted" style={{ lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+              {getContent('about', 'Main', 'content', `ABC International is a premier merchant exporter and comprehensive sourcing partner based in India.
+
+We bridge the gap between global buyers and India's vast manufacturing ecosystem, helping businesses worldwide access quality products at competitive prices.
+
+What sets us apart is our backing by Linear Global—a trusted name in logistics—giving us unparalleled expertise in export documentation, shipping, and compliance.
+
+Whether you need raw materials, finished products, packaging, or private label manufacturing, we have the network, knowledge, and logistics capability to deliver.`)}
+            </div>
           </div>
           <div className="imageBlock" />
         </div>

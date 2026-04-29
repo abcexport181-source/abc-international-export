@@ -1,5 +1,7 @@
+'use client'
 import React from 'react';
 import { FiMail, FiPhone, FiMapPin, FiClock, FiSend } from 'react-icons/fi';
+import { useWebsiteData } from '@/hooks/useWebsiteData';
 
 const contactInfo = [
   {
@@ -29,12 +31,14 @@ const contactInfo = [
 ];
 
 export default function ContactPage() {
+  const { getContent, loading } = useWebsiteData();
+
   return (
     <>
       <section className="heroBand heroBandCentered">
         <div className="container">
-          <h1>Get in Touch</h1>
-          <p>Ready to start sourcing from India? Contact our team to discuss your requirements.</p>
+          <h1>{getContent('contact', 'Hero', 'title', 'Get in Touch')}</h1>
+          <p>{getContent('contact', 'Hero', 'desc', 'Ready to start sourcing from India? Contact our team to discuss your requirements.')}</p>
         </div>
       </section>
 
