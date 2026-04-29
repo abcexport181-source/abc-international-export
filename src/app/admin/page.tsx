@@ -22,6 +22,10 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ text: '', type: '' });
 
+  const [editingIndustry, setEditingIndustry] = useState<IndustryData | null>(null);
+  const [editingProduct, setEditingProduct] = useState<ProductData | null>(null);
+  const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
+
   useEffect(() => {
     // Check session from cookie (server-side source of truth)
     getSession().then((decodedToken) => {
