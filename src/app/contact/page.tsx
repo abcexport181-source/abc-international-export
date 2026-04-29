@@ -1,0 +1,161 @@
+import React from 'react';
+import { FiMail, FiPhone, FiMapPin, FiClock, FiSend } from 'react-icons/fi';
+
+const contactInfo = [
+  {
+    title: 'Email',
+    details: ['info@abc-international.co.in', 'export@abc-international.co.in'],
+    Icon: FiMail
+  },
+  {
+    title: 'Phone',
+    details: ['+91 XXXX XXXXXX', 'Monday - Friday, 9:00 AM - 6:00 PM IST'],
+    Icon: FiPhone
+  },
+  {
+    title: 'Address',
+    details: ['ABC International', 'Mumbai, Maharashtra', 'India'],
+    Icon: FiMapPin
+  },
+  {
+    title: 'Business Hours',
+    details: [
+      'Monday - Friday: 9:00 AM - 6:00 PM IST',
+      'Saturday: 9:00 AM - 1:00 PM IST',
+      'Sunday: Closed'
+    ],
+    Icon: FiClock
+  }
+];
+
+export default function ContactPage() {
+  return (
+    <>
+      <section className="heroBand heroBandCentered">
+        <div className="container">
+          <h1>Get in Touch</h1>
+          <p>Ready to start sourcing from India? Contact our team to discuss your requirements.</p>
+        </div>
+      </section>
+
+      <section className="section" style={{ background: '#fff' }}>
+        <div className="container split" style={{ alignItems: 'start', gap: '4rem' }}>
+          <div style={{ flex: 1.2 }}>
+            <h2 style={{ fontSize: '2rem', marginBottom: '2rem' }}>Send Us a Message</h2>
+            <form style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+              <div>
+                <label style={label}>Name *</label>
+                <input placeholder="Your full name" style={field} />
+              </div>
+              <div>
+                <label style={label}>Company *</label>
+                <input placeholder="Your company name" style={field} />
+              </div>
+              <div>
+                <label style={label}>Email *</label>
+                <input placeholder="your@email.com" style={field} />
+              </div>
+              <div>
+                <label style={label}>Country *</label>
+                <input placeholder="Your country" style={field} />
+              </div>
+              <div>
+                <label style={label}>Product Requirement *</label>
+                <input placeholder="What products are you looking for?" style={field} />
+              </div>
+              <div>
+                <label style={label}>Message</label>
+                <textarea placeholder="Additional details about your requirements..." style={{ ...field, minHeight: '120px', resize: 'vertical' }} />
+              </div>
+              <button type="button" className="btnPrimary" style={{ background: '#1f5ff5', color: '#fff', width: '100%', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', fontSize: '1rem' }}>
+                Submit Inquiry <FiSend />
+              </button>
+            </form>
+          </div>
+
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Company Information</h2>
+              <div style={{ background: '#f8faff', padding: '2rem', borderRadius: '12px', border: '1px solid #edf2ff' }}>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>ABC International</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.8rem' }}>
+                  {contactInfo.map((info) => (
+                    <div key={info.title} style={{ display: 'flex', gap: '1rem' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: '#dbe8ff', color: '#1f5ff5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem' }}>
+                        <info.Icon />
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: '0.95rem', marginBottom: '0.3rem', color: '#1b2638' }}>{info.title}</h4>
+                        {info.details.map((line, i) => (
+                          <p key={i} className="muted" style={{ fontSize: '0.9rem', lineHeight: '1.4' }}>{line}</p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ background: '#f0f6ff', padding: '2rem', borderRadius: '12px' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.2rem' }}>Why Contact Us?</h3>
+              <ul className="checkList" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                {[
+                  'Get personalized sourcing recommendations',
+                  'Receive competitive pricing quotes',
+                  'Discuss logistics and shipping options',
+                  'Learn about compliance requirements',
+                  'Schedule factory visits and inspections'
+                ].map(item => (
+                  <li key={item} style={{ fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#1f5ff5' }} />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section sectionSoft" style={{ textAlign: 'center', paddingTop: 0 }}>
+        <div className="container">
+          <h2>Quick Response Guarantee</h2>
+          <p className="muted" style={{ maxWidth: '760px', margin: '0 auto' }}>
+            Our sourcing team typically responds to inquiries within 24 hours during business days.
+            For urgent requirements, please mark your message as &quot;Urgent&quot; in the subject line.
+          </p>
+          <div className="cardsGrid3" style={{ marginTop: '1rem' }}>
+            <article className="card">
+              <h3>24h</h3>
+              <p className="muted">Average response time</p>
+            </article>
+            <article className="card">
+              <h3>100+</h3>
+              <p className="muted">Countries served</p>
+            </article>
+            <article className="card">
+              <h3>1000+</h3>
+              <p className="muted">Verified suppliers</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}
+
+const field: React.CSSProperties = {
+  width: '100%',
+  padding: '0.8rem 1rem',
+  borderRadius: '8px',
+  border: '1px solid #e2e8f0',
+  background: '#fff',
+  fontSize: '0.95rem',
+  marginTop: '0.5rem',
+}
+
+const label: React.CSSProperties = {
+  fontSize: '0.9rem',
+  color: '#1b2638',
+  fontWeight: 600,
+}

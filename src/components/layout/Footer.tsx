@@ -1,0 +1,63 @@
+import Link from 'next/link'
+import { FiLinkedin, FiFacebook, FiTwitter } from 'react-icons/fi'
+import styles from './Footer.module.css'
+
+const Footer = () => {
+  return (
+    <footer className={styles.footer}>
+      <div className={`container ${styles.grid}`}>
+        <div>
+          <h3 className={styles.brand}>ABC International</h3>
+          <p className={styles.muted}>
+            Your trusted merchant exporter and global sourcing partner, backed by logistics
+            expertise.
+          </p>
+          <div className={styles.socials}>
+            <a href="#" aria-label="LinkedIn"><FiLinkedin /></a>
+            <a href="#" aria-label="Facebook"><FiFacebook /></a>
+            <a href="#" aria-label="Twitter"><FiTwitter /></a>
+          </div>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul className={styles.links}>
+            <li>
+              <Link href="/about">About Us</Link>
+            </li>
+            <li>
+              <Link href="/sourcing">Sourcing Services</Link>
+            </li>
+            <li>
+              <Link href="/industries">Industries</Link>
+            </li>
+            <li>
+              <Link href="/logistics">Logistics Expertise</Link>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4>Services</h4>
+          <ul className={styles.links}>
+            <li>Product Sourcing</li>
+            <li>Quality Assurance</li>
+            <li>Export Packaging</li>
+            <li>Export Documentation</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact Us</h4>
+          <ul className={styles.links}>
+            <li>info@abc-international.co.in</li>
+            <li>+91 XXX XX XXXXX</li>
+            <li>Mumbai, Maharashtra, India</li>
+          </ul>
+        </div>
+      </div>
+      <div className={styles.bottom}>
+        <div className="container">© {new Date().getFullYear()} ABC International. All rights reserved.</div>
+      </div>
+    </footer>
+  )
+}
+
+export default Footer
