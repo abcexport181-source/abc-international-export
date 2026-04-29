@@ -135,13 +135,18 @@ export default function AdminDashboard() {
               {authLoading ? 'Logging in...' : 'Sign In'}
             </button>
           </form>
-        </div>
       </div>
     );
   }
 
   const fetchSiteContent = async () => {
-    const { data } = await supabase.from('site_content').select('*').order('page_name');
+    // Add a dummy filter to bust any potential caches
+    const { data } = await supabase
+      .from('site_content')
+      .select('*')
+      .order('page_name')
+      .filter('id', 'neq', `cache_buster_${Date.now()}`); 
+      
     if (data) setSiteContent(data);
   };
 
@@ -150,7 +155,8 @@ export default function AdminDashboard() {
   };
 
   const saveAllChanges = async () => {
-    if (Object.keys(pendingChanges).length === 0) return;
+    const changesCount = Object.keys(pendingChanges).length;
+    if (changesCount === 0) return;
     
     setIsSaving(true);
     const updatesArray = Object.entries(pendingChanges).map(([id, value]) => ({ id, value }));
@@ -160,8 +166,25 @@ export default function AdminDashboard() {
       
       if (result.success) {
         setMessage({ text: `Successfully updated ${result.count} items!`, type: 'success' });
+        
+        // Update local state immediately with returned data to avoid re-fetch lag/stale data
+        if (result.data) {
+          setSiteContent(prev => {
+            const newContent = [...prev];
+            (result.data as any[]).forEach(updatedItem => {
+              const index = newContent.findIndex(c => c.id === updatedItem.id);
+              if (index !== -1) {
+                newContent[index] = updatedItem;
+              }
+            });
+            return newContent;
+          });
+        }
+
         setPendingChanges({});
-        await fetchSiteContent();
+        
+        // Still fetch in background just to be absolutely sure, but UI is already updated
+        fetchSiteContent();
       } else {
         throw new Error(result.error);
       }
