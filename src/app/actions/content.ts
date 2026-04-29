@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+// Force re-deployment and re-sync check
 
 export async function updateSiteContentBatch(updates: { id: string, value: string }[]) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
