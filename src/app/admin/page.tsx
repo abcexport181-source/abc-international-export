@@ -156,9 +156,21 @@ export default function AdminDashboard() {
     try {
       const updates = Object.entries(pendingChanges).map(async ([id, value]) => {
         console.log(`Updating ID ${id} with value: ${value.substring(0, 50)}...`);
-        const { error } = await supabase.from('site_content').update({ content_value: value }).eq('id', id);
-        if (error) console.error(`Failed to update ${id}:`, error);
-        return { id, error };
+        // Use .select() to see if the row was actually found and updated
+        const { data, error } = await supabase.from('site_content').update({ content_value: value }).eq('id', id).select();
+        
+        if (error) {
+          console.error(`Failed to update ${id}:`, error);
+          return { id, error };
+        }
+        
+        if (data && data.length === 0) {
+          console.warn(`WARNING: ID ${id} was not found in the database. No rows updated.`);
+          return { id, error: new Error('ID not found') };
+        }
+
+        console.log(`Successfully updated ${id}`);
+        return { id, error: null };
       });
       
       const results = await Promise.all(updates);
