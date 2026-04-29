@@ -20,7 +20,11 @@ const Header = () => {
     <header className={styles.header}>
       <div className={`container ${styles.headerInner}`}>
         <Link href="/" className={styles.logo}>
-          <span>ABC</span> International
+          <img 
+            src="/logo.jpeg" 
+            alt="ABC International" 
+            style={{ height: '45px', width: 'auto', display: 'block' }} 
+          />
         </Link>
         <nav className={styles.nav}>
           <ul>
