@@ -10,6 +10,7 @@ type Tab = 'home-content' | 'about-content' | 'contact-content' | 'industries' |
 import { auth } from '@/lib/firebase/config';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { createSession, removeSession, getSession } from '@/app/actions/auth';
+import { updateSiteContentBatch } from '@/app/actions/content';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -152,37 +153,17 @@ export default function AdminDashboard() {
     if (Object.keys(pendingChanges).length === 0) return;
     
     setIsSaving(true);
-    console.log('Attempting to save changes:', pendingChanges);
+    const updatesArray = Object.entries(pendingChanges).map(([id, value]) => ({ id, value }));
+    
     try {
-      const updates = Object.entries(pendingChanges).map(async ([id, value]) => {
-        console.log(`Updating ID ${id} with value: ${value.substring(0, 50)}...`);
-        // Use .select() to see if the row was actually found and updated
-        const { data, error } = await supabase.from('site_content').update({ content_value: value }).eq('id', id).select();
-        
-        if (error) {
-          console.error(`Failed to update ${id}:`, error);
-          return { id, error };
-        }
-        
-        if (data && data.length === 0) {
-          console.warn(`WARNING: ID ${id} was not found in the database. No rows updated.`);
-          return { id, error: new Error('ID not found') };
-        }
-
-        console.log(`Successfully updated ${id}`);
-        return { id, error: null };
-      });
+      const result = await updateSiteContentBatch(updatesArray);
       
-      const results = await Promise.all(updates);
-      const errors = results.filter(r => r.error);
-      
-      if (errors.length === 0) {
-        console.log('Database update successful for all items');
-        setMessage({ text: 'All changes saved successfully!', type: 'success' });
+      if (result.success) {
+        setMessage({ text: `Successfully updated ${result.count} items!`, type: 'success' });
         setPendingChanges({});
         await fetchSiteContent();
       } else {
-        throw new Error(`${errors.length} items failed to save. Check console.`);
+        throw new Error(result.error);
       }
     } catch (err: any) {
       console.error('Save operation failed:', err);
