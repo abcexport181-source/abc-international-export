@@ -10,7 +10,7 @@ type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-co
 import { auth } from '@/lib/firebase/config';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { createSession, removeSession, getSession } from '@/app/actions/auth';
-import { updateSiteContentBatch } from '@/app/actions/content';
+import { updateSiteContentBatch, syncInitialDataBatch } from '@/app/actions/content';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -428,24 +428,17 @@ export default function AdminDashboard() {
         { page: 'quality-packaging', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1521331908054-9a180b7d3912?auto=format&fit=crop&q=80&w=2000' }
       ];
 
-      for (const c of initialContent) {
-        // Automatically calculate limit as 50% more than current text (min 40)
-        const calculatedLimit = Math.max(Math.ceil(c.val.length * 1.5), 40);
-        
-        await supabase.from('site_content').upsert({
-          id: `${c.page}_${c.section.replace(/\s+/g, '_').toLowerCase()}_${c.key}`,
-          page_name: c.page,
-          section_name: c.section,
-          content_key: c.key,
-          content_value: c.val,
-          char_limit: calculatedLimit
-        });
-      }
+      const result = await syncInitialDataBatch(initialContent);
       
-      setMessage({ text: 'Data synchronized successfully!', type: 'success' });
-      fetchData();
-      fetchSiteContent();
+      if (result.success) {
+        setMessage({ text: 'Data synchronized successfully!', type: 'success' });
+        fetchData();
+        fetchSiteContent();
+      } else {
+        throw new Error(result.error);
+      }
     } catch (err: any) {
+
       console.error('Sync error:', err);
       setMessage({ text: 'Sync failed: ' + (err.message || 'Unknown error'), type: 'error' });
     }

@@ -44,3 +44,43 @@ export async function updateSiteContentBatch(updates: { id: string, value: strin
     return { success: false, error: err.message };
   }
 }
+export async function syncInitialDataBatch(initialContent: any[]) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return { 
+      success: false, 
+      error: 'SERVER ERROR: SUPABASE_SERVICE_ROLE_KEY is missing.' 
+    };
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+  
+  try {
+    const promises = initialContent.map(c => {
+      const calculatedLimit = Math.max(Math.ceil(c.val.length * 1.5), 40);
+      return supabaseAdmin.from('site_content').upsert({
+        id: `${c.page}_${c.section.replace(/\s+/g, '_').toLowerCase()}_${c.key}`,
+        page_name: c.page,
+        section_name: c.section,
+        content_key: c.key,
+        content_value: c.val,
+        char_limit: calculatedLimit
+      });
+    });
+
+    const results = await Promise.all(promises);
+    const errors = results.filter(r => r.error);
+    
+    if (errors.length > 0) {
+      console.error('Batch sync errors:', errors);
+      return { success: false, error: 'Some syncs failed' };
+    }
+
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
