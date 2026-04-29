@@ -537,6 +537,13 @@ export default function AdminDashboard() {
             <button className="btnPrimary" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <FiPlus /> Add New {activeTab === 'industries' ? 'Industry' : 'Product'}
             </button>
+            <button 
+              onClick={() => supabase.auth.signOut()} 
+              className="btnSecondary" 
+              style={{ fontSize: '0.85rem', color: '#ef4444', borderColor: '#fecaca' }}
+            >
+              <FiLogOut style={{ marginRight: '0.5rem' }} /> Logout
+            </button>
           </div>
         </header>
 
