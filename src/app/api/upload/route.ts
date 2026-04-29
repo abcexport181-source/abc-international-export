@@ -20,7 +20,12 @@ export async function POST(request: Request) {
 
   try {
     // Verify Firebase session
-    await adminAuth.verifySessionCookie(sessionCookie, true);
+    const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
+    
+    // Strict UID Whitelist Check
+    if (process.env.ADMIN_UID && decodedToken.uid !== process.env.ADMIN_UID) {
+      return NextResponse.json({ error: 'Unauthorized UID' }, { status: 403 });
+    }
   } catch (error) {
     return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
   }

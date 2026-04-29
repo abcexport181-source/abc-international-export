@@ -7,6 +7,13 @@ export async function createSession(idToken: string) {
   const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
   
   try {
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    
+    // Strict UID Whitelist Check
+    if (process.env.ADMIN_UID && decodedToken.uid !== process.env.ADMIN_UID) {
+      return { success: false, error: 'Unauthorized: Your UID is not whitelisted as Admin' };
+    }
+
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
     
     const cookieStore = await cookies();
