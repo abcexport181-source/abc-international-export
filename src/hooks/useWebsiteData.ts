@@ -12,13 +12,27 @@ export const useWebsiteData = () => {
         }
 
         try {
-            // Force a fresh fetch by disabling caching
-            const { data } = await supabase
+            console.log('Fetching fresh website content from Supabase...');
+            // Force a fresh fetch by disabling caching and adding a unique identifier
+            const { data, error } = await supabase
                 .from('site_content')
                 .select('*')
-                .headers({ 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' });
+                .headers({ 
+                  'Cache-Control': 'no-cache', 
+                  'Pragma': 'no-cache',
+                  'x-refresh-id': Date.now().toString() 
+                });
             
-            if (data) setContent(data);
+            if (error) {
+              console.error('Supabase fetch ERROR:', error);
+            } else if (data) {
+              console.log(`Successfully fetched ${data.length} content items!`);
+              // Log the Hero Title specifically to see if it updated
+              const heroTitle = data.find(c => c.id === 'home_hero_title');
+              if (heroTitle) console.log('Live Hero Title in DB:', heroTitle.content_value);
+              
+              setContent(data);
+            }
         } catch (error) {
             console.error('Error fetching website content:', error);
         } finally {
