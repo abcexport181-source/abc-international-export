@@ -170,9 +170,17 @@ export default function AdminDashboard() {
         method: 'POST',
         body: formData,
       });
-      const data = await res.json();
-      if (data.url) return data.url;
-      throw new Error(data.error || 'Upload failed');
+      
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        if (data.url) return data.url;
+        throw new Error(data.error || 'Upload failed');
+      } else {
+        const text = await res.text();
+        console.error('Server returned non-JSON response:', text);
+        throw new Error(`Server Error (${res.status}): Please check Vercel logs. The server returned a non-JSON response.`);
+      }
     } catch (err: any) {
       setMessage({ text: 'Upload failed: ' + err.message, type: 'error' });
       return null;
