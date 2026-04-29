@@ -6,7 +6,13 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export const isSupabaseConfigured = supabaseUrl.startsWith('http') && supabaseAnonKey.length > 0;
 
 export const supabase = isSupabaseConfigured 
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: 'no-store' });
+        }
+      }
+    })
   : (null as any); // Type cast to prevent deep errors, but usage will still need check
 
 export interface SiteContent {
