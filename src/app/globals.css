@@ -21,6 +21,11 @@ body {
   line-height: 1.45;
 }
 
+h1, h2, h3, h4, p, li, span, strong {
+  white-space: pre-wrap;
+  text-transform: none;
+}
+
 a {
   text-decoration: none;
   color: inherit;
