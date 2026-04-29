@@ -381,7 +381,7 @@ export default function AdminDashboard() {
             </button>
           ))}
           <button 
-            onClick={() => supabase.auth.signOut()}
+            onClick={handleLogout}
             style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '1rem 2rem', border: 'none', background: 'transparent', color: '#ff7b72', cursor: 'pointer', textAlign: 'left', fontSize: '0.95rem', marginTop: '2rem' }}
           >
             <FiLogOut /> Logout
@@ -580,7 +580,7 @@ export default function AdminDashboard() {
               <FiPlus /> Add New {activeTab === 'industries' ? 'Industry' : 'Product'}
             </button>
             <button 
-              onClick={() => supabase.auth.signOut()} 
+              onClick={handleLogout} 
               className="btnSecondary" 
               style={{ fontSize: '0.85rem', color: '#ef4444', borderColor: '#fecaca' }}
             >
