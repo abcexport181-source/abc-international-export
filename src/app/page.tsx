@@ -4,24 +4,7 @@ import { FiPackage, FiGlobe, FiShield, FiTruck, FiCheckCircle, FiTarget, FiFileT
 import { FaLeaf, FaBoxOpen, FaCogs, FaFlask, FaShoppingBag, FaPalette } from 'react-icons/fa';
 import { useWebsiteData } from '@/hooks/useWebsiteData';
 
-const services = [
-  {
-    title: 'Product Sourcing',
-    description: 'Comprehensive sourcing from verified Indian manufacturers',
-  },
-  {
-    title: 'Global Export',
-    description: 'Seamless export services to markets worldwide',
-  },
-  {
-    title: 'Quality Control',
-    description: 'Rigorous inspection and verification processes',
-  },
-  {
-    title: 'Logistics Support',
-    description: 'End-to-end logistics and documentation expertise',
-  },
-]
+  // Handled dynamically in the component
 
 const industries = ['Agro & Food', 'Packaging', 'Industrial', 'Chemicals', 'Consumer Products', 'Handicrafts']
 
@@ -66,21 +49,23 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <div className="sectionHeader">
-            <h2>What We Do</h2>
+            <h2>{getContent('home', 'Services', 'title', 'What We Do')}</h2>
           </div>
           <div className="cardsGrid4">
-            {services.map((service, idx) => {
-              let Icon = FiPackage;
-              if (service.title === 'Product Sourcing') Icon = FiPackage;
-              if (service.title === 'Global Export') Icon = FiGlobe;
-              if (service.title === 'Quality Control') Icon = FiShield;
-              if (service.title === 'Logistics Support') Icon = FiTruck;
-              
+            {[
+              { id: 1, icon: FiPackage },
+              { id: 2, icon: FiGlobe },
+              { id: 3, icon: FiShield },
+              { id: 4, icon: FiTruck },
+            ].map((item) => {
+              const Icon = item.icon;
               return (
-                <article key={service.title} className="card" style={{ textAlign: 'center' }}>
+                <article key={item.id} className="card" style={{ textAlign: 'center' }}>
                   <span className="iconDot"><Icon /></span>
-                  <h3>{service.title}</h3>
-                  <p className="muted" style={{ marginTop: '0.5rem' }}>{service.description}</p>
+                  <h3>{getContent('home', 'Services', `s${item.id}_title`, 'Service Title')}</h3>
+                  <p className="muted" style={{ marginTop: '0.5rem' }}>
+                    {getContent('home', 'Services', `s${item.id}_desc`, 'Service description goes here.')}
+                  </p>
                 </article>
               );
             })}
@@ -96,10 +81,9 @@ export default function Home() {
               {getContent('home', 'Logistics', 'desc', "With Linear Global's proven logistics network, we handle every aspect of export logistics—from documentation to customs clearance to final delivery.")}
             </p>
             <ul className="checkList" style={{ color: '#dbe8ff', marginTop: '1rem' }}>
-              <li><FiCheckCircle className="checkIcon" style={{ color: '#ffffff' }} /> Complete export documentation (COO, certificates, etc.)</li>
-              <li><FiCheckCircle className="checkIcon" style={{ color: '#ffffff' }} /> Air and sea freight management</li>
-              <li><FiCheckCircle className="checkIcon" style={{ color: '#ffffff' }} /> Customs compliance and clearance</li>
-              <li><FiCheckCircle className="checkIcon" style={{ color: '#ffffff' }} /> Real-time tracking and updates</li>
+              <li><FiCheckCircle className="checkIcon" style={{ color: '#ffffff' }} /> {getContent('home', 'Logistics', 'item1', 'Complete export documentation')}</li>
+              <li><FiCheckCircle className="checkIcon" style={{ color: '#ffffff' }} /> {getContent('home', 'Logistics', 'item2', 'Air and sea freight management')}</li>
+              <li><FiCheckCircle className="checkIcon" style={{ color: '#ffffff' }} /> {getContent('home', 'Logistics', 'item3', 'Customs compliance and clearance')}</li>
             </ul>
             <div style={{ marginTop: '1rem' }}>
               <a href="/logistics" className="btnPrimary">
@@ -188,39 +172,26 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <div className="sectionHeader">
-            <h2>Quality Assurance & Export Packaging</h2>
+            <h2>{getContent('home', 'Quality', 'title', 'Quality Assurance & Export Packaging')}</h2>
             <p>
-              We ensure every product meets international standards with rigorous quality control and
-              professional export-grade packaging.
+              {getContent('home', 'Quality', 'desc', 'We ensure every product meets international standards.')}
             </p>
           </div>
           <div className="cardsGrid3">
-            {[
-              {
-                title: 'Quality Inspection',
-                description: 'Pre-shipment inspection, sample approval, and supplier verification',
-              },
-              {
-                title: 'Export Packaging',
-                description: 'Professional packaging solutions for safe international transit',
-              },
-              {
-                title: 'Compliance',
-                description: 'Country-specific labeling and regulatory compliance',
-              },
-            ].map((item, idx) => {
-              let Icon = FiShield;
-              if (item.title === 'Quality Inspection') Icon = FiShield;
-              if (item.title === 'Export Packaging') Icon = FiPackage;
-              if (item.title === 'Compliance') Icon = FiCheckCircle;
-
+            {[1, 2, 3].map((i) => {
+              const icons = [FiShield, FiPackage, FiCheckCircle];
+              const Icon = icons[i-1];
               return (
-                <article key={item.title} className="card">
+                <article key={i} className="card">
                   <div style={{ fontSize: '2.2rem', color: '#1f5ff5', marginBottom: '1rem' }}>
                     <Icon />
                   </div>
-                  <h3 style={{ marginBottom: '0.6rem' }}>{item.title}</h3>
-                  <p className="muted">{item.description}</p>
+                  <h3 style={{ marginBottom: '0.6rem' }}>
+                    {getContent('home', 'Quality', `item${i}_title`, 'Quality Item')}
+                  </h3>
+                  <p className="muted">
+                    {getContent('home', 'Quality', `item${i}_desc`, 'Item description.')}
+                  </p>
                 </article>
               );
             })}
@@ -236,7 +207,7 @@ export default function Home() {
       <section className="section sectionSoft">
         <div className="container">
           <div className="sectionHeader">
-            <h2>How We Work</h2>
+            <h2>{getContent('home', 'Process', 'title', 'How We Work')}</h2>
           </div>
           <div
             style={{
@@ -245,37 +216,18 @@ export default function Home() {
               gap: '0.9rem',
             }}
           >
-            {[
-              {
-                title: 'Requirement Analysis',
-                description: 'We understand your specific needs',
-              },
-              {
-                title: 'Supplier Matching',
-                description: 'Connect with verified manufacturers',
-              },
-              {
-                title: 'Quality Verification',
-                description: 'Rigorous quality checks and samples',
-              },
-              {
-                title: 'Documentation',
-                description: 'Complete export compliance handling',
-              },
-              {
-                title: 'Global Shipping',
-                description: 'Reliable logistics to your destination',
-              },
-            ].map((item, idx) => (
-              <div key={item.title} style={{ position: 'relative' }}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} style={{ position: 'relative' }}>
                 <article className="card" style={{ height: '100%', padding: '1.8rem 1.2rem', textAlign: 'left' }}>
-                  <span className="stepNumber">
-                    {idx + 1}
-                  </span>
-                  <h3 style={{ fontSize: '1.1rem', marginBottom: '0.6rem', lineHeight: '1.3' }}>{item.title}</h3>
-                  <p className="muted" style={{ fontSize: '0.9rem' }}>{item.description}</p>
+                  <span className="stepNumber">{i}</span>
+                  <h3 style={{ fontSize: '1.1rem', marginBottom: '0.6rem', lineHeight: '1.3' }}>
+                    {getContent('home', 'Process', `step${i}_title`, 'Step Title')}
+                  </h3>
+                  <p className="muted" style={{ fontSize: '0.9rem' }}>
+                    {getContent('home', 'Process', `step${i}_desc`, 'Step description.')}
+                  </p>
                 </article>
-                {idx < 4 && (
+                {i < 5 && (
                   <div style={{
                     position: 'absolute',
                     top: '50%',

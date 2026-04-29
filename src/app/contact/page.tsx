@@ -83,23 +83,31 @@ export default function ContactPage() {
               <div style={{ background: '#f8faff', padding: '2rem', borderRadius: '12px', border: '1px solid #edf2ff' }}>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>ABC International</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.8rem' }}>
-                  {contactInfo.map((info) => (
-                    <div key={info.title} style={{ display: 'flex', gap: '1rem' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: '#dbe8ff', color: '#1f5ff5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem' }}>
-                        <info.Icon />
-                      </div>
-                      <div>
-                        <h4 style={{ fontSize: '0.95rem', marginBottom: '0.3rem', color: '#1b2638' }}>{info.title}</h4>
-                        {info.details.map((line, i) => (
-                          <p key={i} className="muted" style={{ fontSize: '0.9rem', lineHeight: '1.4' }}>{line}</p>
-                        ))}
-                      </div>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={iconBox}><FiMail /></div>
+                    <div>
+                      <h4 style={h4}>Email</h4>
+                      <p className="muted" style={p}>{getContent('contact', 'Info', 'email', 'info@abc-international.co.in')}</p>
                     </div>
-                  ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={iconBox}><FiPhone /></div>
+                    <div>
+                      <h4 style={h4}>Phone</h4>
+                      <p className="muted" style={p}>{getContent('contact', 'Info', 'phone', '+91 XXXX XXXXXX')}</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={iconBox}><FiMapPin /></div>
+                    <div>
+                      <h4 style={h4}>Address</h4>
+                      <p className="muted" style={p}>{getContent('contact', 'Info', 'address', 'Mumbai, Maharashtra, India')}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-
+            
             <div style={{ background: '#f0f6ff', padding: '2rem', borderRadius: '12px' }}>
               <h3 style={{ fontSize: '1.25rem', marginBottom: '1.2rem' }}>Why Contact Us?</h3>
               <ul className="checkList" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
@@ -126,26 +134,31 @@ export default function ContactPage() {
           <h2>Quick Response Guarantee</h2>
           <p className="muted" style={{ maxWidth: '760px', margin: '0 auto' }}>
             Our sourcing team typically responds to inquiries within 24 hours during business days.
-            For urgent requirements, please mark your message as &quot;Urgent&quot; in the subject line.
           </p>
           <div className="cardsGrid3" style={{ marginTop: '1rem' }}>
             <article className="card">
-              <h3>24h</h3>
-              <p className="muted">Average response time</p>
+              <h3>{getContent('contact', 'Stats', 'res_time', '24h')}</h3>
+              <p className="muted">{getContent('contact', 'Stats', 'res_desc', 'Average response time')}</p>
             </article>
             <article className="card">
-              <h3>100+</h3>
-              <p className="muted">Countries served</p>
+              <h3>{getContent('contact', 'Stats', 'countries', '100+')}</h3>
+              <p className="muted">{getContent('contact', 'Stats', 'countries_desc', 'Countries served')}</p>
             </article>
             <article className="card">
-              <h3>1000+</h3>
-              <p className="muted">Verified suppliers</p>
+              <h3>{getContent('contact', 'Stats', 'suppliers', '1000+')}</h3>
+              <p className="muted">{getContent('contact', 'Stats', 'suppliers_desc', 'Verified suppliers')}</p>
             </article>
           </div>
         </div>
       </section>
     </>
   )
+}
+
+const label: React.CSSProperties = {
+  fontSize: '0.9rem',
+  color: '#1b2638',
+  fontWeight: 600,
 }
 
 const field: React.CSSProperties = {
@@ -158,8 +171,26 @@ const field: React.CSSProperties = {
   marginTop: '0.5rem',
 }
 
-const label: React.CSSProperties = {
+const iconBox: React.CSSProperties = {
+  width: '40px',
+  height: '40px',
+  borderRadius: '8px',
+  background: '#dbe8ff',
+  color: '#1f5ff5',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+  fontSize: '1.2rem'
+}
+
+const h4: React.CSSProperties = {
+  fontSize: '0.95rem',
+  marginBottom: '0.3rem',
+  color: '#1b2638'
+}
+
+const p: React.CSSProperties = {
   fontSize: '0.9rem',
-  color: '#1b2638',
-  fontWeight: 600,
+  lineHeight: '1.4'
 }

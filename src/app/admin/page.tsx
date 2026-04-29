@@ -129,6 +129,24 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
+  const handleImageUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) return data.url;
+      throw new Error(data.error || 'Upload failed');
+    } catch (err: any) {
+      setMessage({ text: 'Upload failed: ' + err.message, type: 'error' });
+      return null;
+    }
+  };
+
   const saveIndustry = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingIndustry) return;
@@ -175,28 +193,76 @@ export default function AdminDashboard() {
           is_visible: true
         });
       }
-      // Sync Site Content
+      // Sync Site Content - COMPLETE LIST
       const initialContent = [
-        // Home Page
-        { page: 'home', section: 'Hero', key: 'title', val: 'Your Trusted Merchant Exporter from India', limit: 100 },
+        // HOME PAGE
+        { page: 'home', section: 'Hero', key: 'title', val: 'Your Trusted Merchant Exporter from India', limit: 120 },
         { page: 'home', section: 'Hero', key: 'desc', val: 'Global sourcing expertise backed by comprehensive logistics support.', limit: 300 },
-        { page: 'home', section: 'Who We Are', key: 'title', val: 'Who We Are', limit: 50 },
-        { page: 'home', section: 'Who We Are', key: 'p1', val: 'ABC International is a trusted merchant exporter and comprehensive sourcing partner based in India.', limit: 400 },
-        { page: 'home', section: 'Who We Are', key: 'p2', val: "Backed by Linear Global's logistics expertise, we provide end-to-end export solutions from identifying the right suppliers to ensuring compliant, timely delivery to global markets.", limit: 400 },
-        { page: 'home', section: 'What We Do', key: 'title', val: 'What We Do', limit: 50 },
-        { page: 'home', section: 'Logistics', key: 'title', val: 'Logistics Expertise That Sets Us Apart', limit: 100 },
+        
+        { page: 'home', section: 'Who We Are', key: 'title', val: 'Who We Are', limit: 80 },
+        { page: 'home', section: 'Who We Are', key: 'p1', val: 'ABC International is a trusted merchant exporter and comprehensive sourcing partner based in India.', limit: 500 },
+        { page: 'home', section: 'Who We Are', key: 'p2', val: "Backed by Linear Global's logistics expertise, we provide end-to-end export solutions from identifying the right suppliers to ensuring compliant, timely delivery to global markets.", limit: 500 },
+
+        { page: 'home', section: 'Services', key: 'title', val: 'What We Do', limit: 100 },
+        { page: 'home', section: 'Services', key: 's1_title', val: 'Product Sourcing', limit: 60 },
+        { page: 'home', section: 'Services', key: 's1_desc', val: 'Comprehensive sourcing from verified Indian manufacturers', limit: 150 },
+        { page: 'home', section: 'Services', key: 's2_title', val: 'Global Export', limit: 60 },
+        { page: 'home', section: 'Services', key: 's2_desc', val: 'Seamless export services to markets worldwide', limit: 150 },
+        { page: 'home', section: 'Services', key: 's3_title', val: 'Quality Control', limit: 60 },
+        { page: 'home', section: 'Services', key: 's3_desc', val: 'Rigorous inspection and verification processes', limit: 150 },
+        { page: 'home', section: 'Services', key: 's4_title', val: 'Logistics Support', limit: 60 },
+        { page: 'home', section: 'Services', key: 's4_desc', val: 'End-to-end logistics and documentation expertise', limit: 150 },
+
+        { page: 'home', section: 'Logistics', key: 'title', val: 'Logistics Expertise That Sets Us Apart', limit: 120 },
         { page: 'home', section: 'Logistics', key: 'desc', val: "With Linear Global's proven logistics network, we handle every aspect of export logistics—from documentation to customs clearance to final delivery.", limit: 400 },
-        { page: 'home', section: 'CTA', key: 'title', val: 'Ready to Source from India?', limit: 100 },
-        { page: 'home', section: 'CTA', key: 'desc', val: "Let's discuss your requirements. Our sourcing team is ready to help you find the right products at the right price.", limit: 300 },
+        { page: 'home', section: 'Logistics', key: 'item1', val: 'Complete export documentation (COO, certificates, etc.)', limit: 150 },
+        { page: 'home', section: 'Logistics', key: 'item2', val: 'Air and sea freight management', limit: 150 },
+        { page: 'home', section: 'Logistics', key: 'item3', val: 'Customs compliance and clearance', limit: 150 },
 
-        // About Page
+        { page: 'home', section: 'Sourcing', key: 'title', val: 'Comprehensive Sourcing Capability', limit: 120 },
+        { page: 'home', section: 'Sourcing', key: 'desc', val: 'We source a wide range of products, raw materials, and packaging solutions from India\'s most reliable manufacturers.', limit: 400 },
+
+        { page: 'home', section: 'Quality', key: 'title', val: 'Quality Assurance & Export Packaging', limit: 120 },
+        { page: 'home', section: 'Quality', key: 'desc', val: 'We ensure every product meets international standards with rigorous quality control and professional export-grade packaging.', limit: 400 },
+        { page: 'home', section: 'Quality', key: 'item1_title', val: 'Quality Inspection', limit: 60 },
+        { page: 'home', section: 'Quality', key: 'item1_desc', val: 'Pre-shipment inspection, sample approval, and supplier verification', limit: 150 },
+        { page: 'home', section: 'Quality', key: 'item2_title', val: 'Export Packaging', limit: 60 },
+        { page: 'home', section: 'Quality', key: 'item2_desc', val: 'Professional packaging solutions for safe international transit', limit: 150 },
+        { page: 'home', section: 'Quality', key: 'item3_title', val: 'Compliance', limit: 60 },
+        { page: 'home', section: 'Quality', key: 'item3_desc', val: 'Country-specific labeling and regulatory compliance', limit: 150 },
+
+        { page: 'home', section: 'Process', key: 'title', val: 'How We Work', limit: 100 },
+        { page: 'home', section: 'Process', key: 'step1_title', val: 'Requirement Analysis', limit: 60 },
+        { page: 'home', section: 'Process', key: 'step1_desc', val: 'We understand your specific needs', limit: 150 },
+        { page: 'home', section: 'Process', key: 'step2_title', val: 'Supplier Matching', limit: 60 },
+        { page: 'home', section: 'Process', key: 'step2_desc', val: 'Connect with verified manufacturers', limit: 150 },
+        { page: 'home', section: 'Process', key: 'step3_title', val: 'Quality Verification', limit: 60 },
+        { page: 'home', section: 'Process', key: 'step3_desc', val: 'Rigorous quality checks and samples', limit: 150 },
+        { page: 'home', section: 'Process', key: 'step4_title', val: 'Documentation', limit: 60 },
+        { page: 'home', section: 'Process', key: 'step4_desc', val: 'Complete export compliance handling', limit: 150 },
+        { page: 'home', section: 'Process', key: 'step5_title', val: 'Global Shipping', limit: 60 },
+        { page: 'home', section: 'Process', key: 'step5_desc', val: 'Reliable logistics to your destination', limit: 150 },
+
+        { page: 'home', section: 'CTA', key: 'title', val: 'Ready to Source from India?', limit: 120 },
+        { page: 'home', section: 'CTA', key: 'desc', val: "Let's discuss your requirements. Our sourcing team is ready to help you find the right products at the right price.", limit: 400 },
+
+        // ABOUT PAGE
         { page: 'about', section: 'Hero', key: 'title', val: 'About ABC International', limit: 100 },
-        { page: 'about', section: 'Hero', key: 'desc', val: 'Your bridge to India\'s manufacturing excellence.', limit: 300 },
-        { page: 'about', section: 'Main', key: 'content', val: "ABC International is a premier merchant exporter and comprehensive sourcing partner based in India.\n\nWe bridge the gap between global buyers and India's vast manufacturing ecosystem, helping businesses worldwide access quality products at competitive prices.\n\nWhat sets us apart is our backing by Linear Global—a trusted name in logistics—giving us unparalleled expertise in export documentation, shipping, and compliance.", limit: 1000 },
+        { page: 'about', section: 'Hero', key: 'desc', val: 'Your trusted partner for high-quality sourcing and global export support from India.', limit: 300 },
+        { page: 'about', section: 'Main', key: 'content', val: "ABC International is a premier merchant exporter and comprehensive sourcing partner based in India.\n\nWe bridge the gap between global buyers and India's vast manufacturing ecosystem, helping businesses worldwide access quality products at competitive prices.\n\nWhat sets us apart is our backing by Linear Global—a trusted name in logistics—giving us unparalleled expertise in export documentation, shipping, and compliance.\n\nWhether you need raw materials, finished products, packaging, or private label manufacturing, we have the network, knowledge, and logistics capability to deliver.", limit: 1500 },
 
-        // Contact Page
-        { page: 'contact', section: 'Hero', key: 'title', val: 'Get in Touch', limit: 100 },
-        { page: 'contact', section: 'Hero', key: 'desc', val: 'Ready to start sourcing from India? Contact our team to discuss your requirements.', limit: 300 }
+        // CONTACT PAGE
+        { page: 'contact', section: 'Hero', key: 'title', val: 'Get in Touch', limit: 120 },
+        { page: 'contact', section: 'Hero', key: 'desc', val: 'Ready to start sourcing from India? Contact our team to discuss your requirements.', limit: 400 },
+        { page: 'contact', section: 'Info', key: 'email', val: 'info@abc-international.co.in', limit: 100 },
+        { page: 'contact', section: 'Info', key: 'phone', val: '+91 XXXX XXXXXX', limit: 100 },
+        { page: 'contact', section: 'Info', key: 'address', val: 'Mumbai, Maharashtra, India', limit: 200 },
+        { page: 'contact', section: 'Stats', key: 'res_time', val: '24h', limit: 20 },
+        { page: 'contact', section: 'Stats', key: 'res_desc', val: 'Average response time', limit: 100 },
+        { page: 'contact', section: 'Stats', key: 'countries', val: '100+', limit: 20 },
+        { page: 'contact', section: 'Stats', key: 'countries_desc', val: 'Countries served', limit: 100 },
+        { page: 'contact', section: 'Stats', key: 'suppliers', val: '1000+', limit: 20 },
+        { page: 'contact', section: 'Stats', key: 'suppliers_desc', val: 'Verified suppliers', limit: 100 }
       ];
 
       for (const c of initialContent) {
@@ -314,6 +380,37 @@ export default function AdminDashboard() {
                   />
                   <small className="muted">{editingIndustry.full_info.length} / {getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.fullInfo || '')}</small>
                 </div>
+                <div>
+                  <label style={label}>Icon / Image</label>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <input 
+                      type="text" 
+                      value={editingIndustry.icon} 
+                      onChange={e => setEditingIndustry({...editingIndustry, icon: e.target.value})}
+                      style={field} 
+                      placeholder="Emoji or Cloudinary URL"
+                    />
+                    <input 
+                      type="file" 
+                      id="ind-icon-upload" 
+                      style={{ display: 'none' }} 
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const url = await handleImageUpload(file);
+                          if (url) setEditingIndustry({...editingIndustry, icon: url});
+                        }
+                      }}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => document.getElementById('ind-icon-upload')?.click()}
+                      style={{ ...actionBtn, background: '#f1f5f9', width: 'auto', padding: '0 1rem' }}
+                    >
+                      Upload
+                    </button>
+                  </div>
+                </div>
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                   <button type="submit" className="btnPrimary" style={{ flex: 1 }}>Save Changes</button>
                   <button type="button" onClick={() => setEditingIndustry(null)} className="btnSecondary" style={{ flex: 1 }}>Cancel</button>
@@ -345,12 +442,35 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div>
-                    <label style={label}>Image URL</label>
-                    <input 
-                      value={editingProduct.image} 
-                      onChange={e => setEditingProduct({...editingProduct, image: e.target.value})}
-                      style={field} 
-                    />
+                    <label style={label}>Product Image</label>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      <input 
+                        type="text" 
+                        value={editingProduct.image} 
+                        onChange={e => setEditingProduct({...editingProduct, image: e.target.value})}
+                        style={field} 
+                        placeholder="Cloudinary URL"
+                      />
+                      <input 
+                        type="file" 
+                        id="prod-img-upload" 
+                        style={{ display: 'none' }} 
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const url = await handleImageUpload(file);
+                            if (url) setEditingProduct({...editingProduct, image: url});
+                          }
+                        }}
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => document.getElementById('prod-img-upload')?.click()}
+                        style={{ ...actionBtn, background: '#f1f5f9', width: 'auto', padding: '0 1rem' }}
+                      >
+                        Upload
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div>
