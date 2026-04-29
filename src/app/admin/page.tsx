@@ -96,7 +96,7 @@ export default function AdminDashboard() {
           id: ind.id,
           title: ind.title,
           icon: ind.icon,
-          desc: ind.desc,
+          description_short: ind.desc,
           full_info: ind.fullInfo,
           keys: ind.keys,
           is_visible: true
@@ -221,12 +221,12 @@ export default function AdminDashboard() {
                 <div>
                   <label style={label}>Description (Short)</label>
                   <textarea 
-                    value={editingIndustry.desc} 
-                    onChange={e => setEditingIndustry({...editingIndustry, desc: e.target.value})}
+                    value={editingIndustry.description_short} 
+                    onChange={e => setEditingIndustry({...editingIndustry, description_short: e.target.value})}
                     maxLength={getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.desc || '')}
                     style={{...field, height: '80px'}} 
                   />
-                  <small className="muted">{editingIndustry.desc.length} / {getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.desc || '')}</small>
+                  <small className="muted">{editingIndustry.description_short.length} / {getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.desc || '')}</small>
                 </div>
                 <div>
                   <label style={label}>Full Information (Long)</label>

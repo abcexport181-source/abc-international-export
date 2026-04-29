@@ -48,7 +48,7 @@ export default function IndustriesPage() {
                   <article className="card" style={{ height: '100%', cursor: 'pointer', padding: '2rem' }}>
                     <div style={{ fontSize: '2.5rem', marginBottom: '1rem', lineHeight: 1 }}>{item.icon}</div>
                     <h3 style={{ fontSize: '1.4rem', marginBottom: '0.8rem', color: '#1b2638' }}>{item.title}</h3>
-                    <p className="muted" style={{ fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6' }}>{item.desc}</p>
+                    <p className="muted" style={{ fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6' }}>{item.description_short}</p>
                     
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
                       {item.keys.slice(0, 4).map(k => (

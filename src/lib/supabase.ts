@@ -22,7 +22,7 @@ export interface IndustryData {
   id: string;
   title: string;
   icon: string;
-  desc: string;
+  description_short: string;
   full_info: string;
   keys: string[];
   is_visible: boolean;
