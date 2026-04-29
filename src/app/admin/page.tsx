@@ -218,6 +218,12 @@ export default function AdminDashboard() {
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (file) {
+                // Client-side size check (4.5MB limit for Vercel)
+                if (file.size > 4.5 * 1024 * 1024) {
+                  setMessage({ text: 'Image is too large! Please use an image smaller than 4.5MB (Current: ' + (file.size / 1024 / 1024).toFixed(2) + 'MB)', type: 'error' });
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  return;
+                }
                 setUploading(true);
                 const url = await handleImageUpload(file);
                 if (url) onChange(url);

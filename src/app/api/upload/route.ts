@@ -1,8 +1,9 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { NextResponse } from 'next/server';
-
 import { adminAuth } from '@/lib/firebase/admin';
 import { cookies } from 'next/headers';
+
+export const maxDuration = 60;
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
