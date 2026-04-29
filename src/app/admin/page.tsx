@@ -559,9 +559,24 @@ export default function AdminDashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {(() => {
               const currentPage = activeTab.split('-')[0];
-              const sections = Array.from(new Set(siteContent.filter(c => c.page_name === currentPage).map(c => c.section_name)));
               
-              if (sections.length === 0 && !loading) {
+              // Define the sequence for each page to match the live site
+              const sectionOrder: Record<string, string[]> = {
+                'home': ['Hero', 'Who We Are', 'Services', 'Logistics', 'Sourcing', 'Quality', 'Process', 'CTA'],
+                'about': ['Hero', 'Main'],
+                'contact': ['Hero', 'Info', 'Stats']
+              };
+
+              const orderedSections = sectionOrder[currentPage] || [];
+              const availableSections = Array.from(new Set(siteContent.filter(c => c.page_name === currentPage).map(c => c.section_name)));
+              
+              // Combine ordered sections and any others not in the list
+              const finalSections = [
+                ...orderedSections.filter(s => availableSections.includes(s)),
+                ...availableSections.filter(s => !orderedSections.includes(s))
+              ];
+
+              if (finalSections.length === 0 && !loading) {
                 return (
                   <div style={{ textAlign: 'center', padding: '5rem', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                     <FiAlertCircle style={{ fontSize: '3rem', color: '#e2e8f0', marginBottom: '1rem' }} />
@@ -570,34 +585,41 @@ export default function AdminDashboard() {
                 );
               }
 
-              return sections.map(section => (
+              return finalSections.map(section => (
                 <div key={section} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '2rem' }}>
                   <h3 style={{ marginBottom: '1.5rem' }}>{section}</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    {siteContent.filter(c => c.page_name === currentPage && c.section_name === section).map(item => (
-                      <div key={item.id}>
-                        <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '')}</label>
-                        {item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') ? (
-                          <textarea 
-                            value={item.content_value} 
-                            onChange={e => updateContent(item.id, e.target.value)}
-                            maxLength={item.char_limit}
-                            style={{...field, height: item.content_key === 'content' ? '200px' : '80px'}}
-                          />
-                        ) : (
-                          <input 
-                            value={item.content_value} 
-                            onChange={e => updateContent(item.id, e.target.value)}
-                            maxLength={item.char_limit}
-                            style={field}
-                          />
-                        )}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
-                          <small className="muted">{item.content_value.length} / {item.char_limit} characters</small>
-                          <small style={{ color: '#1f5ff5', fontWeight: 600 }}>Auto-saving...</small>
+                    {siteContent
+                      .filter(c => c.page_name === currentPage && c.section_name === section)
+                      .sort((a, b) => {
+                        // Keep keys like 'title' at the top, then 'desc', then others
+                        const priority = (k: string) => k === 'title' ? 0 : k === 'desc' ? 1 : 2;
+                        return priority(a.content_key) - priority(b.content_key);
+                      })
+                      .map(item => (
+                        <div key={item.id}>
+                          <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')}</label>
+                          {item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') || item.content_key.includes('address') ? (
+                            <textarea 
+                              value={item.content_value} 
+                              onChange={e => updateContent(item.id, e.target.value)}
+                              maxLength={item.char_limit}
+                              style={{...field, height: item.content_key === 'content' ? '200px' : '80px'}}
+                            />
+                          ) : (
+                            <input 
+                              value={item.content_value} 
+                              onChange={e => updateContent(item.id, e.target.value)}
+                              maxLength={item.char_limit}
+                              style={field}
+                            />
+                          )}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
+                            <small className="muted">{item.content_value.length} / {item.char_limit} characters</small>
+                            <small style={{ color: '#1f5ff5', fontWeight: 600 }}>Auto-saving...</small>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </div>
               ));
