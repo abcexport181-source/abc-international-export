@@ -6,6 +6,10 @@ import { industriesData, productsData } from '@/data/products';
 
 type Tab = 'home-content' | 'about-content' | 'contact-content' | 'industries' | 'products';
 
+import { auth } from '@/lib/firebase/config';
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
+import { createSession, removeSession, getSession } from '@/app/actions/auth';
+
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
   const [email, setEmail] = useState('');
@@ -18,32 +22,55 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ text: '', type: '' });
 
-  const [editingIndustry, setEditingIndustry] = useState<IndustryData | null>(null);
-  const [editingProduct, setEditingProduct] = useState<ProductData | null>(null);
-
-  const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
-
   useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data }: any) => {
-      const session = data.session;
-      setUser(session?.user ?? null);
+    // Check session from cookie (server-side source of truth)
+    getSession().then((decodedToken) => {
+      if (decodedToken) {
+        setUser(decodedToken);
+      }
       setAuthLoading(false);
     });
 
-    const { data } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
-      setUser(session?.user ?? null);
+    // Also sync with Firebase client state
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Ensure session cookie exists
+        const token = await firebaseUser.getIdToken();
+        await createSession(token);
+      } else {
+        await removeSession();
+        setUser(null);
+      }
     });
 
-    return () => data.subscription.unsubscribe();
+    return () => unsubscribe();
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) setMessage({ text: error.message, type: 'error' });
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();
+      const result = await createSession(token);
+      
+      if (result.success) {
+        const decodedToken = await getSession();
+        setUser(decodedToken);
+        setMessage({ text: 'Logged in successfully!', type: 'success' });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
+      setMessage({ text: error.message, type: 'error' });
+    }
     setAuthLoading(false);
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    await removeSession();
+    setUser(null);
   };
 
   useEffect(() => {

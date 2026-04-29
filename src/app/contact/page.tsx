@@ -30,8 +30,15 @@ const contactInfo = [
   }
 ];
 
+import ReCAPTCHA from 'react-google-recaptcha';
+
 export default function ContactPage() {
   const { getContent, loading } = useWebsiteData();
+  const [captchaValue, setCaptchaValue] = React.useState<string | null>(null);
+
+  const onCaptchaChange = (value: string | null) => {
+    setCaptchaValue(value);
+  };
 
   return (
     <>
@@ -78,7 +85,32 @@ export default function ContactPage() {
                 <label style={label}>Message</label>
                 <textarea placeholder="Additional details about your requirements..." style={{ ...field, minHeight: '120px', resize: 'vertical' }} />
               </div>
-              <button type="button" className="btnPrimary" style={{ background: '#1f5ff5', color: '#fff', width: '100%', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', fontSize: '1rem' }}>
+
+              {/* Google reCAPTCHA */}
+              <div style={{ marginTop: '0.5rem' }}>
+                <ReCAPTCHA
+                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
+                  onChange={onCaptchaChange}
+                />
+              </div>
+
+              <button 
+                type="button" 
+                className="btnPrimary" 
+                disabled={!captchaValue}
+                style={{ 
+                  background: captchaValue ? '#1f5ff5' : '#a0aec0', 
+                  color: '#fff', 
+                  width: '100%', 
+                  padding: '1rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '0.6rem', 
+                  fontSize: '1rem',
+                  cursor: captchaValue ? 'pointer' : 'not-allowed'
+                }}
+              >
                 Submit Inquiry <FiSend />
               </button>
             </form>
