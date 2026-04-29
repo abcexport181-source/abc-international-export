@@ -35,7 +35,14 @@ export default function ContactPage() {
 
   return (
     <>
-      <section className="heroBand heroBandCentered">
+      <section 
+        className="heroBand heroBandCentered"
+        style={{ 
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('contact', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000')})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         <div className="container">
           <h1>{getContent('contact', 'Hero', 'title', 'Get in Touch')}</h1>
           <p>{getContent('contact', 'Hero', 'desc', 'Ready to start sourcing from India? Contact our team to discuss your requirements.')}</p>

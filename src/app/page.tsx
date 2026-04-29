@@ -13,7 +13,14 @@ export default function Home() {
 
   return (
     <>
-      <section className="heroBand">
+      <section 
+        className="heroBand" 
+        style={{ 
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('home', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000')})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         <div className="container">
           <h1>
             {getContent('home', 'Hero', 'title', 'Your Trusted Merchant Exporter from India')}
@@ -91,13 +98,25 @@ export default function Home() {
               </a>
             </div>
           </div>
-          <div className="imageBlock" />
+          <div className="imageBlock">
+            <img 
+              src={getContent('home', 'Logistics', 'side_img', 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=1000')} 
+              alt="Logistics" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
+            />
+          </div>
         </div>
       </section>
 
       <section className="section">
         <div className="container split">
-          <div className="imageBlock" />
+          <div className="imageBlock">
+            <img 
+              src={getContent('home', 'Sourcing', 'side_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000')} 
+              alt="Sourcing" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
+            />
+          </div>
           <div>
             <h2>Comprehensive Sourcing Capability</h2>
             <p style={{ marginTop: '0.65rem' }} className="muted">

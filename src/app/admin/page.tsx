@@ -262,7 +262,15 @@ export default function AdminDashboard() {
         { page: 'contact', section: 'Stats', key: 'countries', val: '100+', limit: 20 },
         { page: 'contact', section: 'Stats', key: 'countries_desc', val: 'Countries served', limit: 100 },
         { page: 'contact', section: 'Stats', key: 'suppliers', val: '1000+', limit: 20 },
-        { page: 'contact', section: 'Stats', key: 'suppliers_desc', val: 'Verified suppliers', limit: 100 }
+        { page: 'contact', section: 'Stats', key: 'suppliers_desc', val: 'Verified suppliers', limit: 100 },
+
+        // IMAGES
+        { page: 'home', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000', limit: 500 },
+        { page: 'home', section: 'Logistics', key: 'side_img', val: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=1000', limit: 500 },
+        { page: 'home', section: 'Sourcing', key: 'side_img', val: 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000', limit: 500 },
+        { page: 'about', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2000', limit: 500 },
+        { page: 'about', section: 'Main', key: 'side_img', val: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000', limit: 500 },
+        { page: 'contact', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000', limit: 500 }
       ];
 
       for (const c of initialContent) {
@@ -606,7 +614,43 @@ export default function AdminDashboard() {
                       .map(item => (
                         <div key={item.id}>
                           <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')}</label>
-                          {item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') || item.content_key.includes('address') ? (
+                          {item.content_key.includes('img') ? (
+                            <div style={{ marginTop: '0.5rem' }}>
+                              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+                                <img src={item.content_value} style={{ width: '120px', height: '80px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #e2e8f0' }} alt="Preview" />
+                                <div style={{ flex: 1 }}>
+                                  <input 
+                                    value={item.content_value} 
+                                    onChange={e => updateContent(item.id, e.target.value)}
+                                    style={field}
+                                    placeholder="Image URL"
+                                  />
+                                  <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
+                                    <input 
+                                      type="file" 
+                                      id={`upload-${item.id}`} 
+                                      style={{ display: 'none' }} 
+                                      onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          const url = await handleImageUpload(file);
+                                          if (url) updateContent(item.id, url);
+                                        }
+                                      }}
+                                    />
+                                    <button 
+                                      type="button" 
+                                      onClick={() => document.getElementById(`upload-${item.id}`)?.click()}
+                                      className="btnSecondary" 
+                                      style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
+                                    >
+                                      Upload New Image
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') || item.content_key.includes('address') ? (
                             <textarea 
                               value={item.content_value} 
                               onChange={e => updateContent(item.id, e.target.value)}

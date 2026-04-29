@@ -25,7 +25,14 @@ export default function AboutPage() {
 
   return (
     <>
-      <section className="heroBand">
+      <section 
+        className="heroBand" 
+        style={{ 
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('about', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2000')})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         <div className="container">
           <h1>{getContent('about', 'Hero', 'title', 'About ABC International')}</h1>
           <p>{getContent('about', 'Hero', 'desc', 'Your trusted partner for high-quality sourcing and global export support from India.')}</p>
@@ -46,7 +53,13 @@ What sets us apart is our backing by Linear Global—a trusted name in logistics
 Whether you need raw materials, finished products, packaging, or private label manufacturing, we have the network, knowledge, and logistics capability to deliver.`)}
             </div>
           </div>
-          <div className="imageBlock" />
+          <div className="imageBlock">
+            <img 
+              src={getContent('about', 'Main', 'side_img', 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000')} 
+              alt="About Us" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
+            />
+          </div>
         </div>
       </section>
 
@@ -103,7 +116,13 @@ Whether you need raw materials, finished products, packaging, or private label m
               <li><FiCheckCircle className="checkIcon" style={{ color: '#ffffff' }} /> Real-time tracking and shipment visibility</li>
             </ul>
           </div>
-          <div className="imageBlock" />
+          <div className="imageBlock">
+            <img 
+              src={getContent('about', 'Linear', 'side_img', 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=1000')} 
+              alt="Linear Global" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
+            />
+          </div>
         </div>
       </section>
 
