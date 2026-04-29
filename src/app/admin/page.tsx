@@ -75,6 +75,7 @@ export default function AdminDashboard() {
     await signOut(auth);
     await removeSession();
     setUser(null);
+    setMessage({ text: '', type: '' });
   };
 
   useEffect(() => {
