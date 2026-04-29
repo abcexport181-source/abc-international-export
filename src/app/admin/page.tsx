@@ -7,6 +7,11 @@ import { industriesData, productsData } from '@/data/products';
 type Tab = 'pages' | 'industries' | 'products';
 
 export default function AdminDashboard() {
+  const [user, setUser] = useState<any>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [authLoading, setAuthLoading] = useState(true);
+
   const [activeTab, setActiveTab] = useState<Tab>('industries');
   const [industries, setIndustries] = useState<IndustryData[]>([]);
   const [products, setProducts] = useState<ProductData[]>([]);
@@ -19,13 +24,35 @@ export default function AdminDashboard() {
   const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
 
   useEffect(() => {
-    if (isSupabaseConfigured) {
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) setMessage({ text: error.message, type: 'error' });
+    setAuthLoading(false);
+  };
+
+  useEffect(() => {
+    if (isSupabaseConfigured && user) {
       fetchData();
       fetchSiteContent();
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   if (!isSupabaseConfigured) {
     return (
@@ -40,6 +67,37 @@ export default function AdminDashboard() {
           <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '8px', fontSize: '0.85rem', textAlign: 'left' }}>
             <strong>Local Dev Tip:</strong> Create a <code>.env.local</code> file temporarily to test locally, but do not commit it to Git.
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user && !authLoading) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', padding: '2rem' }}>
+        <div style={{ maxWidth: '400px', width: '100%', background: '#fff', padding: '3rem', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>Admin Login</h2>
+          <p className="muted" style={{ textAlign: 'center', marginBottom: '2rem' }}>Login to manage your export website.</p>
+          
+          {message.text && (
+            <div style={{ padding: '0.8rem', background: '#fde8e8', color: '#9b1c1c', borderRadius: '6px', marginBottom: '1.5rem', fontSize: '0.85rem' }}>
+              {message.text}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            <div>
+              <label style={label}>Email Address</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={field} placeholder="admin@example.com" required />
+            </div>
+            <div>
+              <label style={label}>Password</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} style={field} placeholder="••••••••" required />
+            </div>
+            <button type="submit" className="btnPrimary" style={{ marginTop: '1rem', width: '100%' }} disabled={authLoading}>
+              {authLoading ? 'Logging in...' : 'Sign In'}
+            </button>
+          </form>
         </div>
       </div>
     );
@@ -138,8 +196,9 @@ export default function AdminDashboard() {
       setMessage({ text: 'Data synchronized successfully!', type: 'success' });
       fetchData();
       fetchSiteContent();
-    } catch (err) {
-      setMessage({ text: 'Sync failed. Ensure Supabase keys are set in Vercel.', type: 'error' });
+    } catch (err: any) {
+      console.error('Sync error:', err);
+      setMessage({ text: 'Sync failed: ' + (err.message || 'Unknown error'), type: 'error' });
     }
     setLoading(false);
   };
@@ -394,7 +453,7 @@ export default function AdminDashboard() {
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '5rem' }}>Loading CMS data...</div>
-        ) : (
+        ) : (activeTab === 'industries' || activeTab === 'products') && (
           <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
