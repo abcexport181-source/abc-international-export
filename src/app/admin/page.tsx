@@ -179,6 +179,69 @@ export default function AdminDashboard() {
     }
   };
 
+  const DirectUpload = ({ value, onChange, label: fieldLabel }: { value: string, onChange: (url: string) => void, label: string }) => {
+    const [uploading, setUploading] = useState(false);
+    
+    return (
+      <div style={{ marginTop: '0.8rem' }}>
+        <label style={label}>{fieldLabel}</label>
+        <div style={{ 
+          marginTop: '0.5rem',
+          border: '2px dashed #e2e8f0',
+          borderRadius: '12px',
+          padding: '1.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1rem',
+          background: '#f8fafc',
+          cursor: 'pointer',
+          transition: 'all 0.2s',
+        }}
+        onClick={() => document.getElementById(`upload-${fieldLabel.replace(/\s+/g, '-')}`)?.click()}
+        onMouseOver={e => e.currentTarget.style.borderColor = '#1f5ff5'}
+        onMouseOut={e => e.currentTarget.style.borderColor = '#e2e8f0'}
+        >
+          {value ? (
+            <img src={value} style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px' }} alt="Preview" />
+          ) : (
+            <div style={{ padding: '2rem', color: '#64748b', textAlign: 'center' }}>
+              <FiPlus style={{ fontSize: '2rem', marginBottom: '0.5rem' }} />
+              <p>Click to upload image</p>
+            </div>
+          )}
+          
+          <input 
+            type="file" 
+            id={`upload-${fieldLabel.replace(/\s+/g, '-')}`} 
+            style={{ display: 'none' }} 
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setUploading(true);
+                const url = await handleImageUpload(file);
+                if (url) onChange(url);
+                setUploading(false);
+              }
+            }}
+          />
+          
+          {uploading && <div style={{ fontSize: '0.85rem', color: '#1f5ff5' }}>Uploading...</div>}
+          
+          <div style={{ width: '100%', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <input 
+              value={value} 
+              onChange={e => onChange(e.target.value)}
+              style={{ ...field, marginTop: 0, fontSize: '0.75rem' }}
+              placeholder="Or paste image URL here..."
+              onClick={e => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const saveIndustry = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingIndustry) return;
@@ -431,37 +494,11 @@ export default function AdminDashboard() {
                   />
                   <small className="muted">{editingIndustry.full_info.length} / {getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.fullInfo || '')}</small>
                 </div>
-                <div>
-                  <label style={label}>Icon / Image</label>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    <input 
-                      type="text" 
-                      value={editingIndustry.icon} 
-                      onChange={e => setEditingIndustry({...editingIndustry, icon: e.target.value})}
-                      style={field} 
-                      placeholder="Emoji or Cloudinary URL"
-                    />
-                    <input 
-                      type="file" 
-                      id="ind-icon-upload" 
-                      style={{ display: 'none' }} 
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const url = await handleImageUpload(file);
-                          if (url) setEditingIndustry({...editingIndustry, icon: url});
-                        }
-                      }}
-                    />
-                    <button 
-                      type="button" 
-                      onClick={() => document.getElementById('ind-icon-upload')?.click()}
-                      style={{ ...actionBtn, background: '#f1f5f9', width: 'auto', padding: '0 1rem' }}
-                    >
-                      Upload
-                    </button>
-                  </div>
-                </div>
+                <DirectUpload 
+                  label="Icon / Image" 
+                  value={editingIndustry.icon} 
+                  onChange={(url) => setEditingIndustry({...editingIndustry, icon: url})} 
+                />
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                   <button type="submit" className="btnPrimary" style={{ flex: 1 }}>Save Changes</button>
                   <button type="button" onClick={() => setEditingIndustry(null)} className="btnSecondary" style={{ flex: 1 }}>Cancel</button>
@@ -493,35 +530,11 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div>
-                    <label style={label}>Product Image</label>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                      <input 
-                        type="text" 
-                        value={editingProduct.image} 
-                        onChange={e => setEditingProduct({...editingProduct, image: e.target.value})}
-                        style={field} 
-                        placeholder="Cloudinary URL"
-                      />
-                      <input 
-                        type="file" 
-                        id="prod-img-upload" 
-                        style={{ display: 'none' }} 
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const url = await handleImageUpload(file);
-                            if (url) setEditingProduct({...editingProduct, image: url});
-                          }
-                        }}
-                      />
-                      <button 
-                        type="button" 
-                        onClick={() => document.getElementById('prod-img-upload')?.click()}
-                        style={{ ...actionBtn, background: '#f1f5f9', width: 'auto', padding: '0 1rem' }}
-                      >
-                        Upload
-                      </button>
-                    </div>
+                    <DirectUpload 
+                      label="Product Image" 
+                      value={editingProduct.image} 
+                      onChange={(url) => setEditingProduct({...editingProduct, image: url})} 
+                    />
                   </div>
                 </div>
                 <div>
@@ -650,41 +663,11 @@ export default function AdminDashboard() {
                         <div key={item.id}>
                           <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')}</label>
                           {item.content_key.includes('img') ? (
-                            <div style={{ marginTop: '0.5rem' }}>
-                              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-                                <img src={item.content_value} style={{ width: '120px', height: '80px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #e2e8f0' }} alt="Preview" />
-                                <div style={{ flex: 1 }}>
-                                  <input 
-                                    value={item.content_value} 
-                                    onChange={e => updateContent(item.id, e.target.value)}
-                                    style={field}
-                                    placeholder="Image URL"
-                                  />
-                                  <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
-                                    <input 
-                                      type="file" 
-                                      id={`upload-${item.id}`} 
-                                      style={{ display: 'none' }} 
-                                      onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                          const url = await handleImageUpload(file);
-                                          if (url) updateContent(item.id, url);
-                                        }
-                                      }}
-                                    />
-                                    <button 
-                                      type="button" 
-                                      onClick={() => document.getElementById(`upload-${item.id}`)?.click()}
-                                      className="btnSecondary" 
-                                      style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
-                                    >
-                                      Upload New Image
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                            <DirectUpload 
+                              label={item.content_key.replace(/_/g, ' ')} 
+                              value={item.content_value} 
+                              onChange={(url) => updateContent(item.id, url)} 
+                            />
                           ) : item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') || item.content_key.includes('address') ? (
                             <textarea 
                               value={item.content_value} 
