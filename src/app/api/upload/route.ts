@@ -20,15 +20,18 @@ export async function POST(request: Request) {
   }
 
   try {
+    if (!adminAuth) {
+      return NextResponse.json({ error: 'Firebase Admin not initialized. Check your FIREBASE_SERVICE_ACCOUNT_KEY.' }, { status: 500 });
+    }
     // Verify Firebase session
     const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
     
     // Strict UID Whitelist Check
     if (process.env.ADMIN_UID && decodedToken.uid !== process.env.ADMIN_UID) {
-      return NextResponse.json({ error: 'Unauthorized UID' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized UID: ' + decodedToken.uid }, { status: 403 });
     }
-  } catch (error) {
-    return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Auth failed: ' + error.message }, { status: 401 });
   }
 
   try {

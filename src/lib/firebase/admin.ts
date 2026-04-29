@@ -2,13 +2,17 @@ import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '{}');
-    
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-  } catch (error) {
-    console.error('Firebase admin initialization error', error);
+    const key = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+    if (key) {
+      const serviceAccount = JSON.parse(key);
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+    } else {
+      console.warn('FIREBASE_SERVICE_ACCOUNT_KEY is missing from environment variables');
+    }
+  } catch (error: any) {
+    console.error('Firebase admin initialization error:', error.message);
   }
 }
 
