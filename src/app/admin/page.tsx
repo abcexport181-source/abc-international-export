@@ -651,7 +651,11 @@ export default function AdminDashboard() {
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button onClick={fetchData} className="btnSecondary" style={{ padding: '0.6rem' }} title="Refresh Data"><FiSave /></button>
-            <button onClick={syncInitialData} className="btnSecondary" style={{ fontSize: '0.85rem' }}>
+            <button 
+              onClick={syncInitialData} 
+              className="btnSecondary" 
+              style={{ fontSize: '0.85rem', color: '#ef4444', borderColor: '#fecaca', fontWeight: 600 }}
+            >
               Sync Mock Data
             </button>
             <button className="btnPrimary" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -682,10 +686,10 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {activeTab.includes('content') && (
+        {activeTab.endsWith('-content') && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {(() => {
-              const currentPage = activeTab.split('-')[0];
+              const currentPage = activeTab.replace('-content', '');
               
               // Define the sequence for each page to match the live site
               const sectionOrder: Record<string, string[]> = {
