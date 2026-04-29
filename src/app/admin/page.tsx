@@ -283,7 +283,7 @@ export default function AdminDashboard() {
           section_name: c.section,
           content_key: c.key,
           content_value: c.val,
-          char_limit: c.limit && c.limit > 40 ? c.limit : calculatedLimit // Use hardcoded only if provided and reasonable, else calculate
+          char_limit: calculatedLimit
         });
       }
       
