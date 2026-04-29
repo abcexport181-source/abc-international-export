@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { FiGlobe, FiCheckSquare, FiClipboard, FiArrowRight } from 'react-icons/fi';
 import { supabase, IndustryData, isSupabaseConfigured } from '@/lib/supabase';
 import { industriesData } from '@/data/products';
+import { useWebsiteData } from '@/hooks/useWebsiteData';
 
 export default function IndustriesPage() {
+  const { getContent } = useWebsiteData();
   const [industries, setIndustries] = useState<IndustryData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,10 +32,17 @@ export default function IndustriesPage() {
 
   return (
     <>
-      <section className="heroBand heroBandCentered">
+      <section 
+        className="heroBand heroBandCentered"
+        style={{ 
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('industries', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2000')})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         <div className="container">
-          <h1>Industries We Serve</h1>
-          <p>Comprehensive sourcing expertise across diverse manufacturing sectors in India.</p>
+          <h1>{getContent('industries', 'Hero', 'title', 'Industries We Serve')}</h1>
+          <p>{getContent('industries', 'Hero', 'desc', 'Comprehensive sourcing expertise across diverse manufacturing sectors in India.')}</p>
         </div>
       </section>
 

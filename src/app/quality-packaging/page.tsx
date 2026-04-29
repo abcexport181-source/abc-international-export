@@ -1,5 +1,8 @@
+'use client'
+import React from 'react';
 import { FiShield, FiEye, FiFileText, FiCheckCircle, FiPackage, FiClipboard } from 'react-icons/fi';
 import { FaVial, FaRecycle, FaLeaf } from 'react-icons/fa';
+import { useWebsiteData } from '@/hooks/useWebsiteData';
 
 const qualitySteps = [
   {
@@ -63,12 +66,21 @@ const packagingTypes = [
 ];
 
 export default function QualityPackagingPage() {
+  const { getContent } = useWebsiteData();
+
   return (
     <>
-      <section className="heroBand">
+      <section 
+        className="heroBand"
+        style={{ 
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('quality-packaging', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1521331908054-9a180b7d3912?auto=format&fit=crop&q=80&w=2000')})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         <div className="container">
-          <h1>Quality Assurance & Export Packaging</h1>
-          <p>Reliable quality checks and secure export packaging to deliver consistent products worldwide.</p>
+          <h1>{getContent('quality-packaging', 'Hero', 'title', 'Quality Assurance & Export Packaging')}</h1>
+          <p>{getContent('quality-packaging', 'Hero', 'desc', 'Reliable quality checks and secure export packaging to deliver consistent products worldwide.')}</p>
         </div>
       </section>
 

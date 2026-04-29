@@ -1,11 +1,11 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { supabase, IndustryData, ProductData, SiteContent, isSupabaseConfigured } from '@/lib/supabase';
-import { FiLayout, FiGrid, FiBox, FiEye, FiEyeOff, FiEdit2, FiPlus, FiTrash2, FiSave, FiAlertCircle, FiHome, FiInfo, FiMail, FiLogOut } from 'react-icons/fi';
+import { FiLayout, FiGrid, FiBox, FiEye, FiEyeOff, FiEdit2, FiPlus, FiTrash2, FiSave, FiAlertCircle, FiHome, FiInfo, FiMail, FiLogOut, FiSearch, FiTruck, FiList, FiShield } from 'react-icons/fi';
 import { industriesData, productsData } from '@/data/products';
 import BackToTop from '@/components/common/BackToTop';
 
-type Tab = 'home-content' | 'about-content' | 'contact-content' | 'industries' | 'products';
+type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'industries' | 'products';
 
 import { auth } from '@/lib/firebase/config';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
@@ -413,7 +413,11 @@ export default function AdminDashboard() {
         { page: 'home', section: 'Sourcing', key: 'side_img', val: 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000' },
         { page: 'about', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2000' },
         { page: 'about', section: 'Main', key: 'side_img', val: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000' },
-        { page: 'contact', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000' }
+        { page: 'contact', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000' },
+        { page: 'sourcing', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=2000' },
+        { page: 'logistics', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=2000' },
+        { page: 'industries', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2000' },
+        { page: 'quality-packaging', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1521331908054-9a180b7d3912?auto=format&fit=crop&q=80&w=2000' }
       ];
 
       for (const c of initialContent) {
@@ -467,9 +471,13 @@ export default function AdminDashboard() {
           {[
             { id: 'home-content', label: 'Home Page', icon: FiHome },
             { id: 'about-content', label: 'About Us', icon: FiInfo },
+            { id: 'sourcing-content', label: 'Sourcing', icon: FiSearch },
+            { id: 'logistics-content', label: 'Logistics', icon: FiTruck },
+            { id: 'quality-packaging-content', label: 'Quality & Packaging', icon: FiShield },
+            { id: 'industries-content', label: 'Industries Page', icon: FiGrid },
             { id: 'contact-content', label: 'Contact', icon: FiMail },
-            { id: 'industries', label: 'Industries', icon: FiGrid },
-            { id: 'products', label: 'Products', icon: FiBox },
+            { id: 'industries', label: 'Manage Industries', icon: FiList },
+            { id: 'products', label: 'Manage Products', icon: FiBox },
           ].map(tab => (
             <button
               key={tab.id}
@@ -675,7 +683,11 @@ export default function AdminDashboard() {
               const sectionOrder: Record<string, string[]> = {
                 'home': ['Hero', 'Who We Are', 'Services', 'Logistics', 'Sourcing', 'Quality', 'Process', 'CTA'],
                 'about': ['Hero', 'Main'],
-                'contact': ['Hero', 'Info', 'Stats']
+                'contact': ['Hero', 'Info', 'Stats'],
+                'sourcing': ['Hero', 'Process'],
+                'logistics': ['Hero'],
+                'industries': ['Hero'],
+                'quality-packaging': ['Hero']
               };
 
               const orderedSections = sectionOrder[currentPage] || [];

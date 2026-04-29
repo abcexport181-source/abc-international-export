@@ -1,5 +1,8 @@
+'use client'
+import React from 'react';
 import { FiPackage, FiCheckCircle, FiClipboard, FiSearch, FiDollarSign, FiEye, FiTruck, FiArrowRight, FiShield, FiFileText } from 'react-icons/fi';
 import { FaIndustry, FaVial } from 'react-icons/fa';
+import { useWebsiteData } from '@/hooks/useWebsiteData';
 
 const sourceItems = [
   { title: 'Products', description: 'Finished goods across all categories ready for export', Icon: FiPackage },
@@ -17,14 +20,22 @@ const process = [
 ]
 
 export default function SourcingPage() {
+  const { getContent } = useWebsiteData();
+
   return (
     <>
-      <section className="heroBand">
+      <section 
+        className="heroBand"
+        style={{ 
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('sourcing', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=2000')})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         <div className="container">
-          <h1>Global Product Sourcing from India</h1>
+          <h1>{getContent('sourcing', 'Hero', 'title', 'Global Product Sourcing from India')}</h1>
           <p>
-            End-to-end sourcing from India with verified suppliers and product solutions tailored for
-            your market.
+            {getContent('sourcing', 'Hero', 'desc', 'End-to-end sourcing from India with verified suppliers and product solutions tailored for your market.')}
           </p>
           <div style={{ marginTop: '1rem' }}>
             <a href="/contact" className="btnPrimary">

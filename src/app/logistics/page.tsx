@@ -1,6 +1,8 @@
+'use client'
 import React from 'react';
 import { FiClock, FiShield, FiClipboard, FiMapPin, FiFileText, FiPackage, FiCheckCircle, FiGlobe, FiArrowRight } from 'react-icons/fi';
 import { FaShip, FaPlane } from 'react-icons/fa';
+import { useWebsiteData } from '@/hooks/useWebsiteData';
 
 const shippingSolutions = [
   {
@@ -107,12 +109,21 @@ const expertiseItems = [
 ];
 
 export default function LogisticsSubPage() {
+  const { getContent } = useWebsiteData();
+
   return (
     <>
-      <section className="heroBand">
+      <section 
+        className="heroBand"
+        style={{ 
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('logistics', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=2000')})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         <div className="container">
-          <h1>Logistics Backed Export Expertise</h1>
-          <p>From cargo planning to documentation, we ensure products move efficiently to global markets.</p>
+          <h1>{getContent('logistics', 'Hero', 'title', 'Logistics Backed Export Expertise')}</h1>
+          <p>{getContent('logistics', 'Hero', 'desc', 'From cargo planning to documentation, we ensure products move efficiently to global markets.')}</p>
           <div style={{ marginTop: '1rem' }}>
             <a href="/contact" className="btnPrimary">
               Explore Logistics Support
