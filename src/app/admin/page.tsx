@@ -639,16 +639,6 @@ export default function AdminDashboard() {
             <button onClick={syncInitialData} className="btnSecondary" style={{ fontSize: '0.85rem' }}>
               Sync Mock Data
             </button>
-            {Object.keys(pendingChanges).length > 0 && (
-              <button 
-                onClick={saveAllChanges} 
-                className="btnPrimary" 
-                style={{ background: '#059669', fontSize: '0.85rem', fontWeight: 700 }}
-                disabled={isSaving}
-              >
-                {isSaving ? 'Saving...' : `Save All Changes (${Object.keys(pendingChanges).length})`}
-              </button>
-            )}
             <button className="btnPrimary" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <FiPlus /> Add New {activeTab === 'industries' ? 'Industry' : 'Product'}
             </button>
@@ -748,6 +738,19 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                       ))}
+                    
+                    {Object.keys(pendingChanges).some(id => siteContent.find(c => c.id === id)?.section_name === section) && (
+                      <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button 
+                          onClick={saveAllChanges} 
+                          className="btnPrimary" 
+                          style={{ background: '#059669', fontSize: '0.9rem', padding: '0.8rem 2rem' }}
+                          disabled={isSaving}
+                        >
+                          {isSaving ? 'Saving...' : 'Save Section Changes'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ));
@@ -840,6 +843,19 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+            
+            {Object.keys(pendingChanges).length > 0 && (
+              <div style={{ padding: '2rem', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', background: '#f8fafc' }}>
+                <button 
+                  onClick={saveAllChanges} 
+                  className="btnPrimary" 
+                  style={{ background: '#059669', padding: '0.8rem 2rem' }}
+                  disabled={isSaving}
+                >
+                  {isSaving ? 'Saving...' : 'Save All Changes'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>
