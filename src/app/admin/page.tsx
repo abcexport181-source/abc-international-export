@@ -189,6 +189,7 @@ export default function AdminDashboard() {
 
   const DirectUpload = ({ value, onChange, label: fieldLabel }: { value: string, onChange: (url: string) => void, label: string }) => {
     const [uploading, setUploading] = useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
     
     return (
       <div style={{ marginTop: '0.8rem' }}>
@@ -206,7 +207,10 @@ export default function AdminDashboard() {
           cursor: 'pointer',
           transition: 'all 0.2s',
         }}
-        onClick={() => document.getElementById(`upload-${fieldLabel.replace(/\s+/g, '-')}`)?.click()}
+        onClick={() => {
+          console.log('Upload area clicked for:', fieldLabel);
+          fileInputRef.current?.click();
+        }}
         onMouseOver={e => e.currentTarget.style.borderColor = '#1f5ff5'}
         onMouseOut={e => e.currentTarget.style.borderColor = '#e2e8f0'}
         >
@@ -221,10 +225,11 @@ export default function AdminDashboard() {
           
           <input 
             type="file" 
-            id={`upload-${fieldLabel.replace(/\s+/g, '-')}`} 
+            ref={fileInputRef}
             style={{ display: 'none' }} 
             onChange={async (e) => {
               const file = e.target.files?.[0];
+              console.log('File selected:', file?.name, 'Size:', file?.size);
               if (file) {
                 // Client-side size check (4.5MB limit for Vercel)
                 if (file.size > 4.5 * 1024 * 1024) {
@@ -233,7 +238,9 @@ export default function AdminDashboard() {
                   return;
                 }
                 setUploading(true);
+                console.log('Starting upload to server...');
                 const url = await handleImageUpload(file);
+                console.log('Upload result URL:', url);
                 if (url) onChange(url);
                 setUploading(false);
               }
