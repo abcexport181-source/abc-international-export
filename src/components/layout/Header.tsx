@@ -23,7 +23,7 @@ const Header = () => {
           <img 
             src="/logo.jpeg" 
             alt="ABC International" 
-            style={{ height: '45px', width: 'auto', display: 'block' }} 
+            style={{ height: '60px', width: 'auto', display: 'block' }} 
           />
         </Link>
         <nav className={styles.nav}>
