@@ -86,20 +86,22 @@ export default function ContactPage() {
                 <textarea placeholder="Additional details about your requirements..." style={{ ...field, minHeight: '120px', resize: 'vertical' }} />
               </div>
 
-              {/* Google reCAPTCHA */}
+              {/* Google reCAPTCHA - Temporarily Hidden (On Hold) */}
+              {/* 
               <div style={{ marginTop: '0.5rem' }}>
                 <ReCAPTCHA
                   sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
                   onChange={onCaptchaChange}
                 />
               </div>
+              */}
 
               <button 
                 type="button" 
                 className="btnPrimary" 
-                disabled={!captchaValue}
+                // disabled={!captchaValue} // On hold
                 style={{ 
-                  background: captchaValue ? '#1f5ff5' : '#a0aec0', 
+                  background: '#1f5ff5', 
                   color: '#fff', 
                   width: '100%', 
                   padding: '1rem', 
@@ -108,11 +110,14 @@ export default function ContactPage() {
                   justifyContent: 'center', 
                   gap: '0.6rem', 
                   fontSize: '1rem',
-                  cursor: captchaValue ? 'pointer' : 'not-allowed'
+                  cursor: 'pointer'
                 }}
               >
                 Submit Inquiry <FiSend />
               </button>
+              <p style={{ fontSize: '0.75rem', color: '#718096', textAlign: 'center', marginTop: '0.5rem' }}>
+                Note: Bot protection (reCAPTCHA) is currently on hold.
+              </p>
             </form>
           </div>
 
