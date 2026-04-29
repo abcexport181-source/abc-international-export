@@ -12,7 +12,12 @@ export const useWebsiteData = () => {
         }
 
         try {
-            const { data } = await supabase.from('site_content').select('*');
+            // Append a timestamp to bypass any edge caching
+            const { data } = await supabase
+                .from('site_content')
+                .select('*')
+                .set({ 'Cache-Control': 'no-cache' });
+            
             if (data) setContent(data);
         } catch (error) {
             console.error('Error fetching website content:', error);

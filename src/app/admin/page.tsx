@@ -744,7 +744,7 @@ export default function AdminDashboard() {
                         <button 
                           onClick={saveAllChanges} 
                           className="btnPrimary" 
-                          style={{ background: '#059669', fontSize: '0.9rem', padding: '0.8rem 2rem' }}
+                          style={{ background: '#059669', color: '#ffffff', fontSize: '0.9rem', padding: '0.8rem 2rem' }}
                           disabled={isSaving}
                         >
                           {isSaving ? 'Saving...' : 'Save Section Changes'}
@@ -849,7 +849,7 @@ export default function AdminDashboard() {
                 <button 
                   onClick={saveAllChanges} 
                   className="btnPrimary" 
-                  style={{ background: '#059669', padding: '0.8rem 2rem' }}
+                  style={{ background: '#059669', color: '#ffffff', padding: '0.8rem 2rem' }}
                   disabled={isSaving}
                 >
                   {isSaving ? 'Saving...' : 'Save All Changes'}
