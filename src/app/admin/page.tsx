@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase, IndustryData, ProductData, SiteContent, isSupabaseConfigured } from '@/lib/supabase';
 import { FiLayout, FiGrid, FiBox, FiEye, FiEyeOff, FiEdit2, FiPlus, FiTrash2, FiSave, FiAlertCircle, FiHome, FiInfo, FiMail, FiLogOut } from 'react-icons/fi';
 import { industriesData, productsData } from '@/data/products';
+import BackToTop from '@/components/common/BackToTop';
 
 type Tab = 'home-content' | 'about-content' | 'contact-content' | 'industries' | 'products';
 
@@ -25,6 +26,8 @@ export default function AdminDashboard() {
   const [editingIndustry, setEditingIndustry] = useState<IndustryData | null>(null);
   const [editingProduct, setEditingProduct] = useState<ProductData | null>(null);
   const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
+  const [pendingChanges, setPendingChanges] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     // Check session from cookie (server-side source of truth)
@@ -141,16 +144,34 @@ export default function AdminDashboard() {
     if (data) setSiteContent(data);
   };
 
-  const updateContent = async (id: string, value: string) => {
-    console.log('Auto-saving to DB:', id, value);
-    const { error } = await supabase.from('site_content').update({ content_value: value }).eq('id', id);
-    if (!error) {
-      console.log('Auto-save successful!');
-      fetchSiteContent();
-    } else {
-      console.error('Auto-save FAILED:', error);
-      setMessage({ text: 'Auto-save failed: ' + error.message, type: 'error' });
+  const updateLocalContent = (id: string, value: string) => {
+    setPendingChanges(prev => ({ ...prev, [id]: value }));
+  };
+
+  const saveAllChanges = async () => {
+    if (Object.keys(pendingChanges).length === 0) return;
+    
+    setIsSaving(true);
+    try {
+      const updates = Object.entries(pendingChanges).map(([id, value]) => 
+        supabase.from('site_content').update({ content_value: value }).eq('id', id)
+      );
+      
+      const results = await Promise.all(updates);
+      const errors = results.filter(r => r.error);
+      
+      if (errors.length === 0) {
+        setMessage({ text: 'All changes saved successfully!', type: 'success' });
+        setPendingChanges({});
+        await fetchSiteContent();
+      } else {
+        throw new Error('Some changes failed to save.');
+      }
+    } catch (err: any) {
+      setMessage({ text: 'Error saving: ' + err.message, type: 'error' });
     }
+    setIsSaving(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const getCharLimit = (text: string) => Math.max(Math.ceil(text.length * 1.5), 30);
@@ -618,6 +639,16 @@ export default function AdminDashboard() {
             <button onClick={syncInitialData} className="btnSecondary" style={{ fontSize: '0.85rem' }}>
               Sync Mock Data
             </button>
+            {Object.keys(pendingChanges).length > 0 && (
+              <button 
+                onClick={saveAllChanges} 
+                className="btnPrimary" 
+                style={{ background: '#059669', fontSize: '0.85rem', fontWeight: 700 }}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : `Save All Changes (${Object.keys(pendingChanges).length})`}
+              </button>
+            )}
             <button className="btnPrimary" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <FiPlus /> Add New {activeTab === 'industries' ? 'Industry' : 'Product'}
             </button>
@@ -693,27 +724,27 @@ export default function AdminDashboard() {
                           {item.content_key.includes('img') ? (
                             <DirectUpload 
                               label={item.content_key.replace(/_/g, ' ')} 
-                              value={item.content_value} 
-                              onChange={(url) => updateContent(item.id, url)} 
+                              value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
+                              onChange={(url) => updateLocalContent(item.id, url)} 
                             />
                           ) : item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') || item.content_key.includes('address') ? (
                             <textarea 
-                              value={item.content_value} 
-                              onChange={e => updateContent(item.id, e.target.value)}
+                              value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
+                              onChange={e => updateLocalContent(item.id, e.target.value)}
                               maxLength={item.char_limit}
                               style={{...field, height: item.content_key === 'content' ? '200px' : '80px'}}
                             />
                           ) : (
                             <input 
-                              value={item.content_value} 
-                              onChange={e => updateContent(item.id, e.target.value)}
+                              value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
+                              onChange={e => updateLocalContent(item.id, e.target.value)}
                               maxLength={item.char_limit}
                               style={field}
                             />
                           )}
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
-                            <small className="muted">{item.content_value.length} / {item.char_limit} characters</small>
-                            <small style={{ color: '#1f5ff5', fontWeight: 600 }}>Auto-saving...</small>
+                            <small className="muted">{(pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value).length} / {item.char_limit} characters</small>
+                            {pendingChanges[item.id] !== undefined && <small style={{ color: '#059669', fontWeight: 600 }}>Unsaved changes</small>}
                           </div>
                         </div>
                       ))}
@@ -812,6 +843,7 @@ export default function AdminDashboard() {
           </div>
         )}
       </main>
+      <BackToTop />
     </div>
   );
 }
