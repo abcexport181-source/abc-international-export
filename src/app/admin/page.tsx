@@ -142,8 +142,15 @@ export default function AdminDashboard() {
   };
 
   const updateContent = async (id: string, value: string) => {
+    console.log('Auto-saving to DB:', id, value);
     const { error } = await supabase.from('site_content').update({ content_value: value }).eq('id', id);
-    if (!error) fetchSiteContent();
+    if (!error) {
+      console.log('Auto-save successful!');
+      fetchSiteContent();
+    } else {
+      console.error('Auto-save FAILED:', error);
+      setMessage({ text: 'Auto-save failed: ' + error.message, type: 'error' });
+    }
   };
 
   const getCharLimit = (text: string) => Math.max(Math.ceil(text.length * 1.5), 30);
