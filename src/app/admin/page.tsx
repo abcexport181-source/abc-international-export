@@ -1,10 +1,10 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { supabase, IndustryData, ProductData, SiteContent, isSupabaseConfigured } from '@/lib/supabase';
-import { FiLayout, FiGrid, FiBox, FiEye, FiEyeOff, FiEdit2, FiPlus, FiTrash2, FiSave, FiAlertCircle } from 'react-icons/fi';
+import { FiLayout, FiGrid, FiBox, FiEye, FiEyeOff, FiEdit2, FiPlus, FiTrash2, FiSave, FiAlertCircle, FiHome, FiInfo, FiMail, FiLogOut } from 'react-icons/fi';
 import { industriesData, productsData } from '@/data/products';
 
-type Tab = 'pages' | 'industries' | 'products';
+type Tab = 'home-content' | 'about-content' | 'contact-content' | 'industries' | 'products';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -12,7 +12,7 @@ export default function AdminDashboard() {
   const [password, setPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<Tab>('industries');
+  const [activeTab, setActiveTab] = useState<Tab>('home-content');
   const [industries, setIndustries] = useState<IndustryData[]>([]);
   const [products, setProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -311,7 +311,9 @@ export default function AdminDashboard() {
         </div>
         <nav>
           {[
-            { id: 'pages', label: 'Page Content', icon: FiLayout },
+            { id: 'home-content', label: 'Home Page', icon: FiHome },
+            { id: 'about-content', label: 'About Us', icon: FiInfo },
+            { id: 'contact-content', label: 'Contact', icon: FiMail },
             { id: 'industries', label: 'Industries', icon: FiGrid },
             { id: 'products', label: 'Products', icon: FiBox },
           ].map(tab => (
@@ -336,6 +338,12 @@ export default function AdminDashboard() {
               <tab.icon /> {tab.label}
             </button>
           ))}
+          <button 
+            onClick={() => supabase.auth.signOut()}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '1rem 2rem', border: 'none', background: 'transparent', color: '#ff7b72', cursor: 'pointer', textAlign: 'left', fontSize: '0.95rem', marginTop: '2rem' }}
+          >
+            <FiLogOut /> Logout
+          </button>
         </nav>
       </aside>
 
@@ -513,7 +521,9 @@ export default function AdminDashboard() {
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
           <div>
             <h2 style={{ fontSize: '1.8rem', color: '#1b2638' }}>
-              {activeTab === 'pages' && 'Edit Site Content'}
+              {activeTab === 'home-content' && 'Home Page Content'}
+              {activeTab === 'about-content' && 'About Page Content'}
+              {activeTab === 'contact-content' && 'Contact Page Content'}
               {activeTab === 'industries' && 'Manage Industries'}
               {activeTab === 'products' && 'Manage Products'}
             </h2>
@@ -545,46 +555,53 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {activeTab === 'pages' && (
+        {activeTab.includes('content') && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            {Array.from(new Set(siteContent.map(c => c.page_name))).map(page => (
-              <div key={page} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '2rem' }}>
-                <h3 style={{ marginBottom: '1.5rem', textTransform: 'capitalize' }}>{page} Page</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  {siteContent.filter(c => c.page_name === page).map(item => (
-                    <div key={item.id}>
-                      <label style={label}>{item.section_name} - {item.content_key.replace('_', ' ')}</label>
-                      {item.content_key.includes('desc') || item.content_key.includes('info') ? (
-                        <textarea 
-                          value={item.content_value} 
-                          onChange={e => updateContent(item.id, e.target.value)}
-                          maxLength={item.char_limit}
-                          style={{...field, height: '80px'}}
-                        />
-                      ) : (
-                        <input 
-                          value={item.content_value} 
-                          onChange={e => updateContent(item.id, e.target.value)}
-                          maxLength={item.char_limit}
-                          style={field}
-                        />
-                      )}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
-                        <small className="muted">{item.content_value.length} / {item.char_limit} characters</small>
-                        <small style={{ color: '#1f5ff5', fontWeight: 600 }}>Auto-saving...</small>
+            {(() => {
+              const currentPage = activeTab.split('-')[0];
+              const sections = Array.from(new Set(siteContent.filter(c => c.page_name === currentPage).map(c => c.section_name)));
+              
+              if (sections.length === 0 && !loading) {
+                return (
+                  <div style={{ textAlign: 'center', padding: '5rem', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                    <FiAlertCircle style={{ fontSize: '3rem', color: '#e2e8f0', marginBottom: '1rem' }} />
+                    <p className="muted">No content found for this page. <br/> Use "Sync Mock Data" to initialize.</p>
+                  </div>
+                );
+              }
+
+              return sections.map(section => (
+                <div key={section} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '2rem' }}>
+                  <h3 style={{ marginBottom: '1.5rem' }}>{section}</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    {siteContent.filter(c => c.page_name === currentPage && c.section_name === section).map(item => (
+                      <div key={item.id}>
+                        <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '')}</label>
+                        {item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') ? (
+                          <textarea 
+                            value={item.content_value} 
+                            onChange={e => updateContent(item.id, e.target.value)}
+                            maxLength={item.char_limit}
+                            style={{...field, height: item.content_key === 'content' ? '200px' : '80px'}}
+                          />
+                        ) : (
+                          <input 
+                            value={item.content_value} 
+                            onChange={e => updateContent(item.id, e.target.value)}
+                            maxLength={item.char_limit}
+                            style={field}
+                          />
+                        )}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
+                          <small className="muted">{item.content_value.length} / {item.char_limit} characters</small>
+                          <small style={{ color: '#1f5ff5', fontWeight: 600 }}>Auto-saving...</small>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-            
-            {siteContent.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '5rem', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                <FiAlertCircle style={{ fontSize: '3rem', color: '#e2e8f0', marginBottom: '1rem' }} />
-                <p className="muted">No page content found in database. <br/> Use "Sync Mock Data" to initialize standard site sections.</p>
-              </div>
-            )}
+              ));
+            })()}
           </div>
         )}
 
