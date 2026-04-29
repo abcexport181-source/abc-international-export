@@ -85,14 +85,13 @@ export default function IndustriesPage() {
 
       <section className="section sectionSoft" style={{ paddingTop: 0, textAlign: 'center' }}>
         <div className="container">
-          <h2>Don&apos;t See Your Industry?</h2>
+          <h2>{getContent('industries', 'Missing', 'title', 'Don\'t See Your Industry?')}</h2>
           <p className="muted">
-            Our sourcing network handles specialized requirements. If your sector is not listed, we
-            can still help find the right manufacturers in India.
+            {getContent('industries', 'Missing', 'desc', 'Our sourcing network handles specialized requirements. If your sector is not listed, we can still help find the right manufacturers in India.')}
           </p>
           <div style={{ marginTop: '0.9rem' }}>
             <a href="/contact" className="btnPrimary" style={{ background: '#1f5ff5', color: '#fff' }}>
-              Discuss Your Requirements
+              {getContent('industries', 'Missing', 'btn_text', 'Discuss Your Requirements')}
             </a>
           </div>
         </div>
@@ -101,7 +100,7 @@ export default function IndustriesPage() {
       <section className="section">
         <div className="container">
           <div className="sectionHeader" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Why Choose Our Multi-Industry Expertise</h2>
+            <h2>{getContent('industries', 'Expertise', 'title', 'Why Choose Our Multi-Industry Expertise')}</h2>
           </div>
           <div className="cardsGrid3">
             {[
@@ -120,32 +119,35 @@ export default function IndustriesPage() {
                 desc: 'Deep knowledge of export regulations for each industry segment',
                 Icon: FiClipboard
               }
-            ].map((item) => (
-              <div key={item.title} style={{ textAlign: 'center', padding: '1rem' }}>
+            ].map((item, idx) => (
+              <div key={idx} style={{ textAlign: 'center', padding: '1rem' }}>
                 <div className="iconCircle" style={{ width: '64px', height: '64px', fontSize: '1.8rem', margin: '0 auto 1.5rem auto' }}>
                   <item.Icon />
                 </div>
-                <h3 style={{ fontSize: '1.15rem', marginBottom: '0.8rem' }}>{item.title}</h3>
-                <p className="muted" style={{ fontSize: '0.95rem' }}>{item.desc}</p>
+                <h3 style={{ fontSize: '1.15rem', marginBottom: '0.8rem' }}>{getContent('industries', 'Expertise', `item${idx+1}_title`, item.title)}</h3>
+                <p className="muted" style={{ fontSize: '0.95rem' }}>{getContent('industries', 'Expertise', `item${idx+1}_desc`, item.desc)}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="ctaBand">
+      <section className="ctaBand" style={{
+        backgroundImage: `linear-gradient(rgba(31, 95, 245, 0.9), rgba(31, 95, 245, 0.9)), url(${getContent('industries', 'CTA', 'bg_img', 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=2000')})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}>
         <div className="container">
-          <h3>Ready to Source from India?</h3>
+          <h3>{getContent('industries', 'CTA', 'title', 'Ready to Source from India?')}</h3>
           <p style={{ color: '#dbe8ff' }}>
-            Whatever your industry, we have the expertise and network to help you source quality
-            products from India.
+            {getContent('industries', 'CTA', 'desc', 'Whatever your industry, we have the expertise and network to help you source quality products from India.')}
           </p>
           <div style={{ marginTop: '0.9rem', display: 'flex', gap: '0.7rem', justifyContent: 'center' }}>
             <a href="/sourcing" className="btnPrimary">
-              Explore Sourcing Services
+              {getContent('industries', 'CTA', 'btn1_text', 'Explore Sourcing Services')}
             </a>
             <a href="/contact" className="btnSecondary">
-              Get In Touch
+              {getContent('industries', 'CTA', 'btn2_text', 'Get In Touch')}
             </a>
           </div>
         </div>

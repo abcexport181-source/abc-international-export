@@ -135,19 +135,19 @@ export default function LogisticsSubPage() {
       <section className="section sectionSoft">
         <div className="container">
           <div className="sectionHeader" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Why Logistics Expertise Matters</h2>
+            <h2>{getContent('logistics', 'Expertise', 'title', 'Why Logistics Expertise Matters')}</h2>
             <p style={{ maxWidth: '800px', margin: '0.8rem auto 0 auto', color: '#4a5568' }}>
-              Export success isn't just about finding the right product—it's about getting it to your destination safely, on time, and in compliance with all regulations.
+              {getContent('logistics', 'Expertise', 'desc', 'Export success isn\'t just about finding the right product—it\'s about getting it to your destination safely, on time, and in compliance with all regulations.')}
             </p>
           </div>
           <div className="cardsGrid4">
-            {expertiseItems.map((item) => (
-              <article className="card" key={item.title} style={{ padding: '2rem 1.5rem', textAlign: 'center' }}>
+            {expertiseItems.map((item, idx) => (
+              <article className="card" key={idx} style={{ padding: '2rem 1.5rem', textAlign: 'center' }}>
                 <div style={{ fontSize: '2.5rem', color: '#1f5ff5', marginBottom: '1.2rem', display: 'flex', justifyContent: 'center' }}>
                   <item.Icon />
                 </div>
-                <h3 style={{ fontSize: '1.15rem', marginBottom: '0.6rem' }}>{item.title}</h3>
-                <p className="muted" style={{ fontSize: '0.95rem' }}>{item.desc}</p>
+                <h3 style={{ fontSize: '1.15rem', marginBottom: '0.6rem' }}>{getContent('logistics', 'Expertise', `item${idx+1}_title`, item.title)}</h3>
+                <p className="muted" style={{ fontSize: '0.95rem' }}>{getContent('logistics', 'Expertise', `item${idx+1}_desc`, item.desc)}</p>
               </article>
             ))}
           </div>
@@ -157,24 +157,24 @@ export default function LogisticsSubPage() {
       <section className="section">
         <div className="container">
           <div className="sectionHeader" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Complete Export Documentation</h2>
+            <h2>{getContent('logistics', 'Docs', 'title', 'Complete Export Documentation')}</h2>
             <p style={{ maxWidth: '700px', margin: '0.8rem auto 0 auto', color: '#4a5568' }}>
-              We handle all the paperwork so you don't have to. Our team ensures every document is accurate and compliant.
+              {getContent('logistics', 'Docs', 'desc', 'We handle all the paperwork so you don\'t have to. Our team ensures every document is accurate and compliant.')}
             </p>
           </div>
           <div className="cardsGrid4">
-            {docs.map((item) => (
-              <article className="card" key={item.title} style={{ padding: '1.5rem', textAlign: 'left' }}>
+            {docs.map((item, idx) => (
+              <article className="card" key={idx} style={{ padding: '1.5rem', textAlign: 'left' }}>
                 <h3 style={{ fontSize: '1.05rem', marginBottom: '0.8rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
                   <FiFileText style={{ color: '#1f5ff5', marginTop: '0.2rem', flexShrink: 0 }} />
-                  {item.title}
+                  {getContent('logistics', 'Docs', `item${idx+1}_title`, item.title)}
                 </h3>
-                <p className="muted" style={{ fontSize: '0.9rem' }}>{item.desc}</p>
+                <p className="muted" style={{ fontSize: '0.9rem' }}>{getContent('logistics', 'Docs', `item${idx+1}_desc`, item.desc)}</p>
               </article>
             ))}
           </div>
           <div style={{ marginTop: '3rem', background: '#f4f8ff', padding: '1rem 1.5rem', borderRadius: '8px', fontSize: '0.95rem', color: '#4a5568', textAlign: 'center' }}>
-            <strong>Additional certifications available:</strong> Health Certificate, Fumigation Certificate, Test Reports, GSP Certificate, and more
+            <strong>{getContent('logistics', 'Docs', 'note_bold', 'Additional certifications available:')}</strong> {getContent('logistics', 'Docs', 'note_desc', 'Health Certificate, Fumigation Certificate, Test Reports, GSP Certificate, and more')}
           </div>
         </div>
       </section>
@@ -182,22 +182,22 @@ export default function LogisticsSubPage() {
       <section className="section sectionSoft">
         <div className="container">
           <div className="sectionHeader" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Comprehensive Shipping Solutions</h2>
+            <h2>{getContent('logistics', 'Solutions', 'title', 'Comprehensive Shipping Solutions')}</h2>
             <p style={{ maxWidth: '700px', margin: '0.8rem auto 0 auto', color: '#4a5568' }}>
-              Multiple shipping modes to suit your timeline, budget, and cargo requirements
+              {getContent('logistics', 'Solutions', 'desc', 'Multiple shipping modes to suit your timeline, budget, and cargo requirements')}
             </p>
           </div>
           <div className="cardsGrid3">
-            {shippingSolutions.map((item) => (
-              <article className="card" key={item.title} style={{ padding: '2rem 1.5rem', textAlign: 'left' }}>
+            {shippingSolutions.map((item, idx) => (
+              <article className="card" key={idx} style={{ padding: '2rem 1.5rem', textAlign: 'left' }}>
                 <div className="iconCircle" style={{ width: '56px', height: '56px', fontSize: '1.6rem', marginBottom: '1.5rem' }}>
                   <item.Icon />
                 </div>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '1.2rem' }}>{item.title}</h3>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '1.2rem' }}>{getContent('logistics', 'Solutions', `sol${idx+1}_title`, item.title)}</h3>
                 <ul className="checkList" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', color: 'var(--text)' }}>
-                  {item.features.map(f => (
-                    <li key={f} style={{ fontSize: '0.9rem' }}>
-                      <FiCheckCircle className="checkIcon" /> {f}
+                  {item.features.map((f, fIdx) => (
+                    <li key={fIdx} style={{ fontSize: '0.9rem' }}>
+                      <FiCheckCircle className="checkIcon" /> {getContent('logistics', 'Solutions', `sol${idx+1}_feat${fIdx+1}`, f)}
                     </li>
                   ))}
                 </ul>
@@ -207,14 +207,18 @@ export default function LogisticsSubPage() {
         </div>
       </section>
 
-      <section className="section heroBand">
+      <section className="section heroBand" style={{ 
+        backgroundImage: `linear-gradient(rgba(31, 95, 245, 0.9), rgba(31, 95, 245, 0.9)), url(${getContent('logistics', 'Partner', 'bg_img', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000')})`
+      }}>
         <div className="container split">
-          <div className="imageBlock" style={{ borderRadius: '12px' }} />
+          <div className="imageBlock" style={{ 
+            borderRadius: '12px',
+            backgroundImage: `url(${getContent('logistics', 'Partner', 'side_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000')})`
+          }} />
           <div>
-            <h2 style={{ color: '#fff', fontSize: '2rem', marginBottom: '1.5rem' }}>Powered by Linear Global</h2>
+            <h2 style={{ color: '#fff', fontSize: '2rem', marginBottom: '1.5rem' }}>{getContent('logistics', 'Partner', 'title', 'Powered by Linear Global')}</h2>
             <p style={{ color: '#dbe8ff', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-              Our partnership with Linear Global gives us access to world-class logistics infrastructure 
-              and expertise built over decades in international freight forwarding.
+              {getContent('logistics', 'Partner', 'desc', 'Our partnership with Linear Global gives us access to world-class logistics infrastructure and expertise built over decades in international freight forwarding.')}
             </p>
             <ul className="checkList" style={{ color: '#fff', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               {[
@@ -226,10 +230,10 @@ export default function LogisticsSubPage() {
                 'Last-mile delivery coordination',
                 '24/7 customer support',
                 'Multi-modal transportation solutions'
-              ].map(item => (
-                <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontSize: '1rem' }}>
+              ].map((item, idx) => (
+                <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontSize: '1rem' }}>
                   <FiCheckCircle style={{ color: '#fff', flexShrink: 0 }} />
-                  {item}
+                  {getContent('logistics', 'Partner', `item${idx+1}`, item)}
                 </li>
               ))}
             </ul>
@@ -240,17 +244,17 @@ export default function LogisticsSubPage() {
       <section className="section">
         <div className="container">
           <div className="sectionHeader" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Compliance Handling</h2>
-            <p style={{ color: '#4a5568', marginTop: '0.5rem' }}>Navigate complex international regulations with confidence</p>
+            <h2>{getContent('logistics', 'Compliance', 'title', 'Compliance Handling')}</h2>
+            <p style={{ color: '#4a5568', marginTop: '0.5rem' }}>{getContent('logistics', 'Compliance', 'desc', 'Navigate complex international regulations with confidence')}</p>
           </div>
           <div className="cardsGrid4">
-            {complianceItems.map((item) => (
-              <article key={item.title} style={{ textAlign: 'center', padding: '1rem' }}>
+            {complianceItems.map((item, idx) => (
+              <article key={idx} style={{ textAlign: 'center', padding: '1rem' }}>
                 <div className="iconCircle" style={{ margin: '0 auto 1.5rem auto', width: '56px', height: '56px', fontSize: '1.6rem' }}>
                   <item.Icon />
                 </div>
-                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.8rem' }}>{item.title}</h3>
-                <p className="muted" style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>{item.desc}</p>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.8rem' }}>{getContent('logistics', 'Compliance', `item${idx+1}_title`, item.title)}</h3>
+                <p className="muted" style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>{getContent('logistics', 'Compliance', `item${idx+1}_desc`, item.desc)}</p>
               </article>
             ))}
           </div>
@@ -260,12 +264,12 @@ export default function LogisticsSubPage() {
       <section className="section sectionSoft">
         <div className="container">
           <div className="sectionHeader" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>Export Process Timeline</h2>
-            <p style={{ color: '#4a5568', marginTop: '0.5rem' }}>From order confirmation to final delivery, we manage every step</p>
+            <h2>{getContent('logistics', 'Timeline', 'title', 'Export Process Timeline')}</h2>
+            <p style={{ color: '#4a5568', marginTop: '0.5rem' }}>{getContent('logistics', 'Timeline', 'desc', 'From order confirmation to final delivery, we manage every step')}</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
             {timelineSteps.map((step, idx) => (
-              <React.Fragment key={step.title}>
+              <React.Fragment key={idx}>
                 <article className="card" style={{ flex: 1, minWidth: '180px', padding: '1.5rem', textAlign: 'left', position: 'relative' }}>
                   <div style={{ 
                     width: '32px', 
@@ -281,8 +285,8 @@ export default function LogisticsSubPage() {
                   }}>
                     {idx + 1}
                   </div>
-                  <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{step.title}</h3>
-                  <p className="muted" style={{ fontSize: '0.85rem' }}>{step.desc}</p>
+                  <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{getContent('logistics', 'Timeline', `step${idx+1}_title`, step.title)}</h3>
+                  <p className="muted" style={{ fontSize: '0.85rem' }}>{getContent('logistics', 'Timeline', `step${idx+1}_desc`, step.desc)}</p>
                 </article>
                 {idx < timelineSteps.length - 1 && (
                   <FiArrowRight style={{ color: '#1f5ff5', fontSize: '1.2rem', flexShrink: 0 }} className="hideMobile" />
@@ -295,22 +299,27 @@ export default function LogisticsSubPage() {
 
       <section className="section">
         <div className="container">
-          <div className="heroBand" style={{ borderRadius: '16px', padding: '4rem 2rem', textAlign: 'center' }}>
+          <div className="heroBand" style={{ 
+            borderRadius: '16px', 
+            padding: '4rem 2rem', 
+            textAlign: 'center',
+            backgroundImage: `linear-gradient(rgba(31, 95, 245, 0.9), rgba(31, 95, 245, 0.9)), url(${getContent('logistics', 'Trust', 'bg_img', 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000')})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}>
             <div style={{ fontSize: '4rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
               <FiShield />
             </div>
-            <h2 style={{ color: '#fff', fontSize: '2.5rem', marginBottom: '1.5rem' }}>This Builds Serious Buyer Trust</h2>
+            <h2 style={{ color: '#fff', fontSize: '2.5rem', marginBottom: '1.5rem' }}>{getContent('logistics', 'Trust', 'title', 'This Builds Serious Buyer Trust')}</h2>
             <p style={{ color: '#fff', maxWidth: '800px', margin: '0 auto 2.5rem auto', fontSize: '1.1rem', lineHeight: '1.6', opacity: 0.9 }}>
-              When you work with ABC International, you&apos;re not just getting a supplier—you&apos;re 
-              getting a complete logistics partner who ensures your cargo arrives safely, on time, 
-              and in full compliance.
+              {getContent('logistics', 'Trust', 'desc', 'When you work with ABC International, you\'re not just getting a supplier—you\'re getting a complete logistics partner who ensures your cargo arrives safely, on time, and in full compliance.')}
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <a href="/contact" className="btnPrimary" style={{ background: '#fff', color: '#1f5ff5', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                Discuss Your Shipment <FiArrowRight />
+                {getContent('logistics', 'Trust', 'btn1_text', 'Discuss Your Shipment')} <FiArrowRight />
               </a>
               <a href="/sourcing" className="btnSecondary" style={{ border: '1px solid #fff', color: '#fff' }}>
-                Explore Sourcing Services
+                {getContent('logistics', 'Trust', 'btn2_text', 'Explore Sourcing Services')}
               </a>
             </div>
           </div>
