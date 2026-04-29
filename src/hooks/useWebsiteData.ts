@@ -13,24 +13,15 @@ export const useWebsiteData = () => {
 
         try {
             console.log('Fetching fresh website content from Supabase...');
-            // Force a fresh fetch by disabling caching and adding a unique identifier
+            // Standard fetch - since the Admin Panel works, this will now work too
             const { data, error } = await supabase
                 .from('site_content')
-                .select('*')
-                .headers({ 
-                  'Cache-Control': 'no-cache', 
-                  'Pragma': 'no-cache',
-                  'x-refresh-id': Date.now().toString() 
-                });
+                .select('*');
             
             if (error) {
               console.error('Supabase fetch ERROR:', error);
             } else if (data) {
               console.log(`Successfully fetched ${data.length} content items!`);
-              // Log the Hero Title specifically to see if it updated
-              const heroTitle = data.find((c: any) => c.id === 'home_hero_title');
-              if (heroTitle) console.log('Live Hero Title in DB:', heroTitle.content_value);
-              
               setContent(data);
             }
         } catch (error) {
