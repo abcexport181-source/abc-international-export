@@ -936,9 +936,9 @@ export default function AdminDashboard() {
               <form onSubmit={async (e) => {
                 e.preventDefault();
                 const productToSave = { ...editingProduct };
-                if (!productToSave.id) delete (productToSave as any).id;
                 
                 const result = await saveProductAction(productToSave);
+
                 if (result.success) { 
                   fetchData(); 
                   setEditingProduct(null); 
@@ -949,8 +949,21 @@ export default function AdminDashboard() {
 
               }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  {products.every(p => p.id !== editingProduct.id) && (
+                    <div style={{ gridColumn: 'span 2' }}>
+                      <label style={label}>Product ID (slug, e.g. 'premium-rice')</label>
+                      <input 
+                        value={editingProduct.id} 
+                        onChange={e => setEditingProduct({...editingProduct, id: e.target.value})}
+                        style={field} 
+                        required
+                        placeholder="e.g. organic-cotton-towels"
+                      />
+                    </div>
+                  )}
                   <div>
                     <label style={label}>Industry Category</label>
+
                     <select 
                       value={editingProduct.category_id}
                       onChange={e => setEditingProduct({...editingProduct, category_id: e.target.value})}
