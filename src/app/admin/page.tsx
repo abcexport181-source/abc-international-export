@@ -39,6 +39,9 @@ export default function AdminDashboard() {
   const [pendingChanges, setPendingChanges] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [isBlogVisibleOnSite, setIsBlogVisibleOnSite] = useState(false);
+  const [blogs, setBlogs] = useState<BlogData[]>([]);
+  const [editingBlog, setEditingBlog] = useState<BlogData | null>(null);
+
 
 
   useEffect(() => {
