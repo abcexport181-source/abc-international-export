@@ -5,7 +5,8 @@ import { FiLayout, FiGrid, FiBox, FiEye, FiEyeOff, FiEdit2, FiPlus, FiTrash2, Fi
 import { industriesData, productsData } from '@/data/products';
 import BackToTop from '@/components/common/BackToTop';
 
-type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'industries' | 'products';
+type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'industries' | 'products' | 'blogs';
+
 
 import { auth } from '@/lib/firebase/config';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
@@ -13,6 +14,10 @@ import { createSession, removeSession, getSession } from '@/app/actions/auth';
 import { updateSiteContentBatch, syncInitialDataBatch } from '@/app/actions/content';
 import { saveIndustryAction, deleteIndustryAction, toggleIndustryVisibilityAction } from '@/app/actions/industries';
 import { saveProductAction, deleteProductAction, toggleProductVisibilityAction } from '@/app/actions/products';
+import { saveBlogAction, deleteBlogAction, toggleBlogVisibilityAction } from '@/app/actions/blogs';
+import { FiFileText } from 'react-icons/fi';
+import { BlogData } from '@/lib/supabase';
+
 
 
 export default function AdminDashboard() {
@@ -32,6 +37,8 @@ export default function AdminDashboard() {
   const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
   const [pendingChanges, setPendingChanges] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isBlogVisibleOnSite, setIsBlogVisibleOnSite] = useState(false);
+
 
   useEffect(() => {
     // Check session from cookie (server-side source of truth)
@@ -152,8 +159,35 @@ export default function AdminDashboard() {
       .order('page_name')
       .filter('id', 'neq', `cache_buster_${Date.now()}`); 
       
-    if (data) setSiteContent(data);
+    if (data) {
+      setSiteContent(data);
+      const blogVis = data.find(c => c.content_key === 'blog_visibility');
+      if (blogVis) setIsBlogVisibleOnSite(blogVis.content_value === 'true');
+    }
   };
+
+  const toggleBlogPageVisibility = async () => {
+    const newValue = !isBlogVisibleOnSite;
+    // We use a generic ID for the global setting if it exists, or let upsert handle it
+    const existing = siteContent.find(c => c.content_key === 'blog_visibility');
+    
+    const result = await updateSiteContentBatch([{
+      id: existing?.id, // include ID if updating existing row
+      page_name: 'global',
+      section_name: 'navigation',
+      content_key: 'blog_visibility',
+      content_value: String(newValue)
+    }]);
+    
+    if (result.success) {
+      setIsBlogVisibleOnSite(newValue);
+      setMessage({ text: `Blog page is now ${newValue ? 'visible' : 'hidden'} in the menu bar.`, type: 'success' });
+      fetchSiteContent(); // refresh state
+    } else {
+      setMessage({ text: 'Error updating blog visibility: ' + result.error, type: 'error' });
+    }
+  };
+
 
   const updateLocalContent = (id: string, value: string) => {
     setPendingChanges(prev => ({ ...prev, [id]: value }));
@@ -208,8 +242,11 @@ export default function AdminDashboard() {
     try {
       const { data: indData } = await supabase.from('industries').select('*').order('title');
       const { data: prodData } = await supabase.from('products').select('*').order('name');
+      const { data: blogData } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
       if (indData) setIndustries(indData);
       if (prodData) setProducts(prodData);
+      if (blogData) setBlogs(blogData);
+
     } catch (e) {
       console.error(e);
     }
@@ -718,8 +755,10 @@ export default function AdminDashboard() {
         { page: 'quality-packaging', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1521331908054-9a180b7d3912?auto=format&fit=crop&q=80&w=2000' },
         { page: 'quality-packaging', section: 'Standards', key: 'side_img', val: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000' },
         { page: 'quality-packaging', section: 'Options', key: 'side_img', val: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000' },
-        { page: 'quality-packaging', section: 'CTA', key: 'bg_img', val: 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=2000' }
+        { page: 'quality-packaging', section: 'CTA', key: 'bg_img', val: 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=2000' },
+        { page: 'global', section: 'navigation', key: 'blog_visibility', val: 'false' }
       ];
+
 
       const result = await syncInitialDataBatch(initialContent);
       
@@ -738,25 +777,29 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
-  const toggleVisibility = async (type: 'industries' | 'products', id: string, currentStatus: boolean) => {
-    const result = type === 'industries' 
-      ? await toggleIndustryVisibilityAction(id, !currentStatus)
-      : await toggleProductVisibilityAction(id, !currentStatus);
+  const toggleVisibility = async (type: 'industries' | 'products' | 'blogs', id: string, currentStatus: boolean) => {
+    let result;
+    if (type === 'industries') result = await toggleIndustryVisibilityAction(id, !currentStatus);
+    else if (type === 'products') result = await toggleProductVisibilityAction(id, !currentStatus);
+    else result = await toggleBlogVisibilityAction(id, !currentStatus);
 
     if (result.success) fetchData();
     else setMessage({ text: 'Error: ' + result.error, type: 'error' });
   };
 
 
-  const deleteItem = async (type: 'industries' | 'products', id: string) => {
+
+  const deleteItem = async (type: 'industries' | 'products' | 'blogs', id: string) => {
     if (!confirm('Are you sure you want to delete this item? This cannot be undone.')) return;
-    const result = type === 'industries'
-      ? await deleteIndustryAction(id)
-      : await deleteProductAction(id);
+    let result;
+    if (type === 'industries') result = await deleteIndustryAction(id);
+    else if (type === 'products') result = await deleteProductAction(id);
+    else result = await deleteBlogAction(id);
       
     if (result.success) fetchData();
     else setMessage({ text: 'Error: ' + result.error, type: 'error' });
   };
+
 
 
   const handleAddNew = () => {
@@ -1122,6 +1165,97 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {editingBlog && (
+          <div style={modalOverlay}>
+            <div style={{...modalContent, maxWidth: '800px'}}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                <h3>{editingBlog.id ? `Edit Blog: ${editingBlog.title}` : 'Add New Blog'}</h3>
+                <button onClick={() => setEditingBlog(null)} style={{ border: 'none', background: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
+              </div>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const blogToSave = { ...editingBlog };
+                
+                const result = await saveBlogAction(blogToSave);
+                if (result.success) { 
+                  fetchData(); 
+                  setEditingBlog(null); 
+                  setMessage({text: 'Blog saved!', type: 'success'}); 
+                } else {
+                  setMessage({text: 'Error saving blog: ' + result.error, type: 'error'});
+                }
+              }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  {blogs.every(b => b.id !== editingBlog.id) && (
+                    <div style={{ gridColumn: 'span 2' }}>
+                      <label style={label}>Blog ID (slug, e.g. 'future-of-textiles')</label>
+                      <input 
+                        value={editingBlog.id} 
+                        onChange={e => setEditingBlog({...editingBlog, id: e.target.value})}
+                        style={field} 
+                        required
+                        placeholder="e.g. trends-in-global-export"
+                      />
+                    </div>
+                  )}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={label}>Blog Title</label>
+                    <input 
+                      value={editingBlog.title} 
+                      onChange={e => setEditingBlog({...editingBlog, title: e.target.value})}
+                      style={field} 
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={label}>Author</label>
+                  <input 
+                    value={editingBlog.author} 
+                    onChange={e => setEditingBlog({...editingBlog, author: e.target.value})}
+                    style={field} 
+                  />
+                </div>
+
+                <div style={{ gridColumn: 'span 2' }}>
+                  <DirectUpload 
+                    label="Cover Image" 
+                    value={editingBlog.image} 
+                    onChange={(url) => setEditingBlog({...editingBlog, image: url})} 
+                  />
+                </div>
+
+                <div>
+                  <label style={label}>Excerpt (Short summary)</label>
+                  <textarea 
+                    value={editingBlog.excerpt} 
+                    onChange={e => setEditingBlog({...editingBlog, excerpt: e.target.value})}
+                    style={{...field, height: '80px'}} 
+                    maxLength={300}
+                  />
+                </div>
+
+                <div>
+                  <label style={label}>Blog Content (HTML or Plain Text)</label>
+                  <textarea 
+                    value={editingBlog.content} 
+                    onChange={e => setEditingBlog({...editingBlog, content: e.target.value})}
+                    style={{...field, height: '300px'}} 
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                  <button type="submit" className="btnPrimary" style={{ flex: 1 }}>Save Blog</button>
+                  <button type="button" onClick={() => setEditingBlog(null)} className="btnSecondary" style={{ flex: 1 }}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
           <div>
             <h2 style={{ fontSize: '1.8rem', color: '#1b2638' }}>
@@ -1142,12 +1276,29 @@ export default function AdminDashboard() {
             >
               Sync Mock Data
             </button>
-            {(activeTab === 'industries' || activeTab === 'products') && (
+            {(activeTab === 'industries' || activeTab === 'products' || activeTab === 'blogs') && (
               <button onClick={handleAddNew} className="btnPrimary" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FiPlus /> Add New {activeTab === 'industries' ? 'Industry' : 'Product'}
+                <FiPlus /> Add New {activeTab === 'industries' ? 'Industry' : activeTab === 'products' ? 'Product' : 'Blog'}
               </button>
             )}
-
+            {activeTab === 'blogs' && (
+              <button 
+                onClick={toggleBlogPageVisibility} 
+                className="btnSecondary" 
+                style={{ 
+                  fontSize: '0.85rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '0.5rem',
+                  borderColor: isBlogVisibleOnSite ? '#def7ec' : '#fecaca',
+                  color: isBlogVisibleOnSite ? '#03543f' : '#ef4444',
+                  padding: '0.5rem 1rem'
+                }}
+              >
+                {isBlogVisibleOnSite ? <FiEye /> : <FiEyeOff />}
+                Blog Page: {isBlogVisibleOnSite ? 'Visible in Menu' : 'Hidden from Menu'}
+              </button>
+            )}
 
             <button 
               onClick={handleLogout} 
@@ -1352,6 +1503,42 @@ export default function AdminDashboard() {
                     </td>
                   </tr>
                 ))}
+                
+                {activeTab === 'blogs' && blogs.map(item => (
+                  <tr key={item.id} style={tr}>
+                    <td style={td}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <img src={item.image} style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} alt="" />
+                        <span style={{ fontWeight: 600 }}>{item.title}</span>
+                      </div>
+                    </td>
+                    <td style={td}>
+                      <span style={{ 
+                        padding: '0.25rem 0.6rem', 
+                        borderRadius: '20px', 
+                        fontSize: '0.75rem', 
+                        fontWeight: 600,
+                        background: item.is_visible ? '#def7ec' : '#f3f4f6',
+                        color: item.is_visible ? '#03543f' : '#718096'
+                      }}>
+                        {item.is_visible ? 'Visible' : 'Hidden'}
+                      </span>
+                    </td>
+                    <td className="muted" style={{ ...td, fontSize: '0.85rem' }}>
+                      {new Date(item.created_at || Date.now()).toLocaleDateString()}
+                    </td>
+                    <td style={{ ...td, textAlign: 'right' }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                        <button onClick={() => toggleVisibility('blogs', item.id, item.is_visible)} title="Toggle Visibility" style={actionBtn}>
+                          {item.is_visible ? <FiEyeOff /> : <FiEye />}
+                        </button>
+                        <button onClick={() => setEditingBlog(item)} title="Edit" style={actionBtn}><FiEdit2 /></button>
+                        <button onClick={() => deleteItem('blogs', item.id)} title="Delete" style={{ ...actionBtn, color: '#ef4444' }}><FiTrash2 /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+
               </tbody>
             </table>
             

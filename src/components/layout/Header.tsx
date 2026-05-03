@@ -2,19 +2,36 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import styles from './Header.module.css'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 
-const navItems = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About Us' },
-  { href: '/sourcing', label: 'Sourcing' },
-  { href: '/industries', label: 'Industries' },
-  { href: '/quality-packaging', label: 'Quality & Packaging' },
-  { href: '/logistics', label: 'Logistics' },
-  { href: '/contact', label: 'Contact' },
+
 ]
+
 
 const Header = () => {
   const pathname = usePathname()
+  const [isBlogVisible, setIsBlogVisible] = useState(false)
+
+  useEffect(() => {
+    const fetchVisibility = async () => {
+      try {
+        const { data } = await supabase
+          .from('site_content')
+          .select('content_value')
+          .eq('content_key', 'blog_visibility')
+          .single();
+        
+        if (data) {
+          setIsBlogVisible(data.content_value === 'true');
+        }
+      } catch (err) {
+        console.error('Error fetching blog visibility:', err);
+      }
+    };
+    fetchVisibility();
+  }, []);
+
 
   return (
     <header className={styles.header}>
@@ -28,7 +45,16 @@ const Header = () => {
         </Link>
         <nav className={styles.nav}>
           <ul>
-            {navItems.map((item) => {
+            {[
+              { href: '/', label: 'Home' },
+              { href: '/about', label: 'About Us' },
+              { href: '/sourcing', label: 'Sourcing' },
+              { href: '/industries', label: 'Industries' },
+              { href: '/quality-packaging', label: 'Quality & Packaging' },
+              { href: '/logistics', label: 'Logistics' },
+              { href: '/blogs', label: 'Blog', hidden: !isBlogVisible },
+              { href: '/contact', label: 'Contact' },
+            ].filter(item => !item.hidden).map((item) => {
               const isActive =
                 item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
               return (
@@ -41,6 +67,7 @@ const Header = () => {
             })}
           </ul>
         </nav>
+
       </div>
     </header>
   )

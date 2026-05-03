@@ -54,3 +54,13 @@ export interface ProductData {
   is_visible: boolean;
   created_at?: string;
 }
+export interface BlogData {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  author: string;
+  is_visible: boolean;
+  created_at?: string;
+}
