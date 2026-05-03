@@ -43,7 +43,9 @@ async function getIndustriesAndProducts(lang: string) {
 }
 
 export default async function IndustriesPage() {
-  const lang = cookies().get('site_language')?.value || defaultLanguage;
+  const cookieStore = await cookies();
+  const lang = cookieStore.get('site_language')?.value || defaultLanguage;
+
   const { industries, products } = await getIndustriesAndProducts(lang);
 
   return (

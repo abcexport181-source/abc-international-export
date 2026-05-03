@@ -13,7 +13,9 @@ import { defaultLanguage } from '@/lib/languages';
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const lang = cookies().get('site_language')?.value || defaultLanguage;
+  const cookieStore = await cookies();
+  const lang = cookieStore.get('site_language')?.value || defaultLanguage;
+
   const langSlug = slug.includes(':') ? slug : `${lang}:${slug}`;
   
   let industry: any = null;
