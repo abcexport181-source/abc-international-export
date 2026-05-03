@@ -135,9 +135,11 @@ export default function AdminDashboard() {
               {authLoading ? 'Logging in...' : 'Sign In'}
             </button>
           </form>
+        </div>
       </div>
     );
   }
+
 
   const fetchSiteContent = async () => {
     // Add a dummy filter to bust any potential caches
