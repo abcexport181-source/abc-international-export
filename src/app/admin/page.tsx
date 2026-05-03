@@ -741,6 +741,7 @@ export default function AdminDashboard() {
   };
 
   const handleAddNew = () => {
+    console.log('Adding new item for tab:', activeTab);
     if (activeTab === 'industries') {
       setEditingIndustry({
         id: '',
@@ -754,7 +755,7 @@ export default function AdminDashboard() {
     } else if (activeTab === 'products') {
       setEditingProduct({
         id: '',
-        category_id: industries[0]?.id || '',
+        category_id: industries.length > 0 ? industries[0].id : '',
         name: '',
         description: '',
         image: '',
@@ -772,6 +773,7 @@ export default function AdminDashboard() {
       });
     }
   };
+
 
 
   return (
@@ -852,31 +854,34 @@ export default function AdminDashboard() {
                   <input 
                     value={editingIndustry.title} 
                     onChange={e => setEditingIndustry({...editingIndustry, title: e.target.value})}
-                    maxLength={getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.title || '') || 100}
+                    maxLength={100}
                     style={field} 
                   />
                 </div>
+
 
                 <div>
                   <label style={label}>Description (Short)</label>
                   <textarea 
                     value={editingIndustry.description_short} 
                     onChange={e => setEditingIndustry({...editingIndustry, description_short: e.target.value})}
-                    maxLength={getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.desc || '')}
+                    maxLength={500}
                     style={{...field, height: '80px'}} 
                   />
-                  <small className="muted">{editingIndustry.description_short.length} / {getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.desc || '')}</small>
+                  <small className="muted">{editingIndustry.description_short.length} / 500</small>
                 </div>
+
                 <div>
                   <label style={label}>Full Information (Long)</label>
                   <textarea 
                     value={editingIndustry.full_info} 
                     onChange={e => setEditingIndustry({...editingIndustry, full_info: e.target.value})}
-                    maxLength={getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.fullInfo || '')}
+                    maxLength={2000}
                     style={{...field, height: '150px'}} 
                   />
-                  <small className="muted">{editingIndustry.full_info.length} / {getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.fullInfo || '') || 1000}</small>
+                  <small className="muted">{editingIndustry.full_info.length} / 2000</small>
                 </div>
+
                 <div>
                   <label style={label}>Tags / Keys (Comma separated)</label>
                   <input 
@@ -1008,9 +1013,12 @@ export default function AdminDashboard() {
             >
               Sync Mock Data
             </button>
-            <button onClick={handleAddNew} className="btnPrimary" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <FiPlus /> Add New {activeTab === 'industries' ? 'Industry' : 'Product'}
-            </button>
+            {(activeTab === 'industries' || activeTab === 'products') && (
+              <button onClick={handleAddNew} className="btnPrimary" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <FiPlus /> Add New {activeTab === 'industries' ? 'Industry' : 'Product'}
+              </button>
+            )}
+
 
             <button 
               onClick={handleLogout} 
