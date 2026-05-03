@@ -3,30 +3,56 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FiGlobe, FiCheckSquare, FiClipboard, FiArrowRight } from 'react-icons/fi';
 import { supabase, IndustryData, isSupabaseConfigured } from '@/lib/supabase';
-import { industriesData } from '@/data/products';
+import { industriesData, productsData } from '@/data/products';
 import { useWebsiteData } from '@/hooks/useWebsiteData';
+
+interface IndustryWithCount extends IndustryData {
+  productCount?: number;
+}
+
 
 export default function IndustriesPage() {
   const { getContent } = useWebsiteData();
-  const [industries, setIndustries] = useState<IndustryData[]>([]);
+  const [industries, setIndustries] = useState<IndustryWithCount[]>([]);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchIndustries() {
       if (!isSupabaseConfigured) {
-        setIndustries(industriesData.map(i => ({...i, is_visible: true, full_info: i.fullInfo, description_short: i.desc})));
+        const industriesWithCounts = industriesData.map(i => ({
+          ...i, 
+          is_visible: true, 
+          full_info: i.fullInfo, 
+          description_short: i.desc,
+          productCount: productsData.filter(p => p.category === i.id).length
+        }));
+        setIndustries(industriesWithCounts);
         setLoading(false);
         return;
       }
-      const { data } = await supabase
+      const { data: indData } = await supabase
         .from('industries')
         .select('*')
         .eq('is_visible', true)
         .order('title');
       
-      if (data) setIndustries(data);
+      if (indData) {
+        const { data: prodData } = await supabase
+          .from('products')
+          .select('category_id')
+          .eq('is_visible', true);
+          
+        const industriesWithCounts = indData.map(ind => ({
+          ...ind,
+          productCount: prodData?.filter(p => p.category_id === ind.id).length || 0
+        }));
+        
+        setIndustries(industriesWithCounts);
+      }
       setLoading(false);
     }
+
     fetchIndustries();
   }, []);
 
@@ -72,9 +98,12 @@ export default function IndustriesPage() {
                       )}
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1f5ff5', fontWeight: 600, fontSize: '0.9rem' }}>
-                      View All Products <FiArrowRight />
-                    </div>
+                    {(item.productCount ?? 0) > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1f5ff5', fontWeight: 600, fontSize: '0.9rem' }}>
+                        View All Products <FiArrowRight />
+                      </div>
+                    )}
+
                   </article>
                 </Link>
               ))}
