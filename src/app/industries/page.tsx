@@ -4,24 +4,37 @@ import { createClient } from '@supabase/supabase-js';
 import { industriesData, productsData } from '@/data/products';
 import { FiArrowRight } from 'react-icons/fi';
 
+import { cookies } from 'next/headers';
+import { defaultLanguage } from '@/lib/languages';
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-async function getIndustriesAndProducts() {
+async function getIndustriesAndProducts(lang: string) {
   let industries: any[] = [];
   let products: any[] = [];
 
   if (supabaseUrl && supabaseServiceKey) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const { data: indData } = await supabase.from('industries').select('*').eq('is_visible', true).order('title');
-    const { data: prodData } = await supabase.from('products').select('id, category_id, is_visible').eq('is_visible', true);
+    const { data: indData } = await supabase
+      .from('industries')
+      .select('*')
+      .eq('is_visible', true)
+      .eq('language_code', lang)
+      .order('title');
+      
+    const { data: prodData } = await supabase
+      .from('products')
+      .select('id, category_id, is_visible')
+      .eq('is_visible', true)
+      .eq('language_code', lang);
     
     if (indData) industries = indData;
     if (prodData) products = prodData;
   }
 
-  // Fallback / Merge with mock data if needed
-  if (industries.length === 0) {
+  // Fallback / Merge with mock data if needed (Mock data is in English)
+  if (industries.length === 0 && lang === 'en') {
     industries = industriesData.map(i => ({...i, is_visible: true, description_short: i.desc}));
     products = productsData.map(p => ({id: p.id, category_id: p.category, is_visible: true}));
   }
@@ -30,7 +43,8 @@ async function getIndustriesAndProducts() {
 }
 
 export default async function IndustriesPage() {
-  const { industries, products } = await getIndustriesAndProducts();
+  const lang = cookies().get('site_language')?.value || defaultLanguage;
+  const { industries, products } = await getIndustriesAndProducts(lang);
 
   return (
     <>

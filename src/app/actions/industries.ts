@@ -17,7 +17,11 @@ export async function saveIndustryAction(industry: any) {
     const supabaseAdmin = getSupabaseAdmin();
     const { error } = await supabaseAdmin
       .from('industries')
-      .upsert(industry);
+      .upsert({
+        ...industry,
+        id: industry.id.startsWith(industry.language_code + ':') ? industry.id : `${industry.language_code}:${industry.id}`
+      });
+
 
     if (error) throw error;
     revalidatePath('/industries');

@@ -17,7 +17,10 @@ export async function saveProductAction(product: any) {
     const supabaseAdmin = getSupabaseAdmin();
     const { error } = await supabaseAdmin
       .from('products')
-      .upsert(product);
+      .upsert({
+        ...product,
+        id: product.id.startsWith(product.language_code + ':') ? product.id : `${product.language_code}:${product.id}`
+      });
 
     if (error) throw error;
     revalidatePath('/products');

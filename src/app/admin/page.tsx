@@ -4,6 +4,8 @@ import { supabase, IndustryData, ProductData, SiteContent, isSupabaseConfigured 
 import { FiLayout, FiGrid, FiBox, FiEye, FiEyeOff, FiEdit2, FiPlus, FiTrash2, FiSave, FiAlertCircle, FiHome, FiInfo, FiMail, FiLogOut, FiSearch, FiTruck, FiList, FiShield } from 'react-icons/fi';
 import { industriesData, productsData } from '@/data/products';
 import BackToTop from '@/components/common/BackToTop';
+import { languages, defaultLanguage } from '@/lib/languages';
+
 
 type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'industries' | 'products' | 'blogs';
 
@@ -41,6 +43,8 @@ export default function AdminDashboard() {
   const [isBlogVisibleOnSite, setIsBlogVisibleOnSite] = useState(false);
   const [blogs, setBlogs] = useState<BlogData[]>([]);
   const [editingBlog, setEditingBlog] = useState<BlogData | null>(null);
+  const [currentLanguage, setCurrentLanguage] = useState(defaultLanguage);
+
 
 
 
@@ -103,7 +107,7 @@ export default function AdminDashboard() {
     } else {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, currentLanguage]);
 
   if (!isSupabaseConfigured) {
     return (
@@ -160,6 +164,7 @@ export default function AdminDashboard() {
     const { data } = await supabase
       .from('site_content')
       .select('*')
+      .eq('language_code', currentLanguage)
       .order('page_name')
       .filter('id', 'neq', `cache_buster_${Date.now()}`); 
       
@@ -180,8 +185,10 @@ export default function AdminDashboard() {
       page_name: 'global',
       section_name: 'navigation',
       content_key: 'blog_visibility',
-      content_value: String(newValue)
+      content_value: String(newValue),
+      language_code: 'en' // Blog visibility is a global setting
     }]);
+
 
     
     if (result.success) {
@@ -203,13 +210,25 @@ export default function AdminDashboard() {
     if (changesCount === 0) return;
     
     setIsSaving(true);
-    const updatesArray = Object.entries(pendingChanges).map(([id, value]) => ({ id, value }));
+    const updatesArray = Object.entries(pendingChanges).map(([id, value]) => {
+      const original = siteContent.find((c: SiteContent) => c.id === id);
+      return { 
+        id, 
+        content_value: value,
+        page_name: original?.page_name || '',
+        section_name: original?.section_name || '',
+        content_key: original?.content_key || '',
+        language_code: currentLanguage
+      };
+    });
     
     try {
-      const result = await updateSiteContentBatch(updatesArray);
+      const result = await upsertSiteContent(updatesArray);
+
       
       if (result.success) {
-        setMessage({ text: `Successfully updated ${result.count} items!`, type: 'success' });
+        setMessage({ text: `Successfully updated ${result.data?.length || 0} items!`, type: 'success' });
+
         
         // Update local state immediately with returned data to avoid re-fetch lag/stale data
         if (result.data) {
@@ -245,8 +264,8 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { data: indData } = await supabase.from('industries').select('*').order('title');
-      const { data: prodData } = await supabase.from('products').select('*').order('name');
+      const { data: indData } = await supabase.from('industries').select('*').eq('language_code', currentLanguage).order('title');
+      const { data: prodData } = await supabase.from('products').select('*').eq('language_code', currentLanguage).order('name');
       const { data: blogData } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
       if (indData) setIndustries(indData);
       if (prodData) setProducts(prodData);
@@ -257,6 +276,7 @@ export default function AdminDashboard() {
     }
     setLoading(false);
   };
+
 
   const handleImageUpload = async (file: File) => {
     const formData = new FormData();
@@ -761,11 +781,29 @@ export default function AdminDashboard() {
         { page: 'quality-packaging', section: 'Standards', key: 'side_img', val: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000' },
         { page: 'quality-packaging', section: 'Options', key: 'side_img', val: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000' },
         { page: 'quality-packaging', section: 'CTA', key: 'bg_img', val: 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=2000' },
-        { page: 'global', section: 'navigation', key: 'blog_visibility', val: 'false' }
+        { page: 'global', section: 'navigation', key: 'blog_visibility', val: 'false' },
+        
+        // NAVIGATION LABELS
+        { page: 'global', section: 'navigation', key: 'home', val: 'Home' },
+        { page: 'global', section: 'navigation', key: 'about', val: 'About Us' },
+        { page: 'global', section: 'navigation', key: 'sourcing', val: 'Sourcing' },
+        { page: 'global', section: 'navigation', key: 'industries', val: 'Industries' },
+        { page: 'global', section: 'navigation', key: 'quality', val: 'Quality & Packaging' },
+        { page: 'global', section: 'navigation', key: 'logistics', val: 'Logistics' },
+        { page: 'global', section: 'navigation', key: 'blog', val: 'Blog' },
+        { page: 'global', section: 'navigation', key: 'contact', val: 'Contact' },
+
+        // FOOTER LABELS
+        { page: 'global', section: 'footer', key: 'brand_desc', val: 'Your trusted merchant exporter and global sourcing partner, backed by logistics expertise.' },
+        { page: 'global', section: 'footer', key: 'quick_links', val: 'Quick Links' },
+        { page: 'global', section: 'footer', key: 'services', val: 'Services' },
+        { page: 'global', section: 'footer', key: 'contact_us', val: 'Contact Us' }
       ];
 
 
-      const result = await syncInitialDataBatch(initialContent);
+
+      const result = await syncInitialDataBatch(initialContent, currentLanguage);
+
       
       if (result.success) {
         setMessage({ text: 'Data synchronized successfully!', type: 'success' });
@@ -848,8 +886,10 @@ export default function AdminDashboard() {
         description_short: '',
         full_info: '',
         keys: [],
-        is_visible: true
+        is_visible: true,
+        language_code: currentLanguage
       });
+
     } else if (activeTab === 'products') {
       setEditingProduct({
         id: '',
@@ -867,8 +907,10 @@ export default function AdminDashboard() {
           payment: '',
           delivery: ''
         },
-        is_visible: true
+        is_visible: true,
+        language_code: currentLanguage
       });
+
     } else if (activeTab === 'blogs') {
       setEditingBlog({
         id: '',
@@ -1316,7 +1358,26 @@ export default function AdminDashboard() {
             </h2>
             <p className="muted">Manage your website content and visibility settings.</p>
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            {activeTab !== 'blogs' && (
+              <select 
+                value={currentLanguage} 
+                onChange={(e) => setCurrentLanguage(e.target.value)}
+                style={{ 
+                  padding: '0.6rem 1rem', 
+                  borderRadius: '8px', 
+                  border: '1px solid #e2e8f0',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  color: '#1b2638',
+                  background: '#fff'
+                }}
+              >
+                {languages.map(lang => (
+                  <option key={lang.code} value={lang.code}>{lang.label}</option>
+                ))}
+              </select>
+            )}
             <button onClick={fetchData} className="btnSecondary" style={{ padding: '0.6rem' }} title="Refresh Data"><FiSave /></button>
             <button 
               onClick={syncInitialData} 

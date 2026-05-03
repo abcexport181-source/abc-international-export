@@ -8,26 +8,42 @@ import { FiCheckCircle, FiShield, FiPackage, FiTruck, FiFileText, FiMapPin, FiMa
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
+import { cookies } from 'next/headers';
+import { defaultLanguage } from '@/lib/languages';
+
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const lang = cookies().get('site_language')?.value || defaultLanguage;
+  const langSlug = slug.includes(':') ? slug : `${lang}:${slug}`;
   
   let product: any = null;
 
-  // Try fetching from Supabase first using Service Role Key (if available on server) or Anon Key
+  // Try fetching from Supabase first
   if (supabaseUrl && supabaseServiceKey) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const { data } = await supabase
       .from('products')
       .select('*')
-      .eq('id', slug)
+      .eq('id', langSlug)
       .eq('is_visible', true)
       .single();
     
-    if (data) product = data;
+    if (data) {
+      product = data;
+    } else if (lang === 'en') {
+      // Try to fetch without prefix for legacy support in English
+      const { data: legacyProd } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', slug)
+        .eq('is_visible', true)
+        .single();
+      if (legacyProd) product = legacyProd;
+    }
   }
 
-  // Fallback to mock data if not found in Supabase
-  if (!product) {
+  // Fallback to mock data (English only)
+  if (!product && lang === 'en') {
     const mockProd = productsData.find(p => p.id === slug);
     if (mockProd) {
       product = {

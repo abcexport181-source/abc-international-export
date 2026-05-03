@@ -49,7 +49,7 @@ export async function updateSiteContentBatch(updates: { id: string, value: strin
   }
 }
 
-export async function syncInitialDataBatch(initialContent: any[]) {
+export async function syncInitialDataBatch(initialContent: any[], languageCode: string) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -63,15 +63,15 @@ export async function syncInitialDataBatch(initialContent: any[]) {
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
   
   try {
-    // Process in smaller chunks to avoid request limits
     const dataToUpsert = initialContent.map(c => {
-      const calculatedLimit = Math.max(Math.ceil(c.val.length * 1.5), 40);
+      const calculatedLimit = Math.max(Math.ceil(String(c.val).length * 1.5), 40);
       return {
-        id: `${c.page}_${c.section.replace(/\s+/g, '_').toLowerCase()}_${c.key}`,
+        id: `${languageCode}_${c.page}_${c.section.replace(/\s+/g, '_').toLowerCase()}_${c.key}`,
         page_name: c.page,
         section_name: c.section,
         content_key: c.key,
-        content_value: c.val,
+        content_value: String(c.val),
+        language_code: languageCode,
         char_limit: calculatedLimit
       };
     });
@@ -96,12 +96,14 @@ export async function syncInitialDataBatch(initialContent: any[]) {
   }
 }
 
+
 export async function upsertSiteContent(updates: { 
   id?: string, 
   page_name: string, 
   section_name: string, 
   content_key: string, 
-  content_value: string 
+  content_value: string,
+  language_code: string
 }[]) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -114,11 +116,12 @@ export async function upsertSiteContent(updates: {
   
   try {
     const dataToUpsert = updates.map(u => ({
-      id: u.id || `${u.page_name}_${u.section_name.replace(/\s+/g, '_').toLowerCase()}_${u.content_key}`,
+      id: u.id || `${u.language_code}_${u.page_name}_${u.section_name.replace(/\s+/g, '_').toLowerCase()}_${u.content_key}`,
       page_name: u.page_name,
       section_name: u.section_name,
       content_key: u.content_key,
       content_value: u.content_value,
+      language_code: u.language_code,
       char_limit: 500
     }));
 
@@ -135,3 +138,4 @@ export async function upsertSiteContent(updates: {
     return { success: false, error: err.message };
   }
 }
+

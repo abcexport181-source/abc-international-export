@@ -8,8 +8,13 @@ import { FiArrowRight, FiCheckCircle } from 'react-icons/fi';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
+import { cookies } from 'next/headers';
+import { defaultLanguage } from '@/lib/languages';
+
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const lang = cookies().get('site_language')?.value || defaultLanguage;
+  const langSlug = slug.includes(':') ? slug : `${lang}:${slug}`;
   
   let industry: any = null;
   let products: any[] = [];
@@ -21,7 +26,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     const { data: ind } = await supabase
       .from('industries')
       .select('*')
-      .eq('id', slug)
+      .eq('id', langSlug)
       .eq('is_visible', true)
       .single();
     
@@ -31,15 +36,33 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       const { data: prods } = await supabase
         .from('products')
         .select('*')
-        .eq('category_id', slug)
+        .eq('category_id', langSlug)
         .eq('is_visible', true);
       
       if (prods) products = prods;
+    } else if (lang === 'en') {
+      // Try to fetch without prefix for legacy support in English
+      const { data: legacyInd } = await supabase
+        .from('industries')
+        .select('*')
+        .eq('id', slug)
+        .eq('is_visible', true)
+        .single();
+      
+      if (legacyInd) {
+        industry = legacyInd;
+        const { data: legacyProds } = await supabase
+          .from('products')
+          .select('*')
+          .eq('category_id', slug)
+          .eq('is_visible', true);
+        if (legacyProds) products = legacyProds;
+      }
     }
   }
 
-  // Fallback to mock data
-  if (!industry) {
+  // Fallback to mock data (English only)
+  if (!industry && lang === 'en') {
     const mockInd = industriesData.find(i => i.id === slug);
     if (mockInd) {
       industry = {

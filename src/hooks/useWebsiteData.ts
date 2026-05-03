@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { useLanguage } from '@/context/LanguageContext';
 
 export const useWebsiteData = () => {
+    const { language } = useLanguage();
     const [content, setContent] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -12,16 +14,16 @@ export const useWebsiteData = () => {
         }
 
         try {
-            console.log('Fetching fresh website content from Supabase...');
-            // Standard fetch - since the Admin Panel works, this will now work too
+            console.log(`Fetching website content for language: ${language}...`);
             const { data, error } = await supabase
                 .from('site_content')
-                .select('*');
+                .select('*')
+                .eq('language_code', language);
             
             if (error) {
               console.error('Supabase fetch ERROR:', error);
             } else if (data) {
-              console.log(`Successfully fetched ${data.length} content items!`);
+              console.log(`Successfully fetched ${data.length} items for ${language}`);
               setContent(data);
             }
         } catch (error) {
@@ -33,7 +35,7 @@ export const useWebsiteData = () => {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [language]);
 
     const getContent = (page: string, section: string, key: string, defaultValue: string) => {
         const item = content.find(c => 

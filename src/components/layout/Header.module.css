@@ -54,8 +54,32 @@
   border-radius: 6px;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.langSelect {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #e8ebf2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4f5b72;
+  background: #f8fafc;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.langSelect:hover {
+  border-color: #1e5df7;
+  color: #1e5df7;
+}
+
 @media (max-width: 1024px) {
   .nav {
     display: none;
   }
-}
+}

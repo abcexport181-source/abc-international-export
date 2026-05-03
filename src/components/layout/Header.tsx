@@ -1,13 +1,22 @@
 'use client'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import styles from './Header.module.css'
-import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useLanguage } from '@/context/LanguageContext'
+import { languages } from '@/lib/languages'
+import { useWebsiteData } from '@/hooks/useWebsiteData'
+
+
 
 const Header = () => {
   const pathname = usePathname()
   const [isBlogVisible, setIsBlogVisible] = useState(false)
+  const { language, setLanguage } = useLanguage()
+  const { getContent } = useWebsiteData()
+
+
 
   useEffect(() => {
     const fetchVisibility = async () => {
@@ -16,7 +25,9 @@ const Header = () => {
           .from('site_content')
           .select('content_value')
           .eq('content_key', 'blog_visibility')
+          .eq('language_code', 'en') // Global setting
           .single();
+
         
         if (data) {
           setIsBlogVisible(data.content_value === 'true');
@@ -42,14 +53,15 @@ const Header = () => {
         <nav className={styles.nav}>
           <ul>
             {[
-              { href: '/', label: 'Home' },
-              { href: '/about', label: 'About Us' },
-              { href: '/sourcing', label: 'Sourcing' },
-              { href: '/industries', label: 'Industries' },
-              { href: '/quality-packaging', label: 'Quality & Packaging' },
-              { href: '/logistics', label: 'Logistics' },
-              { href: '/blogs', label: 'Blog', hidden: !isBlogVisible },
-              { href: '/contact', label: 'Contact' },
+              { href: '/', label: getContent('global', 'navigation', 'home', 'Home') },
+              { href: '/about', label: getContent('global', 'navigation', 'about', 'About Us') },
+              { href: '/sourcing', label: getContent('global', 'navigation', 'sourcing', 'Sourcing') },
+              { href: '/industries', label: getContent('global', 'navigation', 'industries', 'Industries') },
+              { href: '/quality-packaging', label: getContent('global', 'navigation', 'quality', 'Quality & Packaging') },
+              { href: '/logistics', label: getContent('global', 'navigation', 'logistics', 'Logistics') },
+              { href: '/blogs', label: getContent('global', 'navigation', 'blog', 'Blog'), hidden: !isBlogVisible },
+              { href: '/contact', label: getContent('global', 'navigation', 'contact', 'Contact') },
+
             ].filter(item => !item.hidden).map((item) => {
               const isActive =
                 item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
@@ -63,6 +75,21 @@ const Header = () => {
             })}
           </ul>
         </nav>
+
+        <div className={styles.headerActions}>
+          <select 
+            value={language} 
+            onChange={(e) => setLanguage(e.target.value)}
+            className={styles.langSelect}
+          >
+            {languages.map(lang => (
+              <option key={lang.code} value={lang.code}>
+                {lang.code.toUpperCase()}
+              </option>
+            ))}
+          </select>
+        </div>
+
 
       </div>
     </header>

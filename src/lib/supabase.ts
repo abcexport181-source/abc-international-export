@@ -22,7 +22,9 @@ export interface SiteContent {
   content_key: string;
   content_value: string;
   char_limit: number;
+  language_code: string;
 }
+
 
 export interface IndustryData {
   id: string;
@@ -32,8 +34,10 @@ export interface IndustryData {
   full_info: string;
   keys: string[];
   is_visible: boolean;
+  language_code: string;
   created_at?: string;
 }
+
 
 export interface ProductData {
   id: string;
@@ -52,8 +56,10 @@ export interface ProductData {
     delivery: string;
   };
   is_visible: boolean;
+  language_code: string;
   created_at?: string;
 }
+
 export interface BlogData {
   id: string;
   title: string;

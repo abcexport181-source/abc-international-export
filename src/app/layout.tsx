@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BackToTop from '@/components/common/BackToTop'
+import { LanguageProvider } from '@/context/LanguageContext'
 
 export const metadata: Metadata = {
   title: 'ABC International Logistics | Your Trusted Merchant Exporter',
@@ -17,10 +18,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Header />
-        <main>{children}</main>
-        <Footer />
-        <BackToTop />
+        <LanguageProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+          <BackToTop />
+        </LanguageProvider>
       </body>
     </html>
   )
