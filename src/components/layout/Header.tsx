@@ -5,10 +5,6 @@ import styles from './Header.module.css'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
-
-]
-
-
 const Header = () => {
   const pathname = usePathname()
   const [isBlogVisible, setIsBlogVisible] = useState(false)
