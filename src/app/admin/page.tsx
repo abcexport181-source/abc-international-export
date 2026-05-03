@@ -1023,6 +1023,93 @@ export default function AdminDashboard() {
                     ))}
                   </div>
                 </div>
+                <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>Technical Specifications</h4>
+                  {Object.entries(editingProduct.specs || {}).map(([key, val], idx) => (
+                    <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                      <input 
+                        value={key} 
+                        onChange={e => {
+                          const newSpecs = { ...editingProduct.specs };
+                          const oldVal = newSpecs[key];
+                          delete newSpecs[key];
+                          newSpecs[e.target.value] = oldVal;
+                          setEditingProduct({ ...editingProduct, specs: newSpecs });
+                        }}
+                        placeholder="Property (e.g. Moisture)"
+                        style={{ ...field, flex: 1 }}
+                      />
+                      <input 
+                        value={val} 
+                        onChange={e => setEditingProduct({
+                          ...editingProduct, 
+                          specs: { ...editingProduct.specs, [key]: e.target.value }
+                        })}
+                        placeholder="Value (e.g. 12% Max)"
+                        style={{ ...field, flex: 2 }}
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          const newSpecs = { ...editingProduct.specs };
+                          delete newSpecs[key];
+                          setEditingProduct({ ...editingProduct, specs: newSpecs });
+                        }}
+                        style={{ color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer', padding: '0.5rem' }}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  ))}
+                  <button 
+                    type="button" 
+                    onClick={() => setEditingProduct({
+                      ...editingProduct, 
+                      specs: { ...(editingProduct.specs || {}), '': '' }
+                    })}
+                    style={{ fontSize: '0.85rem', color: '#1f5ff5', background: 'none', border: '1px dashed #1f5ff5', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', width: '100%' }}
+                  >
+                    + Add New Specification
+                  </button>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>Product Features</h4>
+                  {(editingProduct.features || []).map((feature, idx) => (
+                    <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                      <input 
+                        value={feature} 
+                        onChange={e => {
+                          const newFeatures = [...editingProduct.features];
+                          newFeatures[idx] = e.target.value;
+                          setEditingProduct({ ...editingProduct, features: newFeatures });
+                        }}
+                        placeholder="e.g. Pesticide residue-free"
+                        style={field}
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          const newFeatures = editingProduct.features.filter((_: any, i: number) => i !== idx);
+                          setEditingProduct({ ...editingProduct, features: newFeatures });
+                        }}
+                        style={{ color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer', padding: '0.5rem' }}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  ))}
+                  <button 
+                    type="button" 
+                    onClick={() => setEditingProduct({
+                      ...editingProduct, 
+                      features: [...(editingProduct.features || []), '']
+                    })}
+                    style={{ fontSize: '0.85rem', color: '#1f5ff5', background: 'none', border: '1px dashed #1f5ff5', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', width: '100%' }}
+                  >
+                    + Add New Feature
+                  </button>
+                </div>
 
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                   <button type="submit" className="btnPrimary" style={{ flex: 1 }}>Save Product</button>
