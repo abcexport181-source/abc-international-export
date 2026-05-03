@@ -838,8 +838,19 @@ export default function AdminDashboard() {
         },
         is_visible: true
       });
+    } else if (activeTab === 'blogs') {
+      setEditingBlog({
+        id: '',
+        title: '',
+        excerpt: '',
+        content: '',
+        image: '',
+        author: user?.email?.split('@')[0] || 'Admin',
+        is_visible: true
+      });
     }
   };
+
 
 
 
@@ -862,6 +873,7 @@ export default function AdminDashboard() {
             { id: 'contact-content', label: 'Contact', icon: FiMail },
             { id: 'industries', label: 'Manage Industries', icon: FiList },
             { id: 'products', label: 'Manage Products', icon: FiBox },
+            { id: 'blogs', label: 'Manage Blogs', icon: FiFileText },
           ].map(tab => (
             <button
               key={tab.id}
@@ -1269,6 +1281,7 @@ export default function AdminDashboard() {
               {activeTab === 'contact-content' && 'Contact Page Content'}
               {activeTab === 'industries' && 'Manage Industries'}
               {activeTab === 'products' && 'Manage Products'}
+              {activeTab === 'blogs' && 'Manage Blogs'}
             </h2>
             <p className="muted">Manage your website content and visibility settings.</p>
           </div>
