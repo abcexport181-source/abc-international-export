@@ -740,6 +740,40 @@ export default function AdminDashboard() {
     if (!error) fetchData();
   };
 
+  const handleAddNew = () => {
+    if (activeTab === 'industries') {
+      setEditingIndustry({
+        id: '',
+        title: '',
+        icon: '📁',
+        description_short: '',
+        full_info: '',
+        keys: [],
+        is_visible: true
+      });
+    } else if (activeTab === 'products') {
+      setEditingProduct({
+        id: '',
+        category_id: industries[0]?.id || '',
+        name: '',
+        description: '',
+        image: '',
+        features: [],
+        specs: {},
+        export_details: {
+          moq: '',
+          origin: '',
+          capacity: '',
+          packaging: '',
+          payment: '',
+          delivery: ''
+        },
+        is_visible: true
+      });
+    }
+  };
+
+
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex' }}>
       {/* Sidebar */}
@@ -797,20 +831,32 @@ export default function AdminDashboard() {
           <div style={modalOverlay}>
             <div style={modalContent}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                <h3>Edit Industry: {editingIndustry.title}</h3>
+                <h3>{editingIndustry.id ? `Edit Industry: ${editingIndustry.title}` : 'Add New Industry'}</h3>
                 <button onClick={() => setEditingIndustry(null)} style={{ border: 'none', background: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
               </div>
               <form onSubmit={saveIndustry} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {industries.every(i => i.id !== editingIndustry.id) && (
+                  <div>
+                    <label style={label}>Industry ID (slug, e.g. 'agro-food')</label>
+                    <input 
+                      value={editingIndustry.id} 
+                      onChange={e => setEditingIndustry({...editingIndustry, id: e.target.value})}
+                      style={field} 
+                      required
+                      placeholder="e.g. textile-apparel"
+                    />
+                  </div>
+                )}
                 <div>
                   <label style={label}>Title</label>
                   <input 
                     value={editingIndustry.title} 
                     onChange={e => setEditingIndustry({...editingIndustry, title: e.target.value})}
-                    maxLength={getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.title || '')}
+                    maxLength={getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.title || '') || 100}
                     style={field} 
                   />
-                  <small className="muted">{editingIndustry.title.length} / {getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.title || '')}</small>
                 </div>
+
                 <div>
                   <label style={label}>Description (Short)</label>
                   <textarea 
@@ -829,8 +875,18 @@ export default function AdminDashboard() {
                     maxLength={getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.fullInfo || '')}
                     style={{...field, height: '150px'}} 
                   />
-                  <small className="muted">{editingIndustry.full_info.length} / {getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.fullInfo || '')}</small>
+                  <small className="muted">{editingIndustry.full_info.length} / {getCharLimit(industriesData.find(i => i.id === editingIndustry.id)?.fullInfo || '') || 1000}</small>
                 </div>
+                <div>
+                  <label style={label}>Tags / Keys (Comma separated)</label>
+                  <input 
+                    value={editingIndustry.keys.join(', ')} 
+                    onChange={e => setEditingIndustry({...editingIndustry, keys: e.target.value.split(',').map(k => k.trim()).filter(k => k)})}
+                    style={field} 
+                    placeholder="e.g. Textiles, Fabrics, Home Decor"
+                  />
+                </div>
+
                 <DirectUpload 
                   label="Icon / Image" 
                   value={editingIndustry.icon} 
@@ -849,24 +905,44 @@ export default function AdminDashboard() {
           <div style={modalOverlay}>
             <div style={{...modalContent, maxWidth: '800px'}}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                <h3>Edit Product: {editingProduct.name}</h3>
+                <h3>{editingProduct.id ? `Edit Product: ${editingProduct.name}` : 'Add New Product'}</h3>
                 <button onClick={() => setEditingProduct(null)} style={{ border: 'none', background: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
               </div>
               <form onSubmit={async (e) => {
                 e.preventDefault();
-                const { error } = await supabase.from('products').upsert(editingProduct);
+                const productToSave = { ...editingProduct };
+                if (!productToSave.id) delete (productToSave as any).id;
+                
+                const { error } = await supabase.from('products').upsert(productToSave);
                 if (!error) { fetchData(); setEditingProduct(null); setMessage({text: 'Product saved!', type: 'success'}); }
               }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  <div>
+                    <label style={label}>Industry Category</label>
+                    <select 
+                      value={editingProduct.category_id}
+                      onChange={e => setEditingProduct({...editingProduct, category_id: e.target.value})}
+                      style={field}
+                      required
+                    >
+                      <option value="">Select Industry</option>
+                      {industries.map(ind => (
+                        <option key={ind.id} value={ind.id}>{ind.title}</option>
+                      ))}
+                    </select>
+                  </div>
                   <div>
                     <label style={label}>Product Name</label>
                     <input 
                       value={editingProduct.name} 
                       onChange={e => setEditingProduct({...editingProduct, name: e.target.value})}
                       style={field} 
+                      required
                     />
                   </div>
-                  <div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  <div style={{ gridColumn: 'span 2' }}>
                     <DirectUpload 
                       label="Product Image" 
                       value={editingProduct.image} 
@@ -874,6 +950,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                 </div>
+
                 <div>
                   <label style={label}>Description</label>
                   <textarea 
@@ -931,9 +1008,10 @@ export default function AdminDashboard() {
             >
               Sync Mock Data
             </button>
-            <button className="btnPrimary" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button onClick={handleAddNew} className="btnPrimary" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <FiPlus /> Add New {activeTab === 'industries' ? 'Industry' : 'Product'}
             </button>
+
             <button 
               onClick={handleLogout} 
               className="btnSecondary" 
