@@ -20,13 +20,14 @@ export default function IndustriesPage() {
   useEffect(() => {
     async function fetchIndustries() {
       if (!isSupabaseConfigured) {
-        const industriesWithCounts = industriesData.map(i => ({
+        const industriesWithCounts = industriesData.map((i: any) => ({
           ...i, 
           is_visible: true, 
           full_info: i.fullInfo, 
           description_short: i.desc,
-          productCount: productsData.filter(p => p.category === i.id).length
+          productCount: productsData.filter((p: any) => p.category === i.id).length
         }));
+
         setIndustries(industriesWithCounts);
         setLoading(false);
         return;
@@ -43,10 +44,11 @@ export default function IndustriesPage() {
           .select('category_id')
           .eq('is_visible', true);
           
-        const industriesWithCounts = indData.map(ind => ({
+        const industriesWithCounts = indData.map((ind: IndustryData) => ({
           ...ind,
-          productCount: prodData?.filter(p => p.category_id === ind.id).length || 0
+          productCount: prodData?.filter((p: any) => p.category_id === ind.id).length || 0
         }));
+
         
         setIndustries(industriesWithCounts);
       }
