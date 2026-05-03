@@ -11,6 +11,9 @@ import { auth } from '@/lib/firebase/config';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { createSession, removeSession, getSession } from '@/app/actions/auth';
 import { updateSiteContentBatch, syncInitialDataBatch } from '@/app/actions/content';
+import { saveIndustryAction, deleteIndustryAction, toggleIndustryVisibilityAction } from '@/app/actions/industries';
+import { saveProductAction, deleteProductAction, toggleProductVisibilityAction } from '@/app/actions/products';
+
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -327,18 +330,18 @@ export default function AdminDashboard() {
         : editingIndustry.keys
     };
 
-    const { error } = await supabase
-      .from('industries')
-      .upsert(dataToSave);
+    const result = await saveIndustryAction(dataToSave);
 
-    if (!error) {
+
+    if (result.success) {
       setMessage({ text: 'Industry saved successfully!', type: 'success' });
       setEditingIndustry(null);
       fetchData();
     } else {
-      console.error('Supabase Save Error:', error);
-      setMessage({ text: 'Error saving industry: ' + (error.message || 'Unknown error'), type: 'error' });
+      console.error('Supabase Save Error:', result.error);
+      setMessage({ text: 'Error saving industry: ' + (result.error || 'Unknown error'), type: 'error' });
     }
+
   };
 
 
@@ -736,19 +739,25 @@ export default function AdminDashboard() {
   };
 
   const toggleVisibility = async (type: 'industries' | 'products', id: string, currentStatus: boolean) => {
-    const { error } = await supabase
-      .from(type)
-      .update({ is_visible: !currentStatus })
-      .eq('id', id);
+    const result = type === 'industries' 
+      ? await toggleIndustryVisibilityAction(id, !currentStatus)
+      : await toggleProductVisibilityAction(id, !currentStatus);
 
-    if (!error) fetchData();
+    if (result.success) fetchData();
+    else setMessage({ text: 'Error: ' + result.error, type: 'error' });
   };
+
 
   const deleteItem = async (type: 'industries' | 'products', id: string) => {
     if (!confirm('Are you sure you want to delete this item? This cannot be undone.')) return;
-    const { error } = await supabase.from(type).delete().eq('id', id);
-    if (!error) fetchData();
+    const result = type === 'industries'
+      ? await deleteIndustryAction(id)
+      : await deleteProductAction(id);
+      
+    if (result.success) fetchData();
+    else setMessage({ text: 'Error: ' + result.error, type: 'error' });
   };
+
 
   const handleAddNew = () => {
     console.log('Adding new item for tab:', activeTab);
@@ -929,8 +938,15 @@ export default function AdminDashboard() {
                 const productToSave = { ...editingProduct };
                 if (!productToSave.id) delete (productToSave as any).id;
                 
-                const { error } = await supabase.from('products').upsert(productToSave);
-                if (!error) { fetchData(); setEditingProduct(null); setMessage({text: 'Product saved!', type: 'success'}); }
+                const result = await saveProductAction(productToSave);
+                if (result.success) { 
+                  fetchData(); 
+                  setEditingProduct(null); 
+                  setMessage({text: 'Product saved!', type: 'success'}); 
+                } else {
+                  setMessage({text: 'Error saving product: ' + result.error, type: 'error'});
+                }
+
               }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                   <div>
