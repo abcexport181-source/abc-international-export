@@ -152,11 +152,22 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <tbody>
                 {Object.entries(product.specs || {}).map(([key, value]: [string, any], idx) => (
-                  <tr key={key} style={{ borderBottom: idx === Object.entries(product.specs).length - 1 ? 'none' : '1px solid #edf2f7' }}>
-                    <td style={{ padding: '1.2rem', background: '#fcfdfe', width: '30%', fontWeight: 600, color: '#4a5568' }}>{key}</td>
-                    <td style={{ padding: '1.2rem', color: '#1b2638' }}>{value}</td>
+                  <tr key={key} style={{ 
+                    borderBottom: idx === Object.entries(product.specs).length - 1 ? 'none' : '1px solid #edf2f7',
+                    transition: 'background-color 0.2s ease'
+                  }}>
+                    <td style={{ 
+                      padding: '1.2rem', 
+                      background: '#f8fafc', 
+                      width: '30%', 
+                      fontWeight: 600, 
+                      color: '#4a5568',
+                      borderRight: '1px solid #edf2f7'
+                    }}>{key}</td>
+                    <td style={{ padding: '1.2rem', color: '#1b2638', background: '#fff' }}>{value}</td>
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>

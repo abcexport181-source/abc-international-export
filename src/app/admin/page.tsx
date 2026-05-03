@@ -997,13 +997,15 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label style={label}>Description</label>
+                  <label style={label}>About this Product (Description)</label>
                   <textarea 
                     value={editingProduct.description} 
                     onChange={e => setEditingProduct({...editingProduct, description: e.target.value})}
-                    style={{...field, height: '100px'}} 
+                    style={{...field, height: '150px'}} 
+                    placeholder="Enter detailed information about the product..."
                   />
                 </div>
+
                 
                 <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                   <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>Export Details</h4>
