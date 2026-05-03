@@ -11,7 +11,8 @@ type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-co
 import { auth } from '@/lib/firebase/config';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { createSession, removeSession, getSession } from '@/app/actions/auth';
-import { updateSiteContentBatch, syncInitialDataBatch } from '@/app/actions/content';
+import { updateSiteContentBatch, syncInitialDataBatch, upsertSiteContent } from '@/app/actions/content';
+
 import { saveIndustryAction, deleteIndustryAction, toggleIndustryVisibilityAction } from '@/app/actions/industries';
 import { saveProductAction, deleteProductAction, toggleProductVisibilityAction } from '@/app/actions/products';
 import { saveBlogAction, deleteBlogAction, toggleBlogVisibilityAction } from '@/app/actions/blogs';
@@ -171,13 +172,14 @@ export default function AdminDashboard() {
     // We use a generic ID for the global setting if it exists, or let upsert handle it
     const existing = siteContent.find((c: SiteContent) => c.content_key === 'blog_visibility');
     
-    const result = await updateSiteContentBatch([{
-      id: existing?.id, // include ID if updating existing row
+    const result = await upsertSiteContent([{
+      id: existing?.id,
       page_name: 'global',
       section_name: 'navigation',
       content_key: 'blog_visibility',
       content_value: String(newValue)
     }]);
+
     
     if (result.success) {
       setIsBlogVisibleOnSite(newValue);

@@ -95,3 +95,43 @@ export async function syncInitialDataBatch(initialContent: any[]) {
     return { success: false, error: err.message };
   }
 }
+
+export async function upsertSiteContent(updates: { 
+  id?: string, 
+  page_name: string, 
+  section_name: string, 
+  content_key: string, 
+  content_value: string 
+}[]) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return { success: false, error: 'SUPABASE_SERVICE_ROLE_KEY is missing.' };
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+  
+  try {
+    const dataToUpsert = updates.map(u => ({
+      id: u.id || `${u.page_name}_${u.section_name.replace(/\s+/g, '_').toLowerCase()}_${u.content_key}`,
+      page_name: u.page_name,
+      section_name: u.section_name,
+      content_key: u.content_key,
+      content_value: u.content_value,
+      char_limit: 500
+    }));
+
+    const { data, error } = await supabaseAdmin
+      .from('site_content')
+      .upsert(dataToUpsert)
+      .select();
+
+    if (error) throw error;
+    
+    revalidatePath('/', 'layout');
+    return { success: true, data };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
