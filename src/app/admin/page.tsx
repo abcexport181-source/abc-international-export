@@ -1427,7 +1427,7 @@ export default function AdminDashboard() {
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '5rem' }}>Loading CMS data...</div>
-        ) : (activeTab === 'industries' || activeTab === 'products') && (
+        ) : (activeTab === 'industries' || activeTab === 'products' || activeTab === 'blogs') && (
           <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
