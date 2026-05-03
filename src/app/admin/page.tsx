@@ -161,7 +161,7 @@ export default function AdminDashboard() {
       
     if (data) {
       setSiteContent(data);
-      const blogVis = data.find(c => c.content_key === 'blog_visibility');
+      const blogVis = data.find((c: SiteContent) => c.content_key === 'blog_visibility');
       if (blogVis) setIsBlogVisibleOnSite(blogVis.content_value === 'true');
     }
   };
@@ -169,7 +169,7 @@ export default function AdminDashboard() {
   const toggleBlogPageVisibility = async () => {
     const newValue = !isBlogVisibleOnSite;
     // We use a generic ID for the global setting if it exists, or let upsert handle it
-    const existing = siteContent.find(c => c.content_key === 'blog_visibility');
+    const existing = siteContent.find((c: SiteContent) => c.content_key === 'blog_visibility');
     
     const result = await updateSiteContentBatch([{
       id: existing?.id, // include ID if updating existing row
