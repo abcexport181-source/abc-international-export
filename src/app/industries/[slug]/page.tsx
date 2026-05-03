@@ -1,44 +1,32 @@
-'use client'
-import React, { useEffect, useState, use } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { supabase, IndustryData, ProductData, isSupabaseConfigured } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { industriesData, productsData } from '@/data/products';
 import { FiArrowRight, FiCheckCircle } from 'react-icons/fi';
 
-export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const [industry, setIndustry] = useState<IndustryData | null>(null);
-  const [products, setProducts] = useState<ProductData[]>([]);
-  const [loading, setLoading] = useState(true);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-  useEffect(() => {
-    async function fetchData() {
-      if (!isSupabaseConfigured) {
-        const ind = industriesData.find(i => i.id === slug);
-        if (ind) {
-          setIndustry({...ind, is_visible: true, full_info: ind.fullInfo, description_short: ind.desc});
-          setProducts(productsData.filter(p => p.category === slug).map(p => ({...p, category_id: p.category, export_details: p.exportDetails, is_visible: true})));
-        }
-        setLoading(false);
-        return;
-      }
-      
-      // Fetch industry
-      const { data: ind } = await supabase
-        .from('industries')
-        .select('*')
-        .eq('id', slug)
-        .eq('is_visible', true)
-        .single();
-      
-      if (!ind) {
-        setLoading(false);
-        return;
-      }
+export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  
+  let industry: any = null;
+  let products: any[] = [];
 
-      setIndustry(ind);
-
+  if (supabaseUrl && supabaseServiceKey) {
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    
+    // Fetch industry
+    const { data: ind } = await supabase
+      .from('industries')
+      .select('*')
+      .eq('id', slug)
+      .eq('is_visible', true)
+      .single();
+    
+    if (ind) {
+      industry = ind;
       // Fetch products
       const { data: prods } = await supabase
         .from('products')
@@ -46,14 +34,29 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         .eq('category_id', slug)
         .eq('is_visible', true);
       
-      if (prods) setProducts(prods);
-      setLoading(false);
+      if (prods) products = prods;
     }
-    fetchData();
-  }, [slug]);
+  }
 
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '10rem' }}>Loading category data...</div>;
+  // Fallback to mock data
+  if (!industry) {
+    const mockInd = industriesData.find(i => i.id === slug);
+    if (mockInd) {
+      industry = {
+        ...mockInd, 
+        is_visible: true, 
+        full_info: mockInd.fullInfo, 
+        description_short: mockInd.desc
+      };
+      products = productsData
+        .filter(p => p.category === slug)
+        .map(p => ({
+          ...p, 
+          category_id: p.category, 
+          export_details: p.exportDetails, 
+          is_visible: true
+        }));
+    }
   }
 
   if (!industry) {
@@ -62,11 +65,53 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
   return (
     <>
-      <section className="heroBand heroBandCentered">
+      <section className="section" style={{ background: '#f8fafc', paddingTop: '4rem' }}>
         <div className="container">
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{industry.icon}</div>
-          <h1>{industry.title}</h1>
-          <p>{industry.full_info}</p>
+          <nav style={{ marginBottom: '2rem', fontSize: '0.9rem', color: '#718096' }}>
+            <Link href="/industries" style={{ color: '#1f5ff5' }}>Industries</Link>
+            <span style={{ margin: '0 0.5rem' }}>/</span>
+            <span style={{ color: '#1b2638', fontWeight: 600 }}>{industry.title}</span>
+          </nav>
+
+          <div className="container split" style={{ alignItems: 'center' }}>
+            <div style={{ flex: 1 }}>
+              <span className="badge" style={{ marginBottom: '1rem' }}>Sector Excellence</span>
+              <h1 style={{ fontSize: '2.5rem', color: '#1b2638', marginBottom: '1.5rem' }}>{industry.title}</h1>
+              <p style={{ fontSize: '1.1rem', color: '#4a5568', lineHeight: '1.7', marginBottom: '2rem' }}>{industry.full_info}</p>
+              
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem' }}>
+                {industry.keys?.map((key: string) => (
+                  <span key={key} style={{ 
+                    padding: '0.5rem 1rem', 
+                    background: '#fff', 
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '20px',
+                    fontSize: '0.85rem',
+                    color: '#4a5568',
+                    fontWeight: 500
+                  }}>
+                    {key}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div style={{ flex: 0.8, textAlign: 'center' }}>
+              <div style={{ 
+                fontSize: '8rem', 
+                background: '#fff', 
+                width: '200px', 
+                height: '200px', 
+                margin: '0 auto', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                borderRadius: '50%',
+                boxShadow: '0 20px 40px -15px rgba(0,0,0,0.1)'
+              }}>
+                {industry.icon}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -78,7 +123,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
           </div>
 
           <div className="cardsGrid3">
-            {products.map((product) => (
+            {products.map((product: any) => (
               <Link href={`/products/${product.id}`} key={product.id} style={{ textDecoration: 'none' }}>
                 <article className="card" style={{ height: '100%', padding: '0', overflow: 'hidden' }}>
                   <div style={{ height: '200px', overflow: 'hidden' }}>
@@ -100,41 +145,6 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                 </article>
               </Link>
             ))}
-            
-            {products.length === 0 && (
-              <div className="card" style={{ gridColumn: 'span 3', textAlign: 'center', padding: '4rem' }}>
-                <p className="muted">Detailed product listings for this category are being updated. Please contact our sourcing team for specific requirements.</p>
-                <div style={{ marginTop: '1.5rem' }}>
-                  <Link href="/contact" className="btnPrimary">Inquire About This Category</Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section className="section sectionSoft">
-        <div className="container">
-          <div className="sectionHeader">
-            <h2>Key Industry Specializations</h2>
-          </div>
-          <div className="cardsGrid4">
-            {industry.keys.map(key => (
-              <div key={key} className="card" style={{ padding: '1.2rem', textAlign: 'center' }}>
-                <FiCheckCircle style={{ color: '#1f5ff5', marginBottom: '0.5rem', fontSize: '1.2rem' }} />
-                <p style={{ fontWeight: 600, fontSize: '0.95rem' }}>{key}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="ctaBand">
-        <div className="container">
-          <h3>Looking for something specific in {industry.title}?</h3>
-          <p style={{ color: '#dbe8ff' }}>Our network covers thousands of manufacturers. If you don&apos;t see a product here, we can find it for you.</p>
-          <div style={{ marginTop: '1.5rem' }}>
-            <Link href="/contact" className="btnPrimary">Start Sourcing Inquiry</Link>
           </div>
         </div>
       </section>

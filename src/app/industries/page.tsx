@@ -1,188 +1,121 @@
-'use client'
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { FiGlobe, FiCheckSquare, FiClipboard, FiArrowRight } from 'react-icons/fi';
-import { supabase, IndustryData, isSupabaseConfigured } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { industriesData, productsData } from '@/data/products';
-import { useWebsiteData } from '@/hooks/useWebsiteData';
+import { FiArrowRight } from 'react-icons/fi';
 
-interface IndustryWithCount extends IndustryData {
-  productCount?: number;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+async function getIndustriesAndProducts() {
+  let industries: any[] = [];
+  let products: any[] = [];
+
+  if (supabaseUrl && supabaseServiceKey) {
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const { data: indData } = await supabase.from('industries').select('*').eq('is_visible', true).order('title');
+    const { data: prodData } = await supabase.from('products').select('id, category_id, is_visible').eq('is_visible', true);
+    
+    if (indData) industries = indData;
+    if (prodData) products = prodData;
+  }
+
+  // Fallback / Merge with mock data if needed
+  if (industries.length === 0) {
+    industries = industriesData.map(i => ({...i, is_visible: true, description_short: i.desc}));
+    products = productsData.map(p => ({id: p.id, category_id: p.category, is_visible: true}));
+  }
+
+  return { industries, products };
 }
 
-
-export default function IndustriesPage() {
-  const { getContent } = useWebsiteData();
-  const [industries, setIndustries] = useState<IndustryWithCount[]>([]);
-
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchIndustries() {
-      if (!isSupabaseConfigured) {
-        const industriesWithCounts = industriesData.map((i: any) => ({
-          ...i, 
-          is_visible: true, 
-          full_info: i.fullInfo, 
-          description_short: i.desc,
-          productCount: productsData.filter((p: any) => p.category === i.id).length
-        }));
-
-        setIndustries(industriesWithCounts);
-        setLoading(false);
-        return;
-      }
-      const { data: indData } = await supabase
-        .from('industries')
-        .select('*')
-        .eq('is_visible', true)
-        .order('title');
-      
-      if (indData) {
-        const { data: prodData } = await supabase
-          .from('products')
-          .select('category_id')
-          .eq('is_visible', true);
-          
-        const industriesWithCounts = indData.map((ind: IndustryData) => ({
-          ...ind,
-          productCount: prodData?.filter((p: any) => p.category_id === ind.id).length || 0
-        }));
-
-        
-        setIndustries(industriesWithCounts);
-      }
-      setLoading(false);
-    }
-
-    fetchIndustries();
-  }, []);
+export default async function IndustriesPage() {
+  const { industries, products } = await getIndustriesAndProducts();
 
   return (
     <>
-      <section 
-        className="heroBand heroBandCentered"
-        style={{ 
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('industries', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2000')})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
+      <section className="section sectionSoft" style={{ paddingTop: '5rem' }}>
         <div className="container">
-          <h1>{getContent('industries', 'Hero', 'title', 'Industries We Serve')}</h1>
-          <p>{getContent('industries', 'Hero', 'desc', 'Comprehensive sourcing expertise across diverse manufacturing sectors in India.')}</p>
-        </div>
-      </section>
-
-      <section className="section sectionSoft">
-        <div className="container">
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '4rem' }}>Loading industries...</div>
-          ) : (
-            <div className="cardsGrid3">
-              {industries.map((item) => (
-                <Link href={`/industries/${item.id}`} key={item.id} style={{ textDecoration: 'none' }}>
-                  <article className="card" style={{ height: '100%', cursor: 'pointer', padding: '2rem' }}>
-                    <div style={{ fontSize: '2.5rem', marginBottom: '1rem', lineHeight: 1 }}>{item.icon}</div>
-                    <h3 style={{ fontSize: '1.4rem', marginBottom: '0.8rem', color: '#1b2638' }}>{item.title}</h3>
-                    <p className="muted" style={{ fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6' }}>{item.description_short}</p>
-                    
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                      {item.keys.slice(0, 4).map(k => (
-                        <span key={k} style={{ background: '#f3f4f6', color: '#4b5563', fontSize: '0.8rem', padding: '0.3rem 0.7rem', borderRadius: '20px' }}>
-                          {k}
-                        </span>
-                      ))}
-                      {item.keys.length > 4 && (
-                        <span style={{ fontSize: '0.8rem', color: '#718096', alignSelf: 'center' }}>
-                          +{item.keys.length - 4} more
-                        </span>
-                      )}
-                    </div>
-
-                    {(item.productCount ?? 0) > 0 && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1f5ff5', fontWeight: 600, fontSize: '0.9rem' }}>
-                        View All Products <FiArrowRight />
-                      </div>
-                    )}
-
-                  </article>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section className="section sectionSoft" style={{ paddingTop: 0, textAlign: 'center' }}>
-        <div className="container">
-          <h2>{getContent('industries', 'Missing', 'title', 'Don\'t See Your Industry?')}</h2>
-          <p className="muted">
-            {getContent('industries', 'Missing', 'desc', 'Our sourcing network handles specialized requirements. If your sector is not listed, we can still help find the right manufacturers in India.')}
-          </p>
-          <div style={{ marginTop: '0.9rem' }}>
-            <a href="/contact" className="btnPrimary" style={{ background: '#1f5ff5', color: '#fff' }}>
-              {getContent('industries', 'Missing', 'btn_text', 'Discuss Your Requirements')}
-            </a>
+          <div className="sectionHeader">
+            <span className="badge">Our Expertise</span>
+            <h1>Industries We Serve</h1>
+            <p>Bridging global demand with India&apos;s manufacturing excellence across diverse sectors.</p>
           </div>
-        </div>
-      </section>
 
-      <section className="section">
-        <div className="container">
-          <div className="sectionHeader" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2>{getContent('industries', 'Expertise', 'title', 'Why Choose Our Multi-Industry Expertise')}</h2>
-          </div>
           <div className="cardsGrid3">
-            {[
-              {
-                title: 'Vast Network',
-                desc: 'Connections with thousands of verified manufacturers across all major industries',
-                Icon: FiGlobe
-              },
-              {
-                title: 'Quality Assurance',
-                desc: 'Industry-specific quality standards and inspection protocols',
-                Icon: FiCheckSquare
-              },
-              {
-                title: 'Compliance Expertise',
-                desc: 'Deep knowledge of export regulations for each industry segment',
-                Icon: FiClipboard
-              }
-            ].map((item, idx) => (
-              <div key={idx} style={{ textAlign: 'center', padding: '1rem' }}>
-                <div className="iconCircle" style={{ width: '64px', height: '64px', fontSize: '1.8rem', margin: '0 auto 1.5rem auto' }}>
-                  <item.Icon />
+            {industries.map((industry) => {
+              const hasProducts = products.some(p => p.category_id === industry.id && p.is_visible);
+              
+              return (
+                <div key={industry.id} className="card industryCard" style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  height: '100%',
+                  padding: '2.5rem',
+                  border: '1px solid #e2e8f0',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <div className="iconBox" style={{ 
+                    fontSize: '3rem', 
+                    marginBottom: '1.5rem',
+                    width: '70px',
+                    height: '70px',
+                    background: '#f1f5f9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '12px'
+                  }}>
+                    {industry.icon}
+                  </div>
+                  
+                  <h3 style={{ fontSize: '1.4rem', color: '#1b2638', marginBottom: '1rem' }}>{industry.title}</h3>
+                  <p className="muted" style={{ marginBottom: '2rem', flexGrow: 1, lineHeight: '1.6' }}>
+                    {industry.description_short}
+                  </p>
+                  
+                  {hasProducts ? (
+                    <Link href={`/industries/${industry.id}`} className="link" style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '0.5rem', 
+                      fontWeight: 600,
+                      color: '#1f5ff5'
+                    }}>
+                      View All Products <FiArrowRight />
+                    </Link>
+                  ) : (
+                    <span style={{ height: '24px' }}></span>
+                  )}
                 </div>
-                <h3 style={{ fontSize: '1.15rem', marginBottom: '0.8rem' }}>{getContent('industries', 'Expertise', `item${idx+1}_title`, item.title)}</h3>
-                <p className="muted" style={{ fontSize: '0.95rem' }}>{getContent('industries', 'Expertise', `item${idx+1}_desc`, item.desc)}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <section className="ctaBand" style={{
-        backgroundImage: `linear-gradient(rgba(31, 95, 245, 0.9), rgba(31, 95, 245, 0.9)), url(${getContent('industries', 'CTA', 'bg_img', 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=2000')})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}>
-        <div className="container">
-          <h3>{getContent('industries', 'CTA', 'title', 'Ready to Source from India?')}</h3>
-          <p style={{ color: '#dbe8ff' }}>
-            {getContent('industries', 'CTA', 'desc', 'Whatever your industry, we have the expertise and network to help you source quality products from India.')}
-          </p>
-          <div style={{ marginTop: '0.9rem', display: 'flex', gap: '0.7rem', justifyContent: 'center' }}>
-            <a href="/sourcing" className="btnPrimary">
-              {getContent('industries', 'CTA', 'btn1_text', 'Explore Sourcing Services')}
-            </a>
-            <a href="/contact" className="btnSecondary">
-              {getContent('industries', 'CTA', 'btn2_text', 'Get In Touch')}
-            </a>
+      {/* Global Sourcing Section */}
+      <section className="section">
+        <div className="container split" style={{ alignItems: 'center' }}>
+          <div style={{ flex: 1 }}>
+            <h2 style={{ fontSize: '2.2rem', marginBottom: '1.5rem' }}>Global Sourcing Made Simple</h2>
+            <p style={{ fontSize: '1.1rem', color: '#4a5568', lineHeight: '1.7', marginBottom: '2rem' }}>
+              We understand that every industry has unique requirements. Our team specializes in finding the right manufacturers who meet your exact technical specifications and quality standards.
+            </p>
+            <ul className="checkList">
+              <li>Verified Suppliers Only</li>
+              <li>Quality Control Inspections</li>
+              <li>Custom Packaging Solutions</li>
+              <li>End-to-end Logistics Management</li>
+            </ul>
+          </div>
+          <div style={{ flex: 1, background: '#1b2638', borderRadius: '20px', padding: '4rem', color: '#fff', textAlign: 'center' }}>
+            <h3 style={{ color: '#fff', fontSize: '1.8rem', marginBottom: '1.5rem' }}>Can&apos;t find what you&apos;re looking for?</h3>
+            <p style={{ opacity: 0.9, marginBottom: '2rem' }}>We source thousands of products beyond what is listed here. Get in touch for a custom quote.</p>
+            <Link href="/contact" className="btnPrimary" style={{ background: '#fff', color: '#1b2638' }}>Contact Sourcing Desk</Link>
           </div>
         </div>
       </section>
     </>
-  )
+  );
 }

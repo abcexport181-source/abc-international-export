@@ -1,42 +1,42 @@
-'use client'
-import React, { useEffect, useState, use } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { supabase, ProductData, isSupabaseConfigured } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { productsData } from '@/data/products';
-import { FiCheckCircle, FiShield, FiPackage, FiTruck, FiFileText, FiMapPin, FiMail } from 'react-icons/fi';
+import { FiCheckCircle, FiShield, FiPackage, FiTruck, FiFileText, FiMapPin, FiMail, FiArrowRight } from 'react-icons/fi';
 
-export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const [product, setProduct] = useState<ProductData | null>(null);
-  const [loading, setLoading] = useState(true);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-  useEffect(() => {
-    async function fetchProduct() {
-      if (!isSupabaseConfigured) {
-        const prod = productsData.find(p => p.id === slug);
-        if (prod) {
-          setProduct({...prod, category_id: prod.category, export_details: prod.exportDetails, is_visible: true});
-        }
-        setLoading(false);
-        return;
-      }
+export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  
+  let product: any = null;
 
-      const { data } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', slug)
-        .eq('is_visible', true)
-        .single();
-      
-      if (data) setProduct(data);
-      setLoading(false);
+  // Try fetching from Supabase first using Service Role Key (if available on server) or Anon Key
+  if (supabaseUrl && supabaseServiceKey) {
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', slug)
+      .eq('is_visible', true)
+      .single();
+    
+    if (data) product = data;
+  }
+
+  // Fallback to mock data if not found in Supabase
+  if (!product) {
+    const mockProd = productsData.find(p => p.id === slug);
+    if (mockProd) {
+      product = {
+        ...mockProd, 
+        category_id: mockProd.category, 
+        export_details: mockProd.exportDetails, 
+        is_visible: true
+      };
     }
-    fetchProduct();
-  }, [slug]);
-
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '10rem' }}>Loading product details...</div>;
   }
 
   if (!product) {
@@ -56,7 +56,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           </nav>
 
           <div className="container split" style={{ alignItems: 'start', gap: '4rem' }}>
-            {/* Left Side: Product Images */}
             <div style={{ flex: 1.2 }}>
               <div style={{ 
                 borderRadius: '12px', 
@@ -87,7 +86,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               </div>
             </div>
 
-            {/* Right Side: Product Details */}
             <div style={{ flex: 1.5 }}>
               <h1 style={{ fontSize: '2.2rem', color: '#1b2638', marginBottom: '1rem', lineHeight: '1.2' }}>{product.name}</h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid #edf2f7' }}>
@@ -99,7 +97,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>About this product</h3>
                 <p style={{ color: '#4a5568', lineHeight: '1.6', marginBottom: '1.5rem' }}>{product.description}</p>
                 <ul className="checkList" style={{ color: '#1b2638' }}>
-                  {product.features.map(feature => (
+                  {product.features?.map((feature: string) => (
                     <li key={feature} style={{ marginBottom: '0.6rem', fontSize: '0.95rem' }}>
                       <FiCheckCircle className="checkIcon" /> {feature}
                     </li>
@@ -107,7 +105,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 </ul>
               </div>
 
-              {/* Export Specifications Box */}
               <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '1.5rem', border: '1px solid #e2e8f0', marginBottom: '2rem' }}>
                 <h3 style={{ fontSize: '1rem', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <FiPackage /> Global Export Details
@@ -133,10 +130,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               </div>
 
               <div style={{ display: 'flex', gap: '1rem' }}>
-                <Link href="/contact" className="btnPrimary" style={{ flex: 1, padding: '1rem' }}>
+                <Link href="/contact" className="btnPrimary" style={{ flex: 1, padding: '1rem', textAlign: 'center' }}>
                   Request Quotation
                 </Link>
-                <Link href="/contact" className="btnSecondary" style={{ flex: 1, padding: '1rem' }}>
+                <Link href="/contact" className="btnSecondary" style={{ flex: 1, padding: '1rem', textAlign: 'center' }}>
                   Download Brochure
                 </Link>
               </div>
@@ -145,7 +142,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
 
-      {/* Technical Specs Table */}
       <section className="section sectionSoft">
         <div className="container">
           <div className="sectionHeader" style={{ textAlign: 'left' }}>
@@ -155,7 +151,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden', marginTop: '2rem' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <tbody>
-                {Object.entries(product.specs).map(([key, value], idx) => (
+                {Object.entries(product.specs || {}).map(([key, value]: [string, any], idx) => (
                   <tr key={key} style={{ borderBottom: idx === Object.entries(product.specs).length - 1 ? 'none' : '1px solid #edf2f7' }}>
                     <td style={{ padding: '1.2rem', background: '#fcfdfe', width: '30%', fontWeight: 600, color: '#4a5568' }}>{key}</td>
                     <td style={{ padding: '1.2rem', color: '#1b2638' }}>{value}</td>
@@ -167,7 +163,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
 
-      {/* Compliance & Shipping Footer */}
       <section className="section">
         <div className="container cardsGrid4">
           <div className="card" style={{ padding: '1.5rem' }}>
