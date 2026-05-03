@@ -319,18 +319,28 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!editingIndustry) return;
 
+    // Ensure keys is an array before saving
+    const dataToSave = {
+      ...editingIndustry,
+      keys: typeof editingIndustry.keys === 'string' 
+        ? (editingIndustry.keys as string).split(',').map(k => k.trim()).filter(k => k)
+        : editingIndustry.keys
+    };
+
     const { error } = await supabase
       .from('industries')
-      .upsert(editingIndustry);
+      .upsert(dataToSave);
 
     if (!error) {
       setMessage({ text: 'Industry saved successfully!', type: 'success' });
       setEditingIndustry(null);
       fetchData();
     } else {
-      setMessage({ text: 'Error saving industry: ' + error.message, type: 'error' });
+      console.error('Supabase Save Error:', error);
+      setMessage({ text: 'Error saving industry: ' + (error.message || 'Unknown error'), type: 'error' });
     }
   };
+
 
   const syncInitialData = async () => {
     setLoading(true);
@@ -885,12 +895,13 @@ export default function AdminDashboard() {
                 <div>
                   <label style={label}>Tags / Keys (Comma separated)</label>
                   <input 
-                    value={editingIndustry.keys.join(', ')} 
-                    onChange={e => setEditingIndustry({...editingIndustry, keys: e.target.value.split(',').map(k => k.trim()).filter(k => k)})}
+                    value={Array.isArray(editingIndustry.keys) ? editingIndustry.keys.join(', ') : editingIndustry.keys} 
+                    onChange={e => setEditingIndustry({...editingIndustry, keys: e.target.value as any})}
                     style={field} 
                     placeholder="e.g. Textiles, Fabrics, Home Decor"
                   />
                 </div>
+
 
                 <DirectUpload 
                   label="Icon / Image" 
