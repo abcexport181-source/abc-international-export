@@ -56,9 +56,44 @@
   border-top: 1px solid #1a2a49;
   color: #9fb0d1;
   font-size: 0.82rem;
-  text-align: center;
   padding: 0.95rem 0 1.15rem;
 }
+
+.bottomContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.copyright {
+  text-align: center;
+}
+
+.designerLink {
+  position: absolute;
+  right: 1rem;
+  color: rgba(159, 176, 209, 0.2); /* Very subtle color, merging with background */
+  text-decoration: none;
+  font-size: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+.designerLink:hover {
+  color: rgba(159, 176, 209, 0.6);
+}
+
+@media (max-width: 768px) {
+  .bottomContent {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .designerLink {
+    position: static;
+  }
+}
+
 
 @media (max-width: 900px) {
   .grid {

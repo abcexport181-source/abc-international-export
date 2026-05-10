@@ -57,7 +57,10 @@ const Footer = () => {
         </div>
       </div>
       <div className={styles.bottom}>
-        <div className="container">© {new Date().getFullYear()} ABC International. All rights reserved.</div>
+        <div className={`container ${styles.bottomContent}`}>
+          <div className={styles.copyright}>© {new Date().getFullYear()} ABC International. All rights reserved.</div>
+          <a href="https://www.designedbykirtida.in" target="_blank" rel="noopener noreferrer" className={styles.designerLink}>www.designedbykirtida.in</a>
+        </div>
       </div>
     </footer>
   )
