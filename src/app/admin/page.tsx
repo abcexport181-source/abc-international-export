@@ -7,7 +7,7 @@ import BackToTop from '@/components/common/BackToTop';
 import { languages, defaultLanguage } from '@/lib/languages';
 
 
-type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'industries' | 'products' | 'blogs';
+type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'global-content' | 'industries' | 'products' | 'blogs';
 
 
 import { auth } from '@/lib/firebase/config';
@@ -963,6 +963,7 @@ export default function AdminDashboard() {
         </div>
         <nav>
           {[
+            { id: 'global-content', label: 'Global (Menu/Footer)', icon: FiLayout },
             { id: 'home-content', label: 'Home Page', icon: FiHome },
             { id: 'about-content', label: 'About Us', icon: FiInfo },
             { id: 'sourcing-content', label: 'Sourcing', icon: FiSearch },
@@ -1472,6 +1473,7 @@ export default function AdminDashboard() {
                 'about': ['Hero', 'Main'],
                 'contact': ['Hero', 'Form', 'Info', 'Stats'],
                 'sourcing': ['Hero', 'Source', 'Process', 'Network', 'Custom', 'Quality', 'CTA'],
+                'global': ['navigation', 'footer'],
                 'logistics': ['Hero', 'Expertise', 'Docs', 'Solutions', 'Partner', 'Compliance', 'Timeline', 'Trust'],
                 'industries': ['Hero', 'Missing', 'Expertise', 'CTA'],
                 'quality-packaging': ['Hero', 'Inspection', 'Standards', 'Solutions', 'Options', 'Sustainable', 'Compliance', 'CTA']
