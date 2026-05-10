@@ -1503,6 +1503,9 @@ export default function AdminDashboard() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     {siteContent
                       .filter(c => c.page_name === currentPage && c.section_name === section)
+                      .filter((c, index, self) => 
+                        self.findIndex(t => t.content_key === c.content_key) === index
+                      )
                       .sort((a, b) => {
                         // Keep keys like 'title' at the top, then 'desc', then others
                         const priority = (k: string) => k === 'title' ? 0 : k === 'desc' ? 1 : 2;
@@ -1510,7 +1513,7 @@ export default function AdminDashboard() {
                       })
                       .map(item => (
                         <div key={item.id}>
-                          <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')}</label>
+                          <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
                           {item.content_key.includes('img') ? (
                             <DirectUpload 
                               label={item.content_key.replace(/_/g, ' ')} 
