@@ -1470,7 +1470,7 @@ export default function AdminDashboard() {
               const sectionOrder: Record<string, string[]> = {
                 'home': ['Hero', 'Who We Are', 'Services', 'Logistics', 'Sourcing', 'Quality', 'Process', 'CTA'],
                 'about': ['Hero', 'Main'],
-                'contact': ['Hero', 'Info', 'Stats'],
+                'contact': ['Hero', 'Form', 'Info', 'Stats'],
                 'sourcing': ['Hero', 'Source', 'Process', 'Network', 'Custom', 'Quality', 'CTA'],
                 'logistics': ['Hero', 'Expertise', 'Docs', 'Solutions', 'Partner', 'Compliance', 'Timeline', 'Trust'],
                 'industries': ['Hero', 'Missing', 'Expertise', 'CTA'],
