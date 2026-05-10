@@ -25,40 +25,40 @@ const Footer = () => {
           <h4>{getContent('global', 'footer', 'quick_links', 'Quick Links')}</h4>
           <ul className={styles.links}>
             <li>
-              <Link href="/about">About Us</Link>
+              <Link href="/about">{getContent('global', 'footer', 'link_about', 'About Us')}</Link>
             </li>
             <li>
-              <Link href="/sourcing">Sourcing Services</Link>
+              <Link href="/sourcing">{getContent('global', 'footer', 'link_sourcing', 'Sourcing Services')}</Link>
             </li>
             <li>
-              <Link href="/industries">Industries</Link>
+              <Link href="/industries">{getContent('global', 'footer', 'link_industries', 'Industries')}</Link>
             </li>
             <li>
-              <Link href="/logistics">Logistics Expertise</Link>
+              <Link href="/logistics">{getContent('global', 'footer', 'link_logistics', 'Logistics Expertise')}</Link>
             </li>
           </ul>
         </div>
         <div>
           <h4>{getContent('global', 'footer', 'services', 'Services')}</h4>
           <ul className={styles.links}>
-            <li>Product Sourcing</li>
-            <li>Quality Assurance</li>
-            <li>Export Packaging</li>
-            <li>Export Documentation</li>
+            <li>{getContent('global', 'footer', 'service_sourcing', 'Product Sourcing')}</li>
+            <li>{getContent('global', 'footer', 'service_quality', 'Quality Assurance')}</li>
+            <li>{getContent('global', 'footer', 'service_packaging', 'Export Packaging')}</li>
+            <li>{getContent('global', 'footer', 'service_docs', 'Export Documentation')}</li>
           </ul>
         </div>
         <div>
           <h4>{getContent('global', 'footer', 'contact_us', 'Contact Us')}</h4>
           <ul className={styles.links}>
-            <li>info@abc-international.co.in</li>
-            <li>+91 XXX XX XXXXX</li>
-            <li>Mumbai, Maharashtra, India</li>
+            <li>{getContent('global', 'footer', 'contact_email', 'info@abc-international.co.in')}</li>
+            <li>{getContent('global', 'footer', 'contact_phone', '+91 XXX XX XXXXX')}</li>
+            <li>{getContent('global', 'footer', 'contact_address', 'Mumbai, Maharashtra, India')}</li>
           </ul>
         </div>
       </div>
       <div className={styles.bottom}>
         <div className={`container ${styles.bottomContent}`}>
-          <div className={styles.copyright}>© {new Date().getFullYear()} ABC International. All rights reserved.</div>
+          <div className={styles.copyright}>{getContent('global', 'footer', 'copyright', '© 2026 ABC International. All rights reserved.')}</div>
           <a href="https://www.designedbykirtida.in" target="_blank" rel="noopener noreferrer" className={styles.designerLink}>www.designedbykirtida.in</a>
         </div>
       </div>

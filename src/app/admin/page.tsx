@@ -823,7 +823,21 @@ export default function AdminDashboard() {
         { page: 'global', section: 'footer', key: 'brand_desc', val: 'Your trusted merchant exporter and global sourcing partner, backed by logistics expertise.' },
         { page: 'global', section: 'footer', key: 'quick_links', val: 'Quick Links' },
         { page: 'global', section: 'footer', key: 'services', val: 'Services' },
-        { page: 'global', section: 'footer', key: 'contact_us', val: 'Contact Us' }
+        { page: 'global', section: 'footer', key: 'contact_us', val: 'Contact Us' },
+        
+        // Footer Links & Info
+        { page: 'global', section: 'footer', key: 'link_about', val: 'About Us' },
+        { page: 'global', section: 'footer', key: 'link_sourcing', val: 'Sourcing Services' },
+        { page: 'global', section: 'footer', key: 'link_industries', val: 'Industries' },
+        { page: 'global', section: 'footer', key: 'link_logistics', val: 'Logistics Expertise' },
+        { page: 'global', section: 'footer', key: 'service_sourcing', val: 'Product Sourcing' },
+        { page: 'global', section: 'footer', key: 'service_quality', val: 'Quality Assurance' },
+        { page: 'global', section: 'footer', key: 'service_packaging', val: 'Export Packaging' },
+        { page: 'global', section: 'footer', key: 'service_docs', val: 'Export Documentation' },
+        { page: 'global', section: 'footer', key: 'contact_email', val: 'info@abc-international.co.in' },
+        { page: 'global', section: 'footer', key: 'contact_phone', val: '+91 XXX XX XXXXX' },
+        { page: 'global', section: 'footer', key: 'contact_address', val: 'Mumbai, Maharashtra, India' },
+        { page: 'global', section: 'footer', key: 'copyright', val: '© 2026 ABC International. All rights reserved.' }
       ];
 
 
