@@ -118,31 +118,30 @@ export default function Home() {
             />
           </div>
           <div>
-            <h2>Comprehensive Sourcing Capability</h2>
+            <h2>{getContent('home', 'Sourcing', 'title', 'Comprehensive Sourcing Capability')}</h2>
             <p style={{ marginTop: '0.65rem' }} className="muted">
-              We source a wide range of products, raw materials, and packaging solutions from
-              India&apos;s most reliable manufacturers.
+              {getContent('home', 'Sourcing', 'desc', "We source a wide range of products, raw materials, and packaging solutions from India's most reliable manufacturers.")}
             </p>
             <ul className="featureList" style={{ marginTop: '1.2rem' }}>
               <li className="featureItem">
                 <div className="featureIcon"><FiBriefcase /></div>
                 <div className="featureText">
-                  <strong>Verified Suppliers</strong>
-                  <span>Extensive network of certified manufacturers</span>
+                  <strong>{getContent('home', 'Sourcing', 'item1_title', 'Verified Suppliers')}</strong>
+                  <span>{getContent('home', 'Sourcing', 'item1_desc', 'Extensive network of certified manufacturers')}</span>
                 </div>
               </li>
               <li className="featureItem">
                 <div className="featureIcon"><FiTarget /></div>
                 <div className="featureText">
-                  <strong>Custom Requirements</strong>
-                  <span>Tailored sourcing for your specific needs</span>
+                  <strong>{getContent('home', 'Sourcing', 'item2_title', 'Custom Requirements')}</strong>
+                  <span>{getContent('home', 'Sourcing', 'item2_desc', 'Tailored sourcing for your specific needs')}</span>
                 </div>
               </li>
               <li className="featureItem">
                 <div className="featureIcon"><FiFileText /></div>
                 <div className="featureText">
-                  <strong>Quality Assurance</strong>
-                  <span>Strict verification and inspection protocols</span>
+                  <strong>{getContent('home', 'Sourcing', 'item3_title', 'Quality Assurance')}</strong>
+                  <span>{getContent('home', 'Sourcing', 'item3_desc', 'Strict verification and inspection protocols')}</span>
                 </div>
               </li>
             </ul>
@@ -158,7 +157,7 @@ export default function Home() {
       <section className="section sectionSoft">
         <div className="container">
           <div className="sectionHeader">
-            <h2>Industries We Serve</h2>
+            <h2>{getContent('home', 'Industries', 'title', 'Industries We Serve')}</h2>
           </div>
           <div className="cardsGrid4" style={{ gridTemplateColumns: 'repeat(6, minmax(0, 1fr))' }}>
             {industries.map((item, idx) => {
@@ -175,7 +174,7 @@ export default function Home() {
                   <div style={{ fontSize: '2.5rem', color: color, marginBottom: '0.8rem', display: 'flex', justifyContent: 'center' }}>
                     <Icon />
                   </div>
-                  <h3 style={{ fontSize: '1.05rem', margin: 0 }}>{item}</h3>
+                  <h3 style={{ fontSize: '1.05rem', margin: 0 }}>{getContent('home', 'Industries', `ind_${idx}`, item)}</h3>
                 </article>
               );
             })}

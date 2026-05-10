@@ -464,6 +464,12 @@ export default function AdminDashboard() {
 
         { page: 'home', section: 'Sourcing', key: 'title', val: 'Comprehensive Sourcing Capability' },
         { page: 'home', section: 'Sourcing', key: 'desc', val: 'We source a wide range of products, raw materials, and packaging solutions from India\'s most reliable manufacturers.' },
+        { page: 'home', section: 'Sourcing', key: 'item1_title', val: 'Verified Suppliers' },
+        { page: 'home', section: 'Sourcing', key: 'item1_desc', val: 'Extensive network of certified manufacturers' },
+        { page: 'home', section: 'Sourcing', key: 'item2_title', val: 'Custom Requirements' },
+        { page: 'home', section: 'Sourcing', key: 'item2_desc', val: 'Tailored sourcing for your specific needs' },
+        { page: 'home', section: 'Sourcing', key: 'item3_title', val: 'Quality Assurance' },
+        { page: 'home', section: 'Sourcing', key: 'item3_desc', val: 'Strict verification and inspection protocols' },
 
         { page: 'home', section: 'Quality', key: 'title', val: 'Quality Assurance & Export Packaging' },
         { page: 'home', section: 'Quality', key: 'desc', val: 'We ensure every product meets international standards with rigorous quality control and professional export-grade packaging.' },
@@ -488,6 +494,14 @@ export default function AdminDashboard() {
 
         { page: 'home', section: 'CTA', key: 'title', val: 'Ready to Source from India?' },
         { page: 'home', section: 'CTA', key: 'desc', val: "Let's discuss your requirements. Our sourcing team is ready to help you find the right products at the right price." },
+        
+        { page: 'home', section: 'Industries', key: 'title', val: 'Industries We Serve' },
+        { page: 'home', section: 'Industries', key: 'ind_0', val: 'Agro & Food' },
+        { page: 'home', section: 'Industries', key: 'ind_1', val: 'Packaging' },
+        { page: 'home', section: 'Industries', key: 'ind_2', val: 'Industrial' },
+        { page: 'home', section: 'Industries', key: 'ind_3', val: 'Chemicals' },
+        { page: 'home', section: 'Industries', key: 'ind_4', val: 'Consumer Products' },
+        { page: 'home', section: 'Industries', key: 'ind_5', val: 'Handicrafts' },
         
         // Buttons
         { page: 'home', section: 'Hero', key: 'btn_sourcing', val: 'Explore Sourcing' },
