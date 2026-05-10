@@ -1521,9 +1521,30 @@ export default function AdminDashboard() {
                         self.findIndex(t => t.content_key === c.content_key) === index
                       )
                       .sort((a, b) => {
-                        // Keep keys like 'title' at the top, then 'desc', then others
-                        const priority = (k: string) => k === 'title' ? 0 : k === 'desc' ? 1 : 2;
-                        return priority(a.content_key) - priority(b.content_key);
+                        const keyPriority: Record<string, number> = {
+                          'title': 0, 'desc': 1,
+                          // Navigation
+                          'home': 10, 'about': 11, 'sourcing': 12, 'industries': 13, 'quality': 14, 'logistics': 15, 'blog': 16, 'contact': 17,
+                          // Footer
+                          'quick_links': 20, 'link_about': 21, 'link_sourcing': 22, 'link_industries': 23, 'link_logistics': 24,
+                          'services': 30, 'service_sourcing': 31, 'service_quality': 32, 'service_packaging': 33, 'service_docs': 34,
+                          'contact_us': 40, 'contact_email': 41, 'contact_phone': 42, 'contact_address': 43, 'copyright': 44,
+                          // Buttons
+                          'btn_sourcing': 50, 'btn_contact': 51, 'btn_text': 52,
+                          // Form
+                          'label_name': 60, 'placeholder_name': 61,
+                          'label_company': 62, 'placeholder_company': 63,
+                          'label_email': 64, 'placeholder_email': 65,
+                          'label_country': 66, 'placeholder_country': 67,
+                          'label_requirement': 68, 'placeholder_requirement': 69,
+                          'label_message': 70, 'placeholder_message': 71,
+                          'submit_btn': 72
+                        };
+                        const getPriority = (k: string) => keyPriority[k] !== undefined ? keyPriority[k] : 1000;
+                        const pA = getPriority(a.content_key);
+                        const pB = getPriority(b.content_key);
+                        if (pA !== pB) return pA - pB;
+                        return a.content_key.localeCompare(b.content_key);
                       })
                       .map(item => (
                         <div key={item.id}>
