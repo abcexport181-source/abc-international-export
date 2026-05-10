@@ -59,31 +59,31 @@ export default function ContactPage() {
       <section className="section" style={{ background: '#fff' }}>
         <div className="container split" style={{ alignItems: 'start', gap: '4rem' }}>
           <div style={{ flex: 1.2 }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '2rem' }}>Send Us a Message</h2>
+            <h2 style={{ fontSize: '2rem', marginBottom: '2rem' }}>{getContent('contact', 'Form', 'title', 'Send Us a Message')}</h2>
             <form style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <div>
-                <label style={label}>Name *</label>
-                <input placeholder="Your full name" style={field} />
+                <label style={label}>{getContent('contact', 'Form', 'label_name', 'Name *')}</label>
+                <input placeholder={getContent('contact', 'Form', 'placeholder_name', 'Your full name')} style={field} />
               </div>
               <div>
-                <label style={label}>Company *</label>
-                <input placeholder="Your company name" style={field} />
+                <label style={label}>{getContent('contact', 'Form', 'label_company', 'Company *')}</label>
+                <input placeholder={getContent('contact', 'Form', 'placeholder_company', 'Your company name')} style={field} />
               </div>
               <div>
-                <label style={label}>Email *</label>
-                <input placeholder="your@email.com" style={field} />
+                <label style={label}>{getContent('contact', 'Form', 'label_email', 'Email *')}</label>
+                <input placeholder={getContent('contact', 'Form', 'placeholder_email', 'your@email.com')} style={field} />
               </div>
               <div>
-                <label style={label}>Country *</label>
-                <input placeholder="Your country" style={field} />
+                <label style={label}>{getContent('contact', 'Form', 'label_country', 'Country *')}</label>
+                <input placeholder={getContent('contact', 'Form', 'placeholder_country', 'Your country')} style={field} />
               </div>
               <div>
-                <label style={label}>Product Requirement *</label>
-                <input placeholder="What products are you looking for?" style={field} />
+                <label style={label}>{getContent('contact', 'Form', 'label_requirement', 'Product Requirement *')}</label>
+                <input placeholder={getContent('contact', 'Form', 'placeholder_requirement', 'What products are you looking for?')} style={field} />
               </div>
               <div>
-                <label style={label}>Message</label>
-                <textarea placeholder="Additional details about your requirements..." style={{ ...field, minHeight: '120px', resize: 'vertical' }} />
+                <label style={label}>{getContent('contact', 'Form', 'label_message', 'Message')}</label>
+                <textarea placeholder={getContent('contact', 'Form', 'placeholder_message', 'Additional details about your requirements...')} style={{ ...field, minHeight: '120px', resize: 'vertical' }} />
               </div>
 
               {/* Google reCAPTCHA - Temporarily Hidden (On Hold) */}
@@ -113,7 +113,7 @@ export default function ContactPage() {
                   cursor: 'pointer'
                 }}
               >
-                Submit Inquiry <FiSend />
+                {getContent('contact', 'Form', 'submit_btn', 'Submit Inquiry')} <FiSend />
               </button>
               <p style={{ fontSize: '0.75rem', color: '#718096', textAlign: 'center', marginTop: '0.5rem' }}>
                 Note: Bot protection (reCAPTCHA) is currently on hold.

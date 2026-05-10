@@ -30,10 +30,10 @@ export default function Home() {
           </p>
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.6rem' }}>
             <a href="/sourcing" className="btnPrimary">
-              Explore Sourcing
+              {getContent('home', 'Hero', 'btn_sourcing', 'Explore Sourcing')}
             </a>
             <a href="/contact" className="btnSecondary">
-              Get in Touch
+              {getContent('home', 'Hero', 'btn_contact', 'Get in Touch')}
             </a>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function Home() {
             </ul>
             <div style={{ marginTop: '1rem' }}>
               <a href="/logistics" className="btnPrimary">
-                Learn More
+                {getContent('home', 'Logistics', 'btn_text', 'Learn More')}
               </a>
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function Home() {
             </ul>
             <div style={{ marginTop: '0.9rem' }}>
               <a href="/sourcing" className="btnPrimary" style={{ background: '#1f5ff5', color: '#fff' }}>
-                View Sourcing Services
+                {getContent('home', 'Sourcing', 'btn_text', 'View Sourcing Services')}
               </a>
             </div>
           </div>
@@ -182,7 +182,7 @@ export default function Home() {
           </div>
           <div style={{ textAlign: 'center', marginTop: '1rem' }}>
             <a href="/industries" style={{ color: '#1f5ff5', fontWeight: 600 }}>
-              View All Industries →
+              {getContent('home', 'Industries', 'btn_text', 'View All Industries →')}
             </a>
           </div>
         </div>
@@ -217,7 +217,7 @@ export default function Home() {
           </div>
           <div style={{ textAlign: 'center', marginTop: '1rem' }}>
             <a href="/quality-packaging" style={{ color: '#1f5ff5', fontWeight: 600 }}>
-              Learn More About Quality →
+              {getContent('home', 'Quality', 'btn_text', 'Learn More About Quality →')}
             </a>
           </div>
         </div>
@@ -273,10 +273,10 @@ export default function Home() {
           </p>
           <div style={{ marginTop: '0.9rem', display: 'flex', gap: '0.6rem', justifyContent: 'center' }}>
             <a href="/sourcing" className="btnPrimary">
-              Request Sourcing
+              {getContent('home', 'CTA', 'btn_sourcing', 'Request Sourcing')}
             </a>
             <a href="/about" className="btnSecondary">
-              Learn More About Us
+              {getContent('home', 'CTA', 'btn_about', 'Learn More About Us')}
             </a>
           </div>
         </div>

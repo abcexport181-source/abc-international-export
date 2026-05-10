@@ -488,6 +488,16 @@ export default function AdminDashboard() {
 
         { page: 'home', section: 'CTA', key: 'title', val: 'Ready to Source from India?' },
         { page: 'home', section: 'CTA', key: 'desc', val: "Let's discuss your requirements. Our sourcing team is ready to help you find the right products at the right price." },
+        
+        // Buttons
+        { page: 'home', section: 'Hero', key: 'btn_sourcing', val: 'Explore Sourcing' },
+        { page: 'home', section: 'Hero', key: 'btn_contact', val: 'Get in Touch' },
+        { page: 'home', section: 'Logistics', key: 'btn_text', val: 'Learn More' },
+        { page: 'home', section: 'Sourcing', key: 'btn_text', val: 'View Sourcing Services' },
+        { page: 'home', section: 'Industries', key: 'btn_text', val: 'View All Industries →' },
+        { page: 'home', section: 'Quality', key: 'btn_text', val: 'Learn More About Quality →' },
+        { page: 'home', section: 'CTA', key: 'btn_sourcing', val: 'Request Sourcing' },
+        { page: 'home', section: 'CTA', key: 'btn_about', val: 'Learn More About Us' },
 
         // ABOUT PAGE
         { page: 'about', section: 'Hero', key: 'title', val: 'About ABC International' },
@@ -506,6 +516,22 @@ export default function AdminDashboard() {
         { page: 'contact', section: 'Stats', key: 'countries_desc', val: 'Countries served' },
         { page: 'contact', section: 'Stats', key: 'suppliers', val: '1000+' },
         { page: 'contact', section: 'Stats', key: 'suppliers_desc', val: 'Verified suppliers' },
+        
+        // Form Labels & Buttons
+        { page: 'contact', section: 'Form', key: 'title', val: 'Send Us a Message' },
+        { page: 'contact', section: 'Form', key: 'label_name', val: 'Name *' },
+        { page: 'contact', section: 'Form', key: 'placeholder_name', val: 'Your full name' },
+        { page: 'contact', section: 'Form', key: 'label_company', val: 'Company *' },
+        { page: 'contact', section: 'Form', key: 'placeholder_company', val: 'Your company name' },
+        { page: 'contact', section: 'Form', key: 'label_email', val: 'Email *' },
+        { page: 'contact', section: 'Form', key: 'placeholder_email', val: 'your@email.com' },
+        { page: 'contact', section: 'Form', key: 'label_country', val: 'Country *' },
+        { page: 'contact', section: 'Form', key: 'placeholder_country', val: 'Your country' },
+        { page: 'contact', section: 'Form', key: 'label_requirement', val: 'Product Requirement *' },
+        { page: 'contact', section: 'Form', key: 'placeholder_requirement', val: 'What products are you looking for?' },
+        { page: 'contact', section: 'Form', key: 'label_message', val: 'Message' },
+        { page: 'contact', section: 'Form', key: 'placeholder_message', val: 'Additional details about your requirements...' },
+        { page: 'contact', section: 'Form', key: 'submit_btn', val: 'Submit Inquiry' },
         
         // SOURCING PAGE
         { page: 'sourcing', section: 'Hero', key: 'title', val: 'Global Product Sourcing from India' },
