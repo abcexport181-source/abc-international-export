@@ -64,7 +64,7 @@ export async function syncInitialDataBatch(initialContent: any[], languageCode: 
   
   try {
     const dataToUpsert = initialContent.map(c => {
-      const calculatedLimit = Math.max(Math.ceil(String(c.val).length * 1.5), 40);
+      const calculatedLimit = c.limit || Math.max(Math.ceil(String(c.val).length * 1.5), 40);
       return {
         id: `${languageCode}_${c.page}_${c.section.replace(/\s+/g, '_').toLowerCase()}_${c.key}`,
         page_name: c.page,
@@ -76,7 +76,7 @@ export async function syncInitialDataBatch(initialContent: any[], languageCode: 
       };
     });
 
-    // Use ignoreDuplicates: true to ONLY insert missing rows, never overwrite
+    // 1. Insert missing rows (never overwrite content_value)
     const { error } = await supabaseAdmin
       .from('site_content')
       .upsert(dataToUpsert, { 
@@ -85,9 +85,20 @@ export async function syncInitialDataBatch(initialContent: any[], languageCode: 
       });
 
     if (error) {
-      console.error('Batch sync error:', error);
+      console.error('Batch sync error (insert):', error);
       return { success: false, error: error.message };
     }
+
+    // 2. Explicitly update char_limit for all rows in this batch 
+    // (This ensures that if we change a limit in code, it reflects in the DB even for existing rows)
+    const limitUpdates = dataToUpsert.map(item => 
+      supabaseAdmin
+        .from('site_content')
+        .update({ char_limit: item.char_limit })
+        .eq('id', item.id)
+    );
+    
+    await Promise.all(limitUpdates);
 
     revalidatePath('/', 'layout');
     return { success: true };

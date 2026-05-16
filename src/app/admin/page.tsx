@@ -514,7 +514,7 @@ export default function AdminDashboard() {
         { page: 'home', section: 'CTA', key: 'btn_about', val: 'Learn More About Us' },
 
         // ABOUT PAGE
-        { page: 'about', section: 'Hero', key: 'title', val: 'About ABC International' },
+        { page: 'about', section: 'Hero', key: 'title', val: 'About ABC International', limit: 150 },
         { page: 'about', section: 'Hero', key: 'desc', val: 'Your trusted partner for high-quality sourcing and global export support from India.' },
         { page: 'about', section: 'Who We Are', key: 'title', val: 'Who We Are' },
         { page: 'about', section: 'Main', key: 'content', val: "ABC International is a premier merchant exporter and comprehensive sourcing partner based in India.\n\nWe bridge the gap between global buyers and India's vast manufacturing ecosystem, helping businesses worldwide access quality products at competitive prices.\n\nWhat sets us apart is our backing by Linear Global—a trusted name in logistics—giving us unparalleled expertise in export documentation, shipping, and compliance.\n\nWhether you need raw materials, finished products, packaging, or private label manufacturing, we have the network, knowledge, and logistics capability to deliver." },
