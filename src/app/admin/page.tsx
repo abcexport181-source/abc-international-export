@@ -537,7 +537,7 @@ export default function AdminDashboard() {
         { page: 'about', section: 'Linear', key: 'item1', val: 'Proven track record in international freight forwarding' },
         { page: 'about', section: 'Linear', key: 'item2', val: 'Deep understanding of export regulations' },
         { page: 'about', section: 'Linear', key: 'item3', val: 'Strong relationships with shipping lines and carriers' },
-        { page: 'about', section: 'Linear', key: 'item4', val: 'Real-time tracking and shipment visibility' },
+        { page: 'about', section: 'Linear', key: 'item4', val: 'Real-time tracking and shipment visibility', limit: 80 },
 
         { page: 'about', section: 'Approach', key: 'title', val: 'Our Approach', limit: 180 },
         { page: 'about', section: 'Approach', key: 'step1_title', val: 'Understand Requirement', limit: 180 },
@@ -1612,7 +1612,12 @@ export default function AdminDashboard() {
                         return a.content_key.localeCompare(b.content_key);
                       })
                       .map(item => {
-                        const effectiveCharLimit = (item.page_name === 'about' && item.section_name === 'Approach') ? 180 : item.char_limit;
+                        const effectiveCharLimit = 
+                          (item.page_name === 'about' && item.section_name === 'Approach') 
+                            ? 180 
+                            : (item.page_name === 'about' && item.section_name === 'Linear' && item.content_key === 'item4') 
+                              ? 80 
+                              : item.char_limit;
                         return (
                           <div key={item.id}>
                             <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>

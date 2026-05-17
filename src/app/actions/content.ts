@@ -130,6 +130,8 @@ export async function upsertSiteContent(updates: {
       let charLimit = 500;
       if (u.page_name === 'about' && u.section_name === 'Approach') {
         charLimit = 180;
+      } else if (u.page_name === 'about' && u.section_name === 'Linear' && u.content_key === 'item4') {
+        charLimit = 80;
       }
       return {
         id: u.id || `${u.language_code}_${u.page_name}_${u.section_name.replace(/\s+/g, '_').toLowerCase()}_${u.content_key}`,
