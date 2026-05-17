@@ -539,17 +539,17 @@ export default function AdminDashboard() {
         { page: 'about', section: 'Linear', key: 'item3', val: 'Strong relationships with shipping lines and carriers' },
         { page: 'about', section: 'Linear', key: 'item4', val: 'Real-time tracking and shipment visibility' },
 
-        { page: 'about', section: 'Approach', key: 'title', val: 'Our Approach' },
-        { page: 'about', section: 'Approach', key: 'step1_title', val: 'Understand Requirement' },
-        { page: 'about', section: 'Approach', key: 'step1_desc', val: 'Deep dive into your specific product and market needs' },
-        { page: 'about', section: 'Approach', key: 'step2_title', val: 'Identify Suppliers' },
-        { page: 'about', section: 'Approach', key: 'step2_desc', val: 'Match you with verified manufacturers from our network' },
-        { page: 'about', section: 'Approach', key: 'step3_title', val: 'Verify Quality' },
-        { page: 'about', section: 'Approach', key: 'step3_desc', val: 'Conduct thorough quality checks and sample testing' },
-        { page: 'about', section: 'Approach', key: 'step4_title', val: 'Handle Compliance' },
-        { page: 'about', section: 'Approach', key: 'step4_desc', val: 'Manage all export documentation and regulations' },
-        { page: 'about', section: 'Approach', key: 'step5_title', val: 'Ship Globally' },
-        { page: 'about', section: 'Approach', key: 'step5_desc', val: 'Ensure safe, timely delivery to your destination' },
+        { page: 'about', section: 'Approach', key: 'title', val: 'Our Approach', limit: 180 },
+        { page: 'about', section: 'Approach', key: 'step1_title', val: 'Understand Requirement', limit: 180 },
+        { page: 'about', section: 'Approach', key: 'step1_desc', val: 'Deep dive into your specific product and market needs', limit: 180 },
+        { page: 'about', section: 'Approach', key: 'step2_title', val: 'Identify Suppliers', limit: 180 },
+        { page: 'about', section: 'Approach', key: 'step2_desc', val: 'Match you with verified manufacturers from our network', limit: 180 },
+        { page: 'about', section: 'Approach', key: 'step3_title', val: 'Verify Quality', limit: 180 },
+        { page: 'about', section: 'Approach', key: 'step3_desc', val: 'Conduct thorough quality checks and sample testing', limit: 180 },
+        { page: 'about', section: 'Approach', key: 'step4_title', val: 'Handle Compliance', limit: 180 },
+        { page: 'about', section: 'Approach', key: 'step4_desc', val: 'Manage all export documentation and regulations', limit: 180 },
+        { page: 'about', section: 'Approach', key: 'step5_title', val: 'Ship Globally', limit: 180 },
+        { page: 'about', section: 'Approach', key: 'step5_desc', val: 'Ensure safe, timely delivery to your destination', limit: 180 },
 
         { page: 'about', section: 'Why Choose Us', key: 'title', val: 'Why Choose Us' },
         { page: 'about', section: 'Why Choose Us', key: 'item1_title', val: 'Multi-Industry Sourcing' },
@@ -1611,36 +1611,39 @@ export default function AdminDashboard() {
                         if (pA !== pB) return pA - pB;
                         return a.content_key.localeCompare(b.content_key);
                       })
-                      .map(item => (
-                        <div key={item.id}>
-                          <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
-                          {item.content_key.includes('img') ? (
-                            <DirectUpload 
-                              label={item.content_key.replace(/_/g, ' ')} 
-                              value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
-                              onChange={(url) => updateLocalContent(item.id, url)} 
-                            />
-                          ) : item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') || item.content_key.includes('address') ? (
-                            <textarea 
-                              value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
-                              onChange={e => updateLocalContent(item.id, e.target.value)}
-                              maxLength={item.char_limit}
-                              style={{...field, height: item.content_key === 'content' ? '200px' : '80px'}}
-                            />
-                          ) : (
-                            <input 
-                              value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
-                              onChange={e => updateLocalContent(item.id, e.target.value)}
-                              maxLength={item.char_limit}
-                              style={field}
-                            />
-                          )}
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
-                            <small className="muted">{(pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value).length} / {item.char_limit} characters</small>
-                            {pendingChanges[item.id] !== undefined && <small style={{ color: '#059669', fontWeight: 600 }}>Unsaved changes</small>}
+                      .map(item => {
+                        const effectiveCharLimit = (item.page_name === 'about' && item.section_name === 'Approach') ? 180 : item.char_limit;
+                        return (
+                          <div key={item.id}>
+                            <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
+                            {item.content_key.includes('img') ? (
+                              <DirectUpload 
+                                label={item.content_key.replace(/_/g, ' ')} 
+                                value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
+                                onChange={(url) => updateLocalContent(item.id, url)} 
+                              />
+                            ) : item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') || item.content_key.includes('address') ? (
+                              <textarea 
+                                value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
+                                onChange={e => updateLocalContent(item.id, e.target.value)}
+                                maxLength={effectiveCharLimit}
+                                style={{...field, height: item.content_key === 'content' ? '200px' : '80px'}}
+                              />
+                            ) : (
+                              <input 
+                                value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
+                                onChange={e => updateLocalContent(item.id, e.target.value)}
+                                maxLength={effectiveCharLimit}
+                                style={field}
+                              />
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
+                              <small className="muted">{(pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value).length} / {effectiveCharLimit} characters</small>
+                              {pendingChanges[item.id] !== undefined && <small style={{ color: '#059669', fontWeight: 600 }}>Unsaved changes</small>}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     
                     {Object.keys(pendingChanges).some(id => siteContent.find(c => c.id === id)?.section_name === section) && (
                       <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>

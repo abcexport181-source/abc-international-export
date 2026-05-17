@@ -126,15 +126,21 @@ export async function upsertSiteContent(updates: {
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
   
   try {
-    const dataToUpsert = updates.map(u => ({
-      id: u.id || `${u.language_code}_${u.page_name}_${u.section_name.replace(/\s+/g, '_').toLowerCase()}_${u.content_key}`,
-      page_name: u.page_name,
-      section_name: u.section_name,
-      content_key: u.content_key,
-      content_value: u.content_value,
-      language_code: u.language_code,
-      char_limit: 500
-    }));
+    const dataToUpsert = updates.map(u => {
+      let charLimit = 500;
+      if (u.page_name === 'about' && u.section_name === 'Approach') {
+        charLimit = 180;
+      }
+      return {
+        id: u.id || `${u.language_code}_${u.page_name}_${u.section_name.replace(/\s+/g, '_').toLowerCase()}_${u.content_key}`,
+        page_name: u.page_name,
+        section_name: u.section_name,
+        content_key: u.content_key,
+        content_value: u.content_value,
+        language_code: u.language_code,
+        char_limit: charLimit
+      };
+    });
 
     const { data, error } = await supabaseAdmin
       .from('site_content')
