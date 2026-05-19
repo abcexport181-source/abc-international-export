@@ -44,6 +44,7 @@ export default function AdminDashboard() {
   const [blogs, setBlogs] = useState<BlogData[]>([]);
   const [editingBlog, setEditingBlog] = useState<BlogData | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState(defaultLanguage);
+  const [englishReferenceData, setEnglishReferenceData] = useState<{industries: IndustryData[], products: ProductData[]}>({ industries: [], products: [] });
 
 
 
@@ -261,14 +262,104 @@ export default function AdminDashboard() {
 
   const getCharLimit = (text: string) => Math.max(Math.ceil(text.length * 1.5), 30);
 
+  const getEnglishReference = (type: 'industry' | 'product', id: string) => {
+    const cleanId = id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+    if (type === 'industry') {
+      return englishReferenceData.industries.find(i => i.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '') === cleanId);
+    } else {
+      return englishReferenceData.products.find(p => p.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '') === cleanId);
+    }
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { data: indData } = await supabase.from('industries').select('*').eq('language_code', currentLanguage).order('title');
-      const { data: prodData } = await supabase.from('products').select('*').eq('language_code', currentLanguage).order('name');
+      // 1. Fetch all industries and products
+      const { data: allInd } = await supabase.from('industries').select('*');
+      const { data: allProd } = await supabase.from('products').select('*');
       const { data: blogData } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
-      if (indData) setIndustries(indData);
-      if (prodData) setProducts(prodData);
+
+      // 2. Filter baseline English data (either language_code is 'en' or missing/null)
+      const baselineIndustries = (allInd || []).filter((item: any) => 
+        !item.language_code || item.language_code === 'en'
+      );
+      const baselineProducts = (allProd || []).filter((item: any) => 
+        !item.language_code || item.language_code === 'en'
+      );
+
+      // 3. Filter target language data
+      const targetIndustries = (allInd || []).filter((item: any) => 
+        item.language_code === currentLanguage
+      );
+      const targetProducts = (allProd || []).filter((item: any) => 
+        item.language_code === currentLanguage
+      );
+
+      // 4. Merge Industries
+      let mergedIndustries: any[] = [];
+      if (currentLanguage === 'en') {
+        mergedIndustries = [...baselineIndustries];
+      } else {
+        mergedIndustries = baselineIndustries.map((engItem: any) => {
+          const baseSlug = engItem.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+          const translation = targetIndustries.find((langItem: any) => 
+            langItem.id.replace(new RegExp(`^${currentLanguage}:`), '') === baseSlug
+          );
+          
+          if (translation) {
+            return translation;
+          } else {
+            return {
+              ...engItem,
+              id: baseSlug,
+              title: engItem.title,
+              description_short: '',
+              full_info: '',
+              language_code: currentLanguage,
+              is_translation_placeholder: true
+            };
+          }
+        });
+      }
+      mergedIndustries.sort((a, b) => a.title.localeCompare(b.title));
+
+      // 5. Merge Products
+      let mergedProducts: any[] = [];
+      if (currentLanguage === 'en') {
+        mergedProducts = [...baselineProducts];
+      } else {
+        mergedProducts = baselineProducts.map((engItem: any) => {
+          const baseSlug = engItem.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+          const translation = targetProducts.find((langItem: any) => 
+            langItem.id.replace(new RegExp(`^${currentLanguage}:`), '') === baseSlug
+          );
+          
+          if (translation) {
+            return translation;
+          } else {
+            const baseCategorySlug = engItem.category_id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+            return {
+              ...engItem,
+              id: baseSlug,
+              name: engItem.name,
+              description: '',
+              features: [],
+              specs: {},
+              language_code: currentLanguage,
+              category_id: baseCategorySlug,
+              is_translation_placeholder: true
+            };
+          }
+        });
+      }
+      mergedProducts.sort((a, b) => a.name.localeCompare(b.name));
+
+      setIndustries(mergedIndustries);
+      setProducts(mergedProducts);
+      setEnglishReferenceData({
+        industries: baselineIndustries,
+        products: baselineProducts
+      });
       if (blogData) setBlogs(blogData);
 
     } catch (e) {
@@ -1115,6 +1206,11 @@ export default function AdminDashboard() {
                     maxLength={100}
                     style={field} 
                   />
+                  {editingIndustry.language_code !== 'en' && (
+                    <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem' }}>
+                      <strong>English Reference:</strong> {(getEnglishReference('industry', editingIndustry.id) as any)?.title || 'N/A'}
+                    </div>
+                  )}
                 </div>
 
 
@@ -1126,7 +1222,14 @@ export default function AdminDashboard() {
                     maxLength={500}
                     style={{...field, height: '80px'}} 
                   />
-                  <small className="muted">{editingIndustry.description_short.length} / 500</small>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <small className="muted">{editingIndustry.description_short.length} / 500</small>
+                  </div>
+                  {editingIndustry.language_code !== 'en' && (
+                    <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem', whiteSpace: 'pre-wrap' }}>
+                      <strong>English Reference:</strong> {(getEnglishReference('industry', editingIndustry.id) as any)?.description_short || 'N/A'}
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -1137,7 +1240,14 @@ export default function AdminDashboard() {
                     maxLength={2000}
                     style={{...field, height: '150px'}} 
                   />
-                  <small className="muted">{editingIndustry.full_info.length} / 2000</small>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <small className="muted">{editingIndustry.full_info.length} / 2000</small>
+                  </div>
+                  {editingIndustry.language_code !== 'en' && (
+                    <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem', whiteSpace: 'pre-wrap' }}>
+                      <strong>English Reference:</strong> {(getEnglishReference('industry', editingIndustry.id) as any)?.full_info || 'N/A'}
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -1223,6 +1333,11 @@ export default function AdminDashboard() {
                       style={field} 
                       required
                     />
+                    {editingProduct.language_code !== 'en' && (
+                      <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem' }}>
+                        <strong>English Reference:</strong> {(getEnglishReference('product', editingProduct.id) as any)?.name || 'N/A'}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
@@ -1243,6 +1358,11 @@ export default function AdminDashboard() {
                     style={{...field, height: '150px'}} 
                     placeholder="Enter detailed information about the product..."
                   />
+                  {editingProduct.language_code !== 'en' && (
+                    <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem', whiteSpace: 'pre-wrap' }}>
+                      <strong>English Reference:</strong> {(getEnglishReference('product', editingProduct.id) as any)?.description || 'N/A'}
+                    </div>
+                  )}
                 </div>
 
                 
@@ -1693,6 +1813,20 @@ export default function AdminDashboard() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>
                         <span style={{ fontWeight: 600 }}>{item.title}</span>
+                        {(item as any).is_translation_placeholder && (
+                          <span style={{ 
+                            marginLeft: '0.5rem',
+                            padding: '0.15rem 0.4rem',
+                            borderRadius: '4px',
+                            fontSize: '0.7rem',
+                            fontWeight: 600,
+                            background: '#fef3c7',
+                            color: '#d97706',
+                            border: '1px solid #fde68a'
+                          }}>
+                            Needs Translation
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td style={td}>
@@ -1701,22 +1835,33 @@ export default function AdminDashboard() {
                         borderRadius: '20px', 
                         fontSize: '0.75rem', 
                         fontWeight: 600,
-                        background: item.is_visible ? '#def7ec' : '#f3f4f6',
-                        color: item.is_visible ? '#03543f' : '#718096'
+                        background: (item as any).is_translation_placeholder ? '#fee2e2' : item.is_visible ? '#def7ec' : '#f3f4f6',
+                        color: (item as any).is_translation_placeholder ? '#991b1b' : item.is_visible ? '#03543f' : '#718096'
                       }}>
-                        {item.is_visible ? 'Visible' : 'Hidden'}
+                        {(item as any).is_translation_placeholder ? 'Not Created' : item.is_visible ? 'Visible' : 'Hidden'}
                       </span>
                     </td>
                     <td className="muted" style={{ ...td, fontSize: '0.85rem' }}>
-                      {new Date(item.created_at || Date.now()).toLocaleDateString()}
+                      {(item as any).is_translation_placeholder ? '-' : new Date(item.created_at || Date.now()).toLocaleDateString()}
                     </td>
                     <td style={{ ...td, textAlign: 'right' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                        <button onClick={() => toggleVisibility('industries', item.id, item.is_visible)} title="Toggle Visibility" style={actionBtn}>
-                          {item.is_visible ? <FiEyeOff /> : <FiEye />}
-                        </button>
-                        <button onClick={() => setEditingIndustry(item)} title="Edit" style={actionBtn}><FiEdit2 /></button>
-                        <button onClick={() => deleteItem('industries', item.id)} title="Delete" style={{ ...actionBtn, color: '#ef4444' }}><FiTrash2 /></button>
+                        {!(item as any).is_translation_placeholder ? (
+                          <>
+                            <button onClick={() => toggleVisibility('industries', item.id, item.is_visible)} title="Toggle Visibility" style={actionBtn}>
+                              {item.is_visible ? <FiEyeOff /> : <FiEye />}
+                            </button>
+                            <button onClick={() => setEditingIndustry(item)} title="Edit" style={actionBtn}><FiEdit2 /></button>
+                            <button onClick={() => deleteItem('industries', item.id)} title="Delete" style={{ ...actionBtn, color: '#ef4444' }}><FiTrash2 /></button>
+                          </>
+                        ) : (
+                          <button onClick={() => setEditingIndustry({
+                            ...item,
+                            title: '',
+                            description_short: '',
+                            full_info: '',
+                          })} title="Translate" className="btnPrimary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}>Translate</button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1728,6 +1873,20 @@ export default function AdminDashboard() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <img src={item.image} style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} alt="" />
                         <span style={{ fontWeight: 600 }}>{item.name}</span>
+                        {(item as any).is_translation_placeholder && (
+                          <span style={{ 
+                            marginLeft: '0.5rem',
+                            padding: '0.15rem 0.4rem',
+                            borderRadius: '4px',
+                            fontSize: '0.7rem',
+                            fontWeight: 600,
+                            background: '#fef3c7',
+                            color: '#d97706',
+                            border: '1px solid #fde68a'
+                          }}>
+                            Needs Translation
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td style={td}>
@@ -1736,22 +1895,34 @@ export default function AdminDashboard() {
                         borderRadius: '20px', 
                         fontSize: '0.75rem', 
                         fontWeight: 600,
-                        background: item.is_visible ? '#def7ec' : '#f3f4f6',
-                        color: item.is_visible ? '#03543f' : '#718096'
+                        background: (item as any).is_translation_placeholder ? '#fee2e2' : item.is_visible ? '#def7ec' : '#f3f4f6',
+                        color: (item as any).is_translation_placeholder ? '#991b1b' : item.is_visible ? '#03543f' : '#718096'
                       }}>
-                        {item.is_visible ? 'Visible' : 'Hidden'}
+                        {(item as any).is_translation_placeholder ? 'Not Created' : item.is_visible ? 'Visible' : 'Hidden'}
                       </span>
                     </td>
                     <td className="muted" style={{ ...td, fontSize: '0.85rem' }}>
-                      {new Date(item.created_at || Date.now()).toLocaleDateString()}
+                      {(item as any).is_translation_placeholder ? '-' : new Date(item.created_at || Date.now()).toLocaleDateString()}
                     </td>
                     <td style={{ ...td, textAlign: 'right' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                        <button onClick={() => toggleVisibility('products', item.id, item.is_visible)} title="Toggle Visibility" style={actionBtn}>
-                          {item.is_visible ? <FiEyeOff /> : <FiEye />}
-                        </button>
-                        <button onClick={() => setEditingProduct(item)} title="Edit" style={actionBtn}><FiEdit2 /></button>
-                        <button onClick={() => deleteItem('products', item.id)} title="Delete" style={{ ...actionBtn, color: '#ef4444' }}><FiTrash2 /></button>
+                        {!(item as any).is_translation_placeholder ? (
+                          <>
+                            <button onClick={() => toggleVisibility('products', item.id, item.is_visible)} title="Toggle Visibility" style={actionBtn}>
+                              {item.is_visible ? <FiEyeOff /> : <FiEye />}
+                            </button>
+                            <button onClick={() => setEditingProduct(item)} title="Edit" style={actionBtn}><FiEdit2 /></button>
+                            <button onClick={() => deleteItem('products', item.id)} title="Delete" style={{ ...actionBtn, color: '#ef4444' }}><FiTrash2 /></button>
+                          </>
+                        ) : (
+                          <button onClick={() => setEditingProduct({
+                            ...item,
+                            name: '',
+                            description: '',
+                            features: [],
+                            specs: {},
+                          })} title="Translate" className="btnPrimary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}>Translate</button>
+                        )}
                       </div>
                     </td>
                   </tr>
