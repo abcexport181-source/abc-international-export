@@ -36,12 +36,25 @@ export async function saveIndustryAction(industry: any) {
 export async function deleteIndustryAction(id: string) {
   try {
     const supabaseAdmin = getSupabaseAdmin();
+    const isEnglish = !id.includes(':') || id.startsWith('en:');
+    const baseId = id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+
+    // 1. Delete target record
     const { error } = await supabaseAdmin
       .from('industries')
       .delete()
       .eq('id', id);
 
     if (error) throw error;
+
+    // 2. Cascade delete to translations if this is English
+    if (isEnglish) {
+      await supabaseAdmin
+        .from('industries')
+        .delete()
+        .like('id', `%:${baseId}`);
+    }
+
     revalidatePath('/industries');
     revalidatePath('/admin');
     return { success: true };
@@ -54,12 +67,25 @@ export async function deleteIndustryAction(id: string) {
 export async function toggleIndustryVisibilityAction(id: string, isVisible: boolean) {
   try {
     const supabaseAdmin = getSupabaseAdmin();
+    const isEnglish = !id.includes(':') || id.startsWith('en:');
+    const baseId = id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+
+    // 1. Update target record visibility
     const { error } = await supabaseAdmin
       .from('industries')
       .update({ is_visible: isVisible })
       .eq('id', id);
 
     if (error) throw error;
+
+    // 2. Cascade visibility update to translations if this is English
+    if (isEnglish) {
+      await supabaseAdmin
+        .from('industries')
+        .update({ is_visible: isVisible })
+        .like('id', `%:${baseId}`);
+    }
+
     revalidatePath('/industries');
     revalidatePath('/admin');
     return { success: true };
