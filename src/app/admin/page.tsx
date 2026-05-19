@@ -1253,11 +1253,11 @@ export default function AdminDashboard() {
                     <textarea 
                       value={editingIndustry.full_info} 
                       onChange={e => setEditingIndustry({...editingIndustry, full_info: e.target.value})}
-                      maxLength={200}
+                      maxLength={280}
                       style={{...field, height: '150px'}} 
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <small className="muted">{editingIndustry.full_info.length} / 200</small>
+                      <small className="muted">{editingIndustry.full_info.length} / 280</small>
                     </div>
                     {isTrans && (
                       <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem', whiteSpace: 'pre-wrap' }}>
