@@ -271,6 +271,13 @@ export default function AdminDashboard() {
     }
   };
 
+  const getDynamicTranslationLimit = (englishText: string, defaultLimit: number) => {
+    if (!englishText) return defaultLimit;
+    const words = englishText.trim().split(/\s+/).filter(Boolean).length;
+    const calculatedLimit = Math.ceil(words * (100 / 30));
+    return Math.max(calculatedLimit, 50);
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -1178,102 +1185,113 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <main style={{ flex: 1, padding: '3rem', position: 'relative' }}>
         {/* Modals */}
-        {editingIndustry && (
-          <div style={modalOverlay}>
-            <div style={modalContent}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                <h3>{editingIndustry.id ? `Edit Industry: ${editingIndustry.title}` : 'Add New Industry'}</h3>
-                <button onClick={() => setEditingIndustry(null)} style={{ border: 'none', background: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
-              </div>
-              <form onSubmit={saveIndustry} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {industries.every(i => i.id !== editingIndustry.id) && (
+        {editingIndustry && (() => {
+          const isTrans = editingIndustry.language_code !== 'en';
+          const engRef = isTrans ? (getEnglishReference('industry', editingIndustry.id) as any) : null;
+          const limitTitle = isTrans ? getDynamicTranslationLimit(engRef?.title || '', 100) : 100;
+          const limitDescShort = isTrans ? getDynamicTranslationLimit(engRef?.description_short || '', 500) : 500;
+          const limitFullInfo = isTrans ? getDynamicTranslationLimit(engRef?.full_info || '', 2000) : 2000;
+
+          return (
+            <div style={modalOverlay}>
+              <div style={modalContent}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                  <h3>{editingIndustry.id ? `Edit Industry: ${editingIndustry.title}` : 'Add New Industry'}</h3>
+                  <button onClick={() => setEditingIndustry(null)} style={{ border: 'none', background: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
+                </div>
+                <form onSubmit={saveIndustry} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  {industries.every(i => i.id !== editingIndustry.id) && (
+                    <div>
+                      <label style={label}>Industry ID (slug, e.g. 'agro-food')</label>
+                      <input 
+                        value={editingIndustry.id} 
+                        onChange={e => setEditingIndustry({...editingIndustry, id: e.target.value})}
+                        style={field} 
+                        required
+                        placeholder="e.g. textile-apparel"
+                      />
+                    </div>
+                  )}
                   <div>
-                    <label style={label}>Industry ID (slug, e.g. 'agro-food')</label>
+                    <label style={label}>Title</label>
                     <input 
-                      value={editingIndustry.id} 
-                      onChange={e => setEditingIndustry({...editingIndustry, id: e.target.value})}
+                      value={editingIndustry.title} 
+                      onChange={e => setEditingIndustry({...editingIndustry, title: e.target.value})}
+                      maxLength={limitTitle}
                       style={field} 
-                      required
-                      placeholder="e.g. textile-apparel"
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <small className="muted">{editingIndustry.title.length} / {limitTitle}</small>
+                    </div>
+                    {isTrans && (
+                      <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem' }}>
+                        <strong>English Reference:</strong> {engRef?.title || 'N/A'}
+                      </div>
+                    )}
+                  </div>
+
+
+                  <div>
+                    <label style={label}>Description (Short)</label>
+                    <textarea 
+                      value={editingIndustry.description_short} 
+                      onChange={e => setEditingIndustry({...editingIndustry, description_short: e.target.value})}
+                      maxLength={limitDescShort}
+                      style={{...field, height: '80px'}} 
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <small className="muted">{editingIndustry.description_short.length} / {limitDescShort}</small>
+                    </div>
+                    {isTrans && (
+                      <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem', whiteSpace: 'pre-wrap' }}>
+                        <strong>English Reference:</strong> {engRef?.description_short || 'N/A'}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label style={label}>Full Information (Long)</label>
+                    <textarea 
+                      value={editingIndustry.full_info} 
+                      onChange={e => setEditingIndustry({...editingIndustry, full_info: e.target.value})}
+                      maxLength={limitFullInfo}
+                      style={{...field, height: '150px'}} 
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <small className="muted">{editingIndustry.full_info.length} / {limitFullInfo}</small>
+                    </div>
+                    {isTrans && (
+                      <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem', whiteSpace: 'pre-wrap' }}>
+                        <strong>English Reference:</strong> {engRef?.full_info || 'N/A'}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label style={label}>Tags / Keys (Comma separated)</label>
+                    <input 
+                      value={Array.isArray(editingIndustry.keys) ? editingIndustry.keys.join(', ') : editingIndustry.keys} 
+                      onChange={e => setEditingIndustry({...editingIndustry, keys: e.target.value as any})}
+                      style={field} 
+                      placeholder="e.g. Textiles, Fabrics, Home Decor"
                     />
                   </div>
-                )}
-                <div>
-                  <label style={label}>Title</label>
-                  <input 
-                    value={editingIndustry.title} 
-                    onChange={e => setEditingIndustry({...editingIndustry, title: e.target.value})}
-                    maxLength={100}
-                    style={field} 
-                  />
-                  {editingIndustry.language_code !== 'en' && (
-                    <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem' }}>
-                      <strong>English Reference:</strong> {(getEnglishReference('industry', editingIndustry.id) as any)?.title || 'N/A'}
-                    </div>
-                  )}
-                </div>
 
 
-                <div>
-                  <label style={label}>Description (Short)</label>
-                  <textarea 
-                    value={editingIndustry.description_short} 
-                    onChange={e => setEditingIndustry({...editingIndustry, description_short: e.target.value})}
-                    maxLength={500}
-                    style={{...field, height: '80px'}} 
+                  <DirectUpload 
+                    label="Icon / Image" 
+                    value={editingIndustry.icon} 
+                    onChange={(url) => setEditingIndustry({...editingIndustry, icon: url})} 
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <small className="muted">{editingIndustry.description_short.length} / 500</small>
+                  <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                    <button type="submit" className="btnPrimary" style={{ flex: 1 }}>Save Changes</button>
+                    <button type="button" onClick={() => setEditingIndustry(null)} className="btnSecondary" style={{ flex: 1 }}>Cancel</button>
                   </div>
-                  {editingIndustry.language_code !== 'en' && (
-                    <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem', whiteSpace: 'pre-wrap' }}>
-                      <strong>English Reference:</strong> {(getEnglishReference('industry', editingIndustry.id) as any)?.description_short || 'N/A'}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label style={label}>Full Information (Long)</label>
-                  <textarea 
-                    value={editingIndustry.full_info} 
-                    onChange={e => setEditingIndustry({...editingIndustry, full_info: e.target.value})}
-                    maxLength={2000}
-                    style={{...field, height: '150px'}} 
-                  />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <small className="muted">{editingIndustry.full_info.length} / 2000</small>
-                  </div>
-                  {editingIndustry.language_code !== 'en' && (
-                    <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem', whiteSpace: 'pre-wrap' }}>
-                      <strong>English Reference:</strong> {(getEnglishReference('industry', editingIndustry.id) as any)?.full_info || 'N/A'}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label style={label}>Tags / Keys (Comma separated)</label>
-                  <input 
-                    value={Array.isArray(editingIndustry.keys) ? editingIndustry.keys.join(', ') : editingIndustry.keys} 
-                    onChange={e => setEditingIndustry({...editingIndustry, keys: e.target.value as any})}
-                    style={field} 
-                    placeholder="e.g. Textiles, Fabrics, Home Decor"
-                  />
-                </div>
-
-
-                <DirectUpload 
-                  label="Icon / Image" 
-                  value={editingIndustry.icon} 
-                  onChange={(url) => setEditingIndustry({...editingIndustry, icon: url})} 
-                />
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                  <button type="submit" className="btnPrimary" style={{ flex: 1 }}>Save Changes</button>
-                  <button type="button" onClick={() => setEditingIndustry(null)} className="btnSecondary" style={{ flex: 1 }}>Cancel</button>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {editingProduct && (
           <div style={modalOverlay}>
