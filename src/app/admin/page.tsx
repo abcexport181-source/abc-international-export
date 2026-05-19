@@ -667,7 +667,7 @@ export default function AdminDashboard() {
         { page: 'sourcing', section: 'Quality', key: 'link_text', val: 'Learn About Quality Processes' },
         { page: 'sourcing', section: 'CTA', key: 'title', val: 'Ready to Start Sourcing?' },
         { page: 'sourcing', section: 'CTA', key: 'desc', val: 'Let us help you source the right product from trusted Indian suppliers.' },
-        { page: 'sourcing', section: 'CTA', key: 'btn_text', val: 'Request Sourcing Support' },
+        { page: 'sourcing', section: 'CTA', key: 'btn_text', val: 'Request Sourcing Support', limit: 50 },
 
         // LOGISTICS PAGE
         { page: 'logistics', section: 'Hero', key: 'title', val: 'Logistics Backed Export Expertise' },
@@ -1619,7 +1619,9 @@ export default function AdminDashboard() {
                               ? 80 
                               : (item.page_name === 'sourcing' && item.section_name === 'Custom' && item.content_key === 'feat5_desc')
                                 ? 100
-                                : item.char_limit;
+                                : (item.page_name === 'sourcing' && item.section_name === 'CTA' && item.content_key === 'btn_text')
+                                  ? 50
+                                  : item.char_limit;
                         return (
                           <div key={item.id}>
                             <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>

@@ -134,6 +134,8 @@ export async function upsertSiteContent(updates: {
         charLimit = 80;
       } else if (u.page_name === 'sourcing' && u.section_name === 'Custom' && u.content_key === 'feat5_desc') {
         charLimit = 100;
+      } else if (u.page_name === 'sourcing' && u.section_name === 'CTA' && u.content_key === 'btn_text') {
+        charLimit = 50;
       }
       return {
         id: u.id || `${u.language_code}_${u.page_name}_${u.section_name.replace(/\s+/g, '_').toLowerCase()}_${u.content_key}`,
