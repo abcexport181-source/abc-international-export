@@ -271,13 +271,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const getDynamicTranslationLimit = (englishText: string, defaultLimit: number) => {
-    if (!englishText) return defaultLimit;
-    const words = englishText.trim().split(/\s+/).filter(Boolean).length;
-    const calculatedLimit = Math.ceil(words * (100 / 30));
-    return Math.max(calculatedLimit, 50);
-  };
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -1188,9 +1181,7 @@ export default function AdminDashboard() {
         {editingIndustry && (() => {
           const isTrans = editingIndustry.language_code !== 'en';
           const engRef = isTrans ? (getEnglishReference('industry', editingIndustry.id) as any) : null;
-          const limitTitle = isTrans ? getDynamicTranslationLimit(engRef?.title || '', 100) : 100;
-          const limitDescShort = isTrans ? getDynamicTranslationLimit(engRef?.description_short || '', 500) : 500;
-          const limitFullInfo = isTrans ? getDynamicTranslationLimit(engRef?.full_info || '', 2000) : 2000;
+          const descShortWords = (editingIndustry.description_short || '').split(/\s+/).filter(Boolean).length;
 
           return (
             <div style={modalOverlay}>
@@ -1217,11 +1208,11 @@ export default function AdminDashboard() {
                     <input 
                       value={editingIndustry.title} 
                       onChange={e => setEditingIndustry({...editingIndustry, title: e.target.value})}
-                      maxLength={limitTitle}
+                      maxLength={50}
                       style={field} 
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <small className="muted">{editingIndustry.title.length} / {limitTitle}</small>
+                      <small className="muted">{editingIndustry.title.length} / 50</small>
                     </div>
                     {isTrans && (
                       <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem' }}>
@@ -1235,12 +1226,20 @@ export default function AdminDashboard() {
                     <label style={label}>Description (Short)</label>
                     <textarea 
                       value={editingIndustry.description_short} 
-                      onChange={e => setEditingIndustry({...editingIndustry, description_short: e.target.value})}
-                      maxLength={limitDescShort}
+                      onChange={e => {
+                        const val = e.target.value;
+                        const words = val.split(/\s+/);
+                        if (words.filter(Boolean).length <= 80) {
+                          setEditingIndustry({...editingIndustry, description_short: val});
+                        } else {
+                          const sliced = val.split(/\s+/).slice(0, 80).join(' ');
+                          setEditingIndustry({...editingIndustry, description_short: sliced});
+                        }
+                      }}
                       style={{...field, height: '80px'}} 
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <small className="muted">{editingIndustry.description_short.length} / {limitDescShort}</small>
+                      <small className="muted">{descShortWords} / 80 words</small>
                     </div>
                     {isTrans && (
                       <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem', whiteSpace: 'pre-wrap' }}>
@@ -1254,11 +1253,11 @@ export default function AdminDashboard() {
                     <textarea 
                       value={editingIndustry.full_info} 
                       onChange={e => setEditingIndustry({...editingIndustry, full_info: e.target.value})}
-                      maxLength={limitFullInfo}
+                      maxLength={200}
                       style={{...field, height: '150px'}} 
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <small className="muted">{editingIndustry.full_info.length} / {limitFullInfo}</small>
+                      <small className="muted">{editingIndustry.full_info.length} / 200</small>
                     </div>
                     {isTrans && (
                       <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem', whiteSpace: 'pre-wrap' }}>
@@ -1270,11 +1269,15 @@ export default function AdminDashboard() {
                   <div>
                     <label style={label}>Tags / Keys (Comma separated)</label>
                     <input 
-                      value={Array.isArray(editingIndustry.keys) ? editingIndustry.keys.join(', ') : editingIndustry.keys} 
+                      value={Array.isArray(editingIndustry.keys) ? editingIndustry.keys.join(', ') : editingIndustry.keys || ''} 
                       onChange={e => setEditingIndustry({...editingIndustry, keys: e.target.value as any})}
+                      maxLength={200}
                       style={field} 
                       placeholder="e.g. Textiles, Fabrics, Home Decor"
                     />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <small className="muted">{(Array.isArray(editingIndustry.keys) ? editingIndustry.keys.join(', ') : editingIndustry.keys || '').length} / 200</small>
+                    </div>
                   </div>
 
 
