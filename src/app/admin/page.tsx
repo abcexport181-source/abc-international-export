@@ -651,7 +651,7 @@ export default function AdminDashboard() {
         { page: 'sourcing', section: 'Custom', key: 'feat4_title', val: 'Budget Control' },
         { page: 'sourcing', section: 'Custom', key: 'feat4_desc', val: 'Built to reduce risk and improve execution consistency.' },
         { page: 'sourcing', section: 'Custom', key: 'feat5_title', val: 'Timeline Management' },
-        { page: 'sourcing', section: 'Custom', key: 'feat5_desc', val: 'Built to reduce risk and improve execution consistency.' },
+        { page: 'sourcing', section: 'Custom', key: 'feat5_desc', val: 'Built to reduce risk and improve execution consistency.', limit: 100 },
         { page: 'sourcing', section: 'Custom', key: 'feat6_title', val: 'Complete Traceability' },
         { page: 'sourcing', section: 'Custom', key: 'feat6_desc', val: 'Built to reduce risk and improve execution consistency.' },
         { page: 'sourcing', section: 'Quality', key: 'title', val: 'Quality You Can Trust' },
@@ -1617,7 +1617,9 @@ export default function AdminDashboard() {
                             ? 180 
                             : (item.page_name === 'about' && item.section_name === 'Linear' && item.content_key === 'item4') 
                               ? 80 
-                              : item.char_limit;
+                              : (item.page_name === 'sourcing' && item.section_name === 'Custom' && item.content_key === 'feat5_desc')
+                                ? 100
+                                : item.char_limit;
                         return (
                           <div key={item.id}>
                             <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
