@@ -56,10 +56,15 @@ What sets us apart is our backing by Linear Global—a trusted name in logistics
 Whether you need raw materials, finished products, packaging, or private label manufacturing, we have the network, knowledge, and logistics capability to deliver.`)}
             </div>
           </div>
-          <div className="imageBlock">
-            <img 
-              src={getContent('about', 'Main', 'side_img', 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000')} 
-              alt="About Us" 
+          <div className="imageBlock" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+            <img
+              src={'/images/lilly.jpeg'}
+              alt="Lilly"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
+            />
+            <img
+              src={'/images/aji.jpeg'}
+              alt="Aji"
               style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
             />
           </div>
