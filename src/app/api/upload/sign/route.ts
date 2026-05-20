@@ -49,7 +49,6 @@ export async function POST() {
   const paramsToSign = {
     allowed_formats: ALLOWED_FORMATS.join(','),
     folder: UPLOAD_FOLDER,
-    resource_type: 'auto',
     timestamp,
   };
   const signature = cloudinary.utils.api_sign_request(
@@ -62,7 +61,7 @@ export async function POST() {
     apiKey,
     cloudName,
     folder: UPLOAD_FOLDER,
-    resourceType: paramsToSign.resource_type,
+    resourceType: 'auto',
     signature,
     timestamp,
   });
