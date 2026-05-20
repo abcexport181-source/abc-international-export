@@ -13,27 +13,9 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
   const pathname = usePathname()
   const { language, setLanguage } = useLanguage()
   const { getContent } = useWebsiteData()
-  const [clientBlogVisible, setClientBlogVisible] = useState<boolean | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const storedVisibility = window.localStorage.getItem('blog_visibility');
-    if (storedVisibility !== null) {
-      setClientBlogVisible(storedVisibility === 'true');
-    }
-
-    const handleStorage = (event: StorageEvent) => {
-      if (event.key === 'blog_visibility' && event.newValue !== null) {
-        setClientBlogVisible(event.newValue === 'true');
-      }
-    };
-
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, [language]);
-
-  const finalBlogVisible = clientBlogVisible !== null ? clientBlogVisible : isBlogVisible;
+  const finalBlogVisible = getContent('global', 'navigation', 'blog_visibility', String(isBlogVisible)).trim().toLowerCase() === 'true';
 
   const navItems = [
     { href: '/', label: getContent('global', 'navigation', 'home', 'Home') },

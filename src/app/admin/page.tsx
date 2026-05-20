@@ -47,6 +47,7 @@ export default function AdminDashboard() {
   const [pendingChanges, setPendingChanges] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [isBlogVisibleOnSite, setIsBlogVisibleOnSite] = useState(false);
+  const [blogVisibilityLoading, setBlogVisibilityLoading] = useState(true);
   const [blogs, setBlogs] = useState<BlogData[]>([]);
   const [editingBlog, setEditingBlog] = useState<BlogData | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState(defaultLanguage);
@@ -190,6 +191,7 @@ export default function AdminDashboard() {
 
 
   const fetchSiteContent = async () => {
+    setBlogVisibilityLoading(true);
     // Add a dummy filter to bust any potential caches
     const { data } = await supabase
       .from('site_content')
@@ -200,9 +202,14 @@ export default function AdminDashboard() {
       
     if (data) {
       setSiteContent(data);
-      const blogVis = data.find((c: SiteContent) => c.content_key === 'blog_visibility');
-      if (blogVis) setIsBlogVisibleOnSite(blogVis.content_value === 'true');
+      const blogVis = data.find((c: SiteContent) =>
+        c.page_name === 'global' &&
+        c.section_name === 'navigation' &&
+        c.content_key === 'blog_visibility'
+      );
+      setIsBlogVisibleOnSite(String(blogVis?.content_value || 'false').trim().toLowerCase() === 'true');
     }
+    setBlogVisibilityLoading(false);
   };
 
   const toggleBlogPageVisibility = async () => {
@@ -222,12 +229,7 @@ export default function AdminDashboard() {
     if (result.success) {
       setIsBlogVisibleOnSite(newValue);
       setMessage({ text: `Blog page is now ${newValue ? 'visible' : 'hidden'} in the menu bar.`, type: 'success' });
-      try {
-        localStorage.setItem('blog_visibility', String(newValue));
-        window.dispatchEvent(new CustomEvent('blog-visibility-change', { detail: newValue }));
-      } catch (e) {
-        // ignore (safety for environments without window/localStorage)
-      }
+      fetchSiteContent();
     } else {
       setMessage({ text: 'Error updating blog visibility: ' + result.error, type: 'error' });
     }
@@ -1732,6 +1734,7 @@ export default function AdminDashboard() {
               <button 
                 onClick={toggleBlogPageVisibility} 
                 className="btnSecondary" 
+                disabled={blogVisibilityLoading}
                 style={{ 
                   fontSize: '0.85rem', 
                   display: 'flex', 
@@ -1743,7 +1746,7 @@ export default function AdminDashboard() {
                 }}
               >
                 {isBlogVisibleOnSite ? <FiEye /> : <FiEyeOff />}
-                Blog Page: {isBlogVisibleOnSite ? 'Visible in Menu' : 'Hidden from Menu'}
+                Blog Page: {blogVisibilityLoading ? 'Checking...' : isBlogVisibleOnSite ? 'Visible in Menu' : 'Hidden from Menu'}
               </button>
             )}
 
