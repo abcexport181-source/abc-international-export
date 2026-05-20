@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import styles from './Header.module.css'
-import { supabase } from '@/lib/supabase'
 import { useLanguage } from '@/context/LanguageContext'
 import { languages } from '@/lib/languages'
 import { useWebsiteData } from '@/hooks/useWebsiteData'
@@ -14,36 +13,24 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
   const pathname = usePathname()
   const { language, setLanguage } = useLanguage()
   const { getContent } = useWebsiteData()
-  
   const [clientBlogVisible, setClientBlogVisible] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const fetchVisibility = async () => {
-      try {
-        const { data } = await supabase
-          .from('site_content')
-          .select('content_value')
-          .eq('content_key', 'blog_visibility')
-          .eq('language_code', language)
-          .limit(1);
-        if (data && data.length > 0) setClientBlogVisible(data[0].content_value === 'true');
-      } catch (err) {
-        console.error('Header blog visibility fetch failed:', err);
+    if (typeof window === 'undefined') return;
+    const storedVisibility = window.localStorage.getItem('blog_visibility');
+    if (storedVisibility !== null) {
+      setClientBlogVisible(storedVisibility === 'true');
+    }
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'blog_visibility' && event.newValue !== null) {
+        setClientBlogVisible(event.newValue === 'true');
       }
     };
-    fetchVisibility();
-  }, [language, pathname]); // Refresh when language or path changes
 
-  useEffect(() => {
-    const handler = (e: Event) => {
-      try {
-        const detail = (e as CustomEvent).detail;
-        setClientBlogVisible(Boolean(detail));
-      } catch (err) {}
-    };
-    window.addEventListener('blog-visibility-change', handler as EventListener);
-    return () => window.removeEventListener('blog-visibility-change', handler as EventListener);
-  }, []);
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [language]);
 
   const finalBlogVisible = clientBlogVisible !== null ? clientBlogVisible : isBlogVisible;
 

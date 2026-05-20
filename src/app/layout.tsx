@@ -1,5 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BackToTop from '@/components/common/BackToTop'
@@ -20,19 +21,20 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   let isBlogVisible = false;
-  
+  const languageCookie = cookies().get('site_language')?.value || 'en';
+
   if (process.env.NEXT_PUBLIC_SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)) {
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL, 
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
     );
     const { data } = await supabase
       .from('site_content')
       .select('content_value')
       .eq('content_key', 'blog_visibility')
-      .eq('language_code', 'en')
+      .eq('language_code', languageCookie)
       .limit(1);
-    if (data && data.length > 0) isBlogVisible = data[0].content_value === 'true';
+    if (data && data.length > 0) isBlogVisible = String(data[0].content_value).trim().toLowerCase() === 'true';
   }
 
   return (
