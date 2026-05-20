@@ -10,35 +10,10 @@ import { useWebsiteData } from '@/hooks/useWebsiteData'
 
 
 
-const Header = () => {
+const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
   const pathname = usePathname()
-  const [isBlogVisible, setIsBlogVisible] = useState(false)
   const { language, setLanguage } = useLanguage()
   const { getContent } = useWebsiteData()
-
-
-
-  useEffect(() => {
-    const fetchVisibility = async () => {
-      try {
-        const { data } = await supabase
-          .from('site_content')
-          .select('content_value')
-          .eq('content_key', 'blog_visibility')
-          .eq('language_code', 'en') // Global setting
-          .single();
-
-        
-        if (data) {
-          setIsBlogVisible(data.content_value === 'true');
-        }
-      } catch (err) {
-        console.error('Error fetching blog visibility:', err);
-      }
-    };
-    fetchVisibility();
-  }, []);
-
 
   return (
     <header className={styles.header}>

@@ -20,7 +20,7 @@ export async function saveBlogAction(blog: any) {
       .upsert(blog);
 
     if (error) throw error;
-    revalidatePath('/blogs');
+    revalidatePath('/blogs', 'layout');
     revalidatePath('/admin');
     return { success: true };
   } catch (err: any) {
@@ -38,7 +38,7 @@ export async function deleteBlogAction(id: string) {
       .eq('id', id);
 
     if (error) throw error;
-    revalidatePath('/blogs');
+    revalidatePath('/blogs', 'layout');
     revalidatePath('/admin');
     return { success: true };
   } catch (err: any) {
@@ -56,7 +56,7 @@ export async function toggleBlogVisibilityAction(id: string, isVisible: boolean)
       .eq('id', id);
 
     if (error) throw error;
-    revalidatePath('/blogs');
+    revalidatePath('/blogs', 'layout');
     revalidatePath('/admin');
     return { success: true };
   } catch (err: any) {

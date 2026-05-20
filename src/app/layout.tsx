@@ -5,21 +5,39 @@ import Footer from '@/components/layout/Footer'
 import BackToTop from '@/components/common/BackToTop'
 import { LanguageProvider } from '@/context/LanguageContext'
 
+import { createClient } from '@supabase/supabase-js'
+
 export const metadata: Metadata = {
   title: 'ABC International Logistics | Your Trusted Merchant Exporter',
   description: 'Global sourcing expertise backed by comprehensive logistics support.',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  let isBlogVisible = false;
+  
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)) {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL, 
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+    );
+    const { data } = await supabase
+      .from('site_content')
+      .select('content_value')
+      .eq('content_key', 'blog_visibility')
+      .eq('language_code', 'en')
+      .single();
+    if (data) isBlogVisible = data.content_value === 'true';
+  }
+
   return (
     <html lang="en">
       <body>
         <LanguageProvider>
-          <Header />
+          <Header isBlogVisible={isBlogVisible} />
           <main>{children}</main>
           <Footer />
           <BackToTop />
