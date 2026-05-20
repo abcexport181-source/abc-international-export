@@ -1737,7 +1737,7 @@ export default function AdminDashboard() {
                   <h3 style={{ marginBottom: '1.5rem' }}>{section}</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     {siteContent
-                      .filter(c => c.page_name === currentPage && c.section_name === section)
+                      .filter(c => c.page_name === currentPage && c.section_name === section && c.content_key !== 'blog_visibility')
                       .filter((c, index, self) => 
                         self.findIndex(t => t.content_key === c.content_key) === index
                       )
