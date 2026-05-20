@@ -7,6 +7,10 @@ export async function createSession(idToken: string) {
   const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
   
   try {
+    if (!adminAuth) {
+      return { success: false, error: 'Firebase Admin not initialized' };
+    }
+
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     
     // Strict UID Whitelist Check
@@ -45,9 +49,34 @@ export async function getSession() {
   if (!session) return null;
   
   try {
+    if (!adminAuth) {
+      return null;
+    }
+
     const decodedToken = await adminAuth.verifySessionCookie(session, true);
+    if (process.env.ADMIN_UID && decodedToken.uid !== process.env.ADMIN_UID) {
+      return null;
+    }
+
     return decodedToken;
-  } catch (error) {
+  } catch {
     return null;
   }
+}
+
+export async function requireAdminSession() {
+  const cookieStore = await cookies();
+  const session = cookieStore.get('__session')?.value;
+
+  if (!session || !adminAuth) {
+    throw new Error('Unauthorized');
+  }
+
+  const decodedToken = await adminAuth.verifySessionCookie(session, true);
+
+  if (process.env.ADMIN_UID && decodedToken.uid !== process.env.ADMIN_UID) {
+    throw new Error('Unauthorized');
+  }
+
+  return decodedToken;
 }

@@ -11,9 +11,10 @@ if (!admin.apps.length) {
     } else {
       console.warn('FIREBASE_SERVICE_ACCOUNT_KEY is missing from environment variables');
     }
-  } catch (error: any) {
-    console.error('Firebase admin initialization error:', error.message);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown Firebase admin initialization error';
+    console.error('Firebase admin initialization error:', message);
   }
 }
 
-export const adminAuth = admin.auth();
+export const adminAuth = admin.apps.length ? admin.auth() : null;

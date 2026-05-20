@@ -1,9 +1,16 @@
 'use server'
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { requireAdminSession } from './auth';
 // Force re-deployment and re-sync check
 
 export async function updateSiteContentBatch(updates: { id: string, value: string }[]) {
+  try {
+    await requireAdminSession();
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -50,6 +57,12 @@ export async function updateSiteContentBatch(updates: { id: string, value: strin
 }
 
 export async function syncInitialDataBatch(initialContent: any[], languageCode: string) {
+  try {
+    await requireAdminSession();
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -116,6 +129,12 @@ export async function upsertSiteContent(updates: {
   content_value: string,
   language_code: string
 }[]) {
+  try {
+    await requireAdminSession();
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -161,4 +180,3 @@ export async function upsertSiteContent(updates: {
     return { success: false, error: err.message };
   }
 }
-

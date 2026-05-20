@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { requireAdminSession } from './auth';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -14,6 +15,7 @@ function getSupabaseAdmin() {
 
 export async function saveProductAction(product: any) {
   try {
+    await requireAdminSession();
     const supabaseAdmin = getSupabaseAdmin();
     const { error } = await supabaseAdmin
       .from('products')
@@ -34,6 +36,7 @@ export async function saveProductAction(product: any) {
 
 export async function deleteProductAction(id: string) {
   try {
+    await requireAdminSession();
     const supabaseAdmin = getSupabaseAdmin();
     const isEnglish = !id.includes(':') || id.startsWith('en:');
     const baseId = id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
@@ -65,6 +68,7 @@ export async function deleteProductAction(id: string) {
 
 export async function toggleProductVisibilityAction(id: string, isVisible: boolean) {
   try {
+    await requireAdminSession();
     const supabaseAdmin = getSupabaseAdmin();
     const isEnglish = !id.includes(':') || id.startsWith('en:');
     const baseId = id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');

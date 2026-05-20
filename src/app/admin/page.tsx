@@ -22,10 +22,15 @@ import SeoAnalyticsPanel from '@/components/admin/SeoAnalyticsPanel';
 import { FiFileText } from 'react-icons/fi';
 import { BlogData } from '@/lib/supabase';
 
+type AdminUser = {
+  uid: string;
+  email?: string;
+};
+
 
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<AdminUser | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(true);
@@ -102,6 +107,9 @@ export default function AdminDashboard() {
         throw new Error(result.error);
       }
     } catch (error: any) {
+      await signOut(auth);
+      await removeSession();
+      setUser(null);
       setMessage({ text: error.message, type: 'error' });
     }
     setAuthLoading(false);
@@ -141,7 +149,15 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!user && !authLoading) {
+  if (authLoading) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', padding: '2rem' }}>
+        <div style={{ color: '#475569', fontWeight: 600 }}>Checking admin access...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', padding: '2rem' }}>
         <div style={{ maxWidth: '400px', width: '100%', background: '#fff', padding: '3rem', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
@@ -386,27 +402,42 @@ export default function AdminDashboard() {
 
 
   const handleImageUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    
     try {
-      const res = await fetch('/api/upload', {
+      const signRes = await fetch('/api/upload/sign', {
         method: 'POST',
-        body: formData,
       });
-      
-      const contentType = res.headers.get('content-type');
+
+      const contentType = signRes.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
-        const data = await res.json();
-        if (data.url) return data.url;
-        throw new Error(data.error || 'Upload failed');
-      } else {
-        const text = await res.text();
-        console.error('Server returned non-JSON response:', text);
-        throw new Error(`Server Error (${res.status}): Please check Vercel logs. The server returned a non-JSON response.`);
+        const uploadSignature = await signRes.json();
+        if (!signRes.ok) {
+          throw new Error(uploadSignature.error || 'Could not prepare Cloudinary upload');
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('api_key', uploadSignature.apiKey);
+        formData.append('timestamp', String(uploadSignature.timestamp));
+        formData.append('signature', uploadSignature.signature);
+        formData.append('folder', uploadSignature.folder);
+        formData.append('allowed_formats', uploadSignature.allowedFormats);
+
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${uploadSignature.cloudName}/image/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+        const uploadData = await uploadRes.json();
+
+        if (uploadRes.ok && uploadData.secure_url) return uploadData.secure_url;
+        throw new Error(uploadData.error?.message || 'Cloudinary upload failed');
       }
-    } catch (err: any) {
-      setMessage({ text: 'Upload failed: ' + err.message, type: 'error' });
+
+      const text = await signRes.text();
+      console.error('Server returned non-JSON response:', text);
+      throw new Error(`Server Error (${signRes.status}): Please check Vercel logs. The server returned a non-JSON response.`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Upload failed';
+      setMessage({ text: 'Upload failed: ' + message, type: 'error' });
       return null;
     }
   };
@@ -449,20 +480,21 @@ export default function AdminDashboard() {
           
           <input 
             type="file" 
+            accept="image/*"
             ref={fileInputRef}
             style={{ display: 'none' }} 
             onChange={async (e) => {
               const file = e.target.files?.[0];
               console.log('File selected:', file?.name, 'Size:', file?.size);
               if (file) {
-                // Client-side size check (4.5MB limit for Vercel)
-                if (file.size > 4.5 * 1024 * 1024) {
-                  setMessage({ text: 'Image is too large! Please use an image smaller than 4.5MB (Current: ' + (file.size / 1024 / 1024).toFixed(2) + 'MB)', type: 'error' });
+                // Cloudinary free-plan image uploads are limited to 10MB.
+                if (file.size > 10 * 1024 * 1024) {
+                  setMessage({ text: 'Image is too large! Please use an image smaller than 10MB (Current: ' + (file.size / 1024 / 1024).toFixed(2) + 'MB)', type: 'error' });
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   return;
                 }
                 setUploading(true);
-                console.log('Starting upload to server...');
+                console.log('Starting upload to Cloudinary...');
                 const url = await handleImageUpload(file);
                 console.log('Upload result URL:', url);
                 if (url) onChange(url);
