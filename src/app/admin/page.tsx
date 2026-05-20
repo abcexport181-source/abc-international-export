@@ -178,17 +178,17 @@ export default function AdminDashboard() {
 
   const toggleBlogPageVisibility = async () => {
     const newValue = !isBlogVisibleOnSite;
-    // We use a generic ID for the global setting if it exists, or let upsert handle it
-    const existing = siteContent.find((c: SiteContent) => c.content_key === 'blog_visibility');
     
-    const result = await upsertSiteContent([{
-      id: existing?.id,
+    const updates = languages.map(lang => ({
+      id: `${lang.code}_global_navigation_blog_visibility`,
       page_name: 'global',
       section_name: 'navigation',
       content_key: 'blog_visibility',
       content_value: String(newValue),
-      language_code: 'en' // Blog visibility is a global setting
-    }]);
+      language_code: lang.code
+    }));
+    
+    const result = await upsertSiteContent(updates);
 
 
     

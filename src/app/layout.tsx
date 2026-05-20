@@ -29,8 +29,8 @@ export default async function RootLayout({
       .select('content_value')
       .eq('content_key', 'blog_visibility')
       .eq('language_code', 'en')
-      .single();
-    if (data) isBlogVisible = data.content_value === 'true';
+      .limit(1);
+    if (data && data.length > 0) isBlogVisible = data[0].content_value === 'true';
   }
 
   return (

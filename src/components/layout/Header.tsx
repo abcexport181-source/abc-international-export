@@ -25,8 +25,8 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
           .select('content_value')
           .eq('content_key', 'blog_visibility')
           .eq('language_code', 'en')
-          .single();
-        if (data) setClientBlogVisible(data.content_value === 'true');
+          .limit(1);
+        if (data && data.length > 0) setClientBlogVisible(data[0].content_value === 'true');
       } catch (err) {}
     };
     fetchVisibility();
