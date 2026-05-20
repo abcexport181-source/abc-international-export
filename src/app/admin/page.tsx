@@ -196,6 +196,12 @@ export default function AdminDashboard() {
       setIsBlogVisibleOnSite(newValue);
       setMessage({ text: `Blog page is now ${newValue ? 'visible' : 'hidden'} in the menu bar.`, type: 'success' });
       fetchSiteContent(); // refresh state
+      try {
+        localStorage.setItem('blog_visibility', String(newValue));
+        window.dispatchEvent(new CustomEvent('blog-visibility-change', { detail: newValue }));
+      } catch (e) {
+        // ignore (safety for environments without window/localStorage)
+      }
     } else {
       setMessage({ text: 'Error updating blog visibility: ' + result.error, type: 'error' });
     }

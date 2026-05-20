@@ -32,6 +32,17 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
     fetchVisibility();
   }, [pathname]); // Check on navigation in case server cache is stale
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      try {
+        const detail = (e as CustomEvent).detail;
+        setClientBlogVisible(Boolean(detail));
+      } catch (err) {}
+    };
+    window.addEventListener('blog-visibility-change', handler as EventListener);
+    return () => window.removeEventListener('blog-visibility-change', handler as EventListener);
+  }, []);
+
   const finalBlogVisible = clientBlogVisible !== null ? clientBlogVisible : isBlogVisible;
 
   return (
