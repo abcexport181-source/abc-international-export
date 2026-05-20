@@ -14,6 +14,25 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
   const pathname = usePathname()
   const { language, setLanguage } = useLanguage()
   const { getContent } = useWebsiteData()
+  
+  const [clientBlogVisible, setClientBlogVisible] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const fetchVisibility = async () => {
+      try {
+        const { data } = await supabase
+          .from('site_content')
+          .select('content_value')
+          .eq('content_key', 'blog_visibility')
+          .eq('language_code', 'en')
+          .single();
+        if (data) setClientBlogVisible(data.content_value === 'true');
+      } catch (err) {}
+    };
+    fetchVisibility();
+  }, [pathname]); // Check on navigation in case server cache is stale
+
+  const finalBlogVisible = clientBlogVisible !== null ? clientBlogVisible : isBlogVisible;
 
   return (
     <header className={styles.header}>
@@ -34,7 +53,7 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
               { href: '/industries', label: getContent('global', 'navigation', 'industries', 'Industries') },
               { href: '/quality-packaging', label: getContent('global', 'navigation', 'quality', 'Quality & Packaging') },
               { href: '/logistics', label: getContent('global', 'navigation', 'logistics', 'Logistics') },
-              { href: '/blogs', label: getContent('global', 'navigation', 'blog', 'Blog'), hidden: !isBlogVisible },
+              { href: '/blogs', label: getContent('global', 'navigation', 'blog', 'Blog'), hidden: !finalBlogVisible },
               { href: '/contact', label: getContent('global', 'navigation', 'contact', 'Contact') },
 
             ].filter(item => !item.hidden).map((item) => {
