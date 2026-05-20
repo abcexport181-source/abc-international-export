@@ -10,18 +10,35 @@ const industries = ['Agro & Food', 'Packaging', 'Industrial', 'Chemicals', 'Cons
 
 export default function Home() {
   const { getContent, loading } = useWebsiteData();
+  const heroBg = getContent('home', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000');
+  const isHeroVideo = /\.(webm|mp4|mov)(\?|#|$)/i.test(heroBg);
 
   return (
     <>
       <section 
         className="heroBand" 
         style={{ 
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('home', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000')})`,
+          position: 'relative',
+          overflow: 'hidden',
+          backgroundImage: isHeroVideo ? undefined : `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${heroBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
-        <div className="container">
+        {isHeroVideo && (
+          <>
+            <video
+              src={heroBg}
+              autoPlay
+              muted
+              loop
+              playsInline
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+          </>
+        )}
+        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <h1>
             {getContent('home', 'Hero', 'title', 'Your Trusted Merchant Exporter from India')}
           </h1>
