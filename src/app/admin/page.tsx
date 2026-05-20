@@ -1895,6 +1895,15 @@ export default function AdminDashboard() {
                                 value={currentValue} 
                                 onChange={(url) => updateLocalContent(item.id, url)} 
                               />
+                            ) : item.content_key === 'robots_index' || item.content_key === 'robots_follow' ? (
+                              <select
+                                value={currentValue}
+                                onChange={e => updateLocalContent(item.id, e.target.value)}
+                                style={field}
+                              >
+                                <option value="true">true</option>
+                                <option value="false">false</option>
+                              </select>
                             ) : item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') || item.content_key.includes('address') ? (
                               <textarea 
                                 value={currentValue} 
