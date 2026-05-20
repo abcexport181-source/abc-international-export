@@ -41,7 +41,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LanguageProvider>
+        <LanguageProvider initialLanguage={languageCookie}>
           <Header isBlogVisible={isBlogVisible} />
           <main>{children}</main>
           <Footer />

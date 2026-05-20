@@ -10,22 +10,28 @@ type LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState(defaultLanguage);
+export function LanguageProvider({
+  children,
+  initialLanguage = defaultLanguage,
+}: {
+  children: React.ReactNode;
+  initialLanguage?: string;
+}) {
+  const [language, setLanguageState] = useState(initialLanguage);
 
   useEffect(() => {
     // Load language from localStorage if available
     const savedLang = localStorage.getItem('site_language');
-    if (savedLang) {
+    if (savedLang && savedLang !== language) {
       setLanguageState(savedLang);
     }
-  }, []);
+  }, [language]);
 
   const setLanguage = (lang: string) => {
     setLanguageState(lang);
     localStorage.setItem('site_language', lang);
     // Also set a cookie for server components if needed
-    document.cookie = `site_language=${lang}; path=/; max-age=31536000`;
+    document.cookie = `site_language=${lang}; path=/; max-age=31536000; samesite=lax`;
   };
 
   return (

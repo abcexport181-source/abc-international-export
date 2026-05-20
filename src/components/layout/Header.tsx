@@ -103,7 +103,7 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
               value={language}
               onChange={(e) => {
                 setLanguage(e.target.value)
-                window.location.reload()
+                setMenuOpen(false)
               }}
               className={styles.langSelect}
             >
@@ -121,7 +121,6 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
             value={language} 
             onChange={(e) => {
               setLanguage(e.target.value)
-              window.location.reload()
             }}
             className={styles.langSelect}
           >
