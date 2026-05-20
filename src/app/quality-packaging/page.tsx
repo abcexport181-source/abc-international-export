@@ -3,6 +3,7 @@ import React from 'react';
 import { FiShield, FiEye, FiFileText, FiCheckCircle, FiPackage, FiClipboard } from 'react-icons/fi';
 import { FaVial, FaRecycle, FaLeaf } from 'react-icons/fa';
 import { useWebsiteData } from '@/hooks/useWebsiteData';
+import { MediaBackground, MediaBlock } from '@/components/common/EditableMedia';
 
 const qualitySteps = [
   {
@@ -70,19 +71,15 @@ export default function QualityPackagingPage() {
 
   return (
     <>
-      <section 
+      <MediaBackground 
         className="heroBand"
-        style={{ 
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('quality-packaging', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1521331908054-9a180b7d3912?auto=format&fit=crop&q=80&w=2000')})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
+        url={getContent('quality-packaging', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1521331908054-9a180b7d3912?auto=format&fit=crop&q=80&w=2000')}
       >
         <div className="container">
           <h1>{getContent('quality-packaging', 'Hero', 'title', 'Quality Assurance & Export Packaging')}</h1>
           <p>{getContent('quality-packaging', 'Hero', 'desc', 'Reliable quality checks and secure export packaging to deliver consistent products worldwide.')}</p>
         </div>
-      </section>
+      </MediaBackground>
 
       <section className="section sectionSoft">
         <div className="container">
@@ -105,9 +102,7 @@ export default function QualityPackagingPage() {
 
       <section className="section">
         <div className="container split">
-          <div className="imageBlock" style={{ 
-            backgroundImage: `url(${getContent('quality-packaging', 'Standards', 'side_img', 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000')})`
-          }} />
+          <MediaBlock className="imageBlock" url={getContent('quality-packaging', 'Standards', 'side_img', 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000')} alt="Inspection standards" />
           <div>
             <h2>{getContent('quality-packaging', 'Standards', 'title', 'Our Inspection Standards')}</h2>
             <p className="muted" style={{ marginTop: '0.7rem' }}>
@@ -178,9 +173,7 @@ export default function QualityPackagingPage() {
               ))}
             </div>
           </div>
-          <div className="imageBlock" style={{ 
-            backgroundImage: `url(${getContent('quality-packaging', 'Options', 'side_img', 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000')})`
-          }} />
+          <MediaBlock className="imageBlock" url={getContent('quality-packaging', 'Options', 'side_img', 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000')} alt="Packaging options" />
         </div>
       </section>
 
@@ -246,11 +239,7 @@ export default function QualityPackagingPage() {
         </div>
       </section>
 
-      <section className="ctaBand" style={{
-        backgroundImage: `linear-gradient(rgba(31, 95, 245, 0.9), rgba(31, 95, 245, 0.9)), url(${getContent('quality-packaging', 'CTA', 'bg_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=2000')})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}>
+      <MediaBackground className="ctaBand" url={getContent('quality-packaging', 'CTA', 'bg_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=2000')} overlay="rgba(31, 95, 245, 0.9)">
         <div className="container">
           <h3>{getContent('quality-packaging', 'CTA', 'title', 'Need Quality Assurance or Packaging Solutions?')}</h3>
           <p style={{ color: '#dbe8ff' }}>{getContent('quality-packaging', 'CTA', 'desc', 'Speak with our team for product-specific support.')}</p>
@@ -260,7 +249,7 @@ export default function QualityPackagingPage() {
             </a>
           </div>
         </div>
-      </section>
+      </MediaBackground>
     </>
   )
 }

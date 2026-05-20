@@ -2,6 +2,7 @@
 import React from 'react';
 import { FiMail, FiPhone, FiMapPin, FiClock, FiSend } from 'react-icons/fi';
 import { useWebsiteData } from '@/hooks/useWebsiteData';
+import { MediaBackground } from '@/components/common/EditableMedia';
 
 const contactInfo = [
   {
@@ -42,19 +43,15 @@ export default function ContactPage() {
 
   return (
     <>
-      <section 
+      <MediaBackground 
         className="heroBand heroBandCentered"
-        style={{ 
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('contact', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000')})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
+        url={getContent('contact', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000')}
       >
         <div className="container">
           <h1>{getContent('contact', 'Hero', 'title', 'Get in Touch')}</h1>
           <p>{getContent('contact', 'Hero', 'desc', 'Ready to start sourcing from India? Contact our team to discuss your requirements.')}</p>
         </div>
-      </section>
+      </MediaBackground>
 
       <section className="section" style={{ background: '#fff' }}>
         <div className="container split" style={{ alignItems: 'start', gap: '4rem' }}>

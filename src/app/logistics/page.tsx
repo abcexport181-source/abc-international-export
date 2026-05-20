@@ -3,6 +3,7 @@ import React from 'react';
 import { FiClock, FiShield, FiClipboard, FiMapPin, FiFileText, FiPackage, FiCheckCircle, FiGlobe, FiArrowRight } from 'react-icons/fi';
 import { FaShip, FaPlane } from 'react-icons/fa';
 import { useWebsiteData } from '@/hooks/useWebsiteData';
+import { MediaBackground, MediaBlock } from '@/components/common/EditableMedia';
 
 const shippingSolutions = [
   {
@@ -113,13 +114,9 @@ export default function LogisticsSubPage() {
 
   return (
     <>
-      <section 
+      <MediaBackground 
         className="heroBand"
-        style={{ 
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('logistics', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=2000')})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
+        url={getContent('logistics', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=2000')}
       >
         <div className="container">
           <h1>{getContent('logistics', 'Hero', 'title', 'Logistics Backed Export Expertise')}</h1>
@@ -130,7 +127,7 @@ export default function LogisticsSubPage() {
             </a>
           </div>
         </div>
-      </section>
+      </MediaBackground>
 
       <section className="section sectionSoft">
         <div className="container">
@@ -207,14 +204,9 @@ export default function LogisticsSubPage() {
         </div>
       </section>
 
-      <section className="section heroBand" style={{ 
-        backgroundImage: `linear-gradient(rgba(31, 95, 245, 0.9), rgba(31, 95, 245, 0.9)), url(${getContent('logistics', 'Partner', 'bg_img', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000')})`
-      }}>
+      <MediaBackground className="section heroBand" url={getContent('logistics', 'Partner', 'bg_img', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000')} overlay="rgba(31, 95, 245, 0.9)">
         <div className="container split">
-          <div className="imageBlock" style={{ 
-            borderRadius: '12px',
-            backgroundImage: `url(${getContent('logistics', 'Partner', 'side_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000')})`
-          }} />
+          <MediaBlock className="imageBlock" url={getContent('logistics', 'Partner', 'side_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000')} alt="Linear Global" />
           <div>
             <h2 style={{ color: '#fff', fontSize: '2rem', marginBottom: '1.5rem' }}>{getContent('logistics', 'Partner', 'title', 'Powered by Linear Global')}</h2>
             <p style={{ color: '#dbe8ff', marginBottom: '1.5rem', lineHeight: '1.6' }}>
@@ -239,7 +231,7 @@ export default function LogisticsSubPage() {
             </ul>
           </div>
         </div>
-      </section>
+      </MediaBackground>
 
       <section className="section">
         <div className="container">
@@ -299,13 +291,10 @@ export default function LogisticsSubPage() {
 
       <section className="section">
         <div className="container">
-          <div className="heroBand" style={{ 
+          <MediaBackground className="heroBand" url={getContent('logistics', 'Trust', 'bg_img', 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000')} overlay="rgba(31, 95, 245, 0.9)" style={{ 
             borderRadius: '16px', 
             padding: '4rem 2rem', 
-            textAlign: 'center',
-            backgroundImage: `linear-gradient(rgba(31, 95, 245, 0.9), rgba(31, 95, 245, 0.9)), url(${getContent('logistics', 'Trust', 'bg_img', 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000')})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
+            textAlign: 'center'
           }}>
             <div style={{ fontSize: '4rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
               <FiShield />
@@ -322,7 +311,7 @@ export default function LogisticsSubPage() {
                 {getContent('logistics', 'Trust', 'btn2_text', 'Explore Sourcing Services')}
               </a>
             </div>
-          </div>
+          </MediaBackground>
         </div>
       </section>
     </>

@@ -3,6 +3,7 @@ import React from 'react';
 import { FiPackage, FiCheckCircle, FiClipboard, FiSearch, FiDollarSign, FiEye, FiTruck, FiArrowRight, FiShield, FiFileText } from 'react-icons/fi';
 import { FaIndustry, FaVial } from 'react-icons/fa';
 import { useWebsiteData } from '@/hooks/useWebsiteData';
+import { MediaBackground, MediaBlock } from '@/components/common/EditableMedia';
 
 const sourceItems = [
   { title: 'Products', description: 'Finished goods across all categories ready for export', Icon: FiPackage },
@@ -24,13 +25,9 @@ export default function SourcingPage() {
 
   return (
     <>
-      <section 
+      <MediaBackground 
         className="heroBand"
-        style={{ 
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${getContent('sourcing', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=2000')})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
+        url={getContent('sourcing', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=2000')}
       >
         <div className="container">
           <h1>{getContent('sourcing', 'Hero', 'title', 'Global Product Sourcing from India')}</h1>
@@ -43,7 +40,7 @@ export default function SourcingPage() {
             </a>
           </div>
         </div>
-      </section>
+      </MediaBackground>
 
       <section className="section sectionSoft">
         <div className="container">
@@ -94,9 +91,7 @@ export default function SourcingPage() {
 
       <section className="section">
         <div className="container split">
-          <div className="imageBlock" style={{ 
-            backgroundImage: `url(${getContent('sourcing', 'Network', 'side_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000')})`
-          }} />
+          <MediaBlock className="imageBlock" url={getContent('sourcing', 'Network', 'side_img', 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000')} alt="Manufacturer network" />
           <div>
             <h2>{getContent('sourcing', 'Network', 'title', 'Manufacturer Network Across Industries')}</h2>
             <p className="muted" style={{ marginTop: '0.7rem' }}>
@@ -120,9 +115,7 @@ export default function SourcingPage() {
         </div>
       </section>
 
-      <section className="section heroBand" style={{ 
-        backgroundImage: `linear-gradient(rgba(31, 95, 245, 0.9), rgba(31, 95, 245, 0.9)), url(${getContent('sourcing', 'Custom', 'bg_img', 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2000')})`
-      }}>
+      <MediaBackground className="section heroBand" url={getContent('sourcing', 'Custom', 'bg_img', 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2000')} overlay="rgba(31, 95, 245, 0.9)">
         <div className="container heroBandCentered">
           <h2 style={{ color: '#fff' }}>{getContent('sourcing', 'Custom', 'title', 'Custom Sourcing Solutions')}</h2>
           <p style={{ color: '#dbe8ff' }}>
@@ -137,7 +130,7 @@ export default function SourcingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </MediaBackground>
 
       <section className="section">
         <div className="container split">
@@ -182,9 +175,7 @@ export default function SourcingPage() {
               </a>
             </div>
           </div>
-          <div className="imageBlock" style={{ 
-            backgroundImage: `url(${getContent('sourcing', 'Quality', 'side_img', 'https://images.unsplash.com/photo-1521331908054-9a180b7d3912?auto=format&fit=crop&q=80&w=1000')})`
-          }} />
+          <MediaBlock className="imageBlock" url={getContent('sourcing', 'Quality', 'side_img', 'https://images.unsplash.com/photo-1521331908054-9a180b7d3912?auto=format&fit=crop&q=80&w=1000')} alt="Quality process" />
         </div>
       </section>
 
