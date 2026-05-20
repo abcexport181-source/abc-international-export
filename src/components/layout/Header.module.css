@@ -60,6 +60,91 @@
   gap: 0.5rem;
 }
 
+.menuToggle {
+  display: none;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #0b1427;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.mobileNav {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(8px);
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.mobileNav.open {
+  display: block;
+}
+
+.mobileNavHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.mobileNav ul {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.mobileNav a {
+  display: block;
+  font-size: 1rem;
+  color: #0b1427;
+  padding: 0.95rem 1rem;
+  border-radius: 12px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.mobileNav a:hover,
+.mobileNav a.active {
+  background: #eef4ff;
+  color: #1e5df7;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #0b1427;
+  cursor: pointer;
+}
+
+.mobileFooter {
+  display: flex;
+  justify-content: flex-start;
+}
+
+@media (max-width: 1024px) {
+  .nav {
+    display: none;
+  }
+
+  .menuToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .headerActions {
+    display: none;
+  }
+}
+
 .langSelect {
   padding: 0.4rem 0.6rem;
   border-radius: 6px;
@@ -82,4 +167,4 @@
   .nav {
     display: none;
   }
-}
+}

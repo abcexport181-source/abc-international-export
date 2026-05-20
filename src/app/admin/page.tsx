@@ -7,7 +7,7 @@ import BackToTop from '@/components/common/BackToTop';
 import { languages, defaultLanguage } from '@/lib/languages';
 
 
-type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'global-content' | 'industries' | 'products' | 'blogs';
+type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'global-content' | 'seo-content' | 'industries' | 'products' | 'blogs';
 
 
 import { auth } from '@/lib/firebase/config';
@@ -18,6 +18,7 @@ import { updateSiteContentBatch, syncInitialDataBatch, upsertSiteContent } from 
 import { saveIndustryAction, deleteIndustryAction, toggleIndustryVisibilityAction } from '@/app/actions/industries';
 import { saveProductAction, deleteProductAction, toggleProductVisibilityAction } from '@/app/actions/products';
 import { saveBlogAction, deleteBlogAction, toggleBlogVisibilityAction } from '@/app/actions/blogs';
+import SeoAnalyticsPanel from '@/components/admin/SeoAnalyticsPanel';
 import { FiFileText } from 'react-icons/fi';
 import { BlogData } from '@/lib/supabase';
 
@@ -981,6 +982,18 @@ export default function AdminDashboard() {
         { page: 'global', section: 'navigation', key: 'blog', val: 'Blog' },
         { page: 'global', section: 'navigation', key: 'contact', val: 'Contact' },
 
+        // SEO SETTINGS
+        { page: 'seo', section: 'Verification', key: 'google_search_console', val: '' },
+        { page: 'seo', section: 'Verification', key: 'bing_site_verification', val: '' },
+        { page: 'seo', section: 'Verification', key: 'pinterest_site_verification', val: '' },
+        { page: 'seo', section: 'Verification', key: 'yandex_verification', val: '' },
+        { page: 'seo', section: 'Verification', key: 'site_verification_meta_tag', val: '' },
+        { page: 'seo', section: 'Tracking', key: 'google_analytics_measurement_id', val: '' },
+        { page: 'seo', section: 'Tracking', key: 'google_tag_manager_id', val: '' },
+        { page: 'seo', section: 'Tracking', key: 'facebook_pixel_id', val: '' },
+        { page: 'seo', section: 'Tracking', key: 'twitter_pixel_id', val: '' },
+        { page: 'seo', section: 'Tracking', key: 'linkedin_insight_tag', val: '' },
+
         // FOOTER LABELS
         { page: 'global', section: 'footer', key: 'brand_desc', val: 'Your trusted merchant exporter and global sourcing partner, backed by logistics expertise.' },
         { page: 'global', section: 'footer', key: 'quick_links', val: 'Quick Links' },
@@ -1162,6 +1175,7 @@ export default function AdminDashboard() {
             { id: 'quality-packaging-content', label: 'Quality & Packaging', icon: FiShield },
             { id: 'logistics-content', label: 'Logistics', icon: FiTruck },
             { id: 'contact-content', label: 'Contact', icon: FiMail },
+            { id: 'seo-content', label: 'SEO Settings', icon: FiSearch },
             { id: 'industries', label: 'Manage Industries', icon: FiList },
             { id: 'products', label: 'Manage Products', icon: FiBox },
             { id: 'blogs', label: 'Manage Blogs', icon: FiFileText },
@@ -1715,6 +1729,7 @@ export default function AdminDashboard() {
                 'contact': ['Hero', 'Form', 'Info', 'Stats'],
                 'sourcing': ['Hero', 'Source', 'Process', 'Network', 'Custom', 'Quality', 'CTA'],
                 'global': ['navigation', 'footer'],
+                'seo': ['Verification', 'Tracking'],
                 'logistics': ['Hero', 'Expertise', 'Docs', 'Solutions', 'Partner', 'Compliance', 'Timeline', 'Trust'],
                 'industries': ['Hero', 'Missing', 'Expertise', 'CTA'],
                 'quality-packaging': ['Hero', 'Inspection', 'Standards', 'Solutions', 'Options', 'Sustainable', 'Compliance', 'CTA']
@@ -1834,6 +1849,8 @@ export default function AdminDashboard() {
             })()}
           </div>
         )}
+
+        {activeTab === 'seo-content' && <SeoAnalyticsPanel />}
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '5rem' }}>Loading CMS data...</div>

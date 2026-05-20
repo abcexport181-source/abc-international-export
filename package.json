@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google-analytics/data": "^6.0.0",
     "@supabase/supabase-js": "^2.105.1",
     "cloudinary": "^2.10.0",
     "firebase": "^12.12.1",
@@ -16,8 +17,10 @@
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-ga4": "^3.0.1",
     "react-google-recaptcha": "^3.1.0",
-    "react-icons": "^5.6.0"
+    "react-icons": "^5.6.0",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@types/node": "^20",

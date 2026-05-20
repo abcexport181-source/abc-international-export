@@ -14,6 +14,7 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
   const { language, setLanguage } = useLanguage()
   const { getContent } = useWebsiteData()
   const [clientBlogVisible, setClientBlogVisible] = useState<boolean | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -34,6 +35,28 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
 
   const finalBlogVisible = clientBlogVisible !== null ? clientBlogVisible : isBlogVisible;
 
+  const navItems = [
+    { href: '/', label: getContent('global', 'navigation', 'home', 'Home') },
+    { href: '/about', label: getContent('global', 'navigation', 'about', 'About Us') },
+    { href: '/sourcing', label: getContent('global', 'navigation', 'sourcing', 'Sourcing') },
+    { href: '/industries', label: getContent('global', 'navigation', 'industries', 'Industries') },
+    { href: '/quality-packaging', label: getContent('global', 'navigation', 'quality', 'Quality & Packaging') },
+    { href: '/logistics', label: getContent('global', 'navigation', 'logistics', 'Logistics') },
+    { href: '/blogs', label: getContent('global', 'navigation', 'blog', 'Blog'), hidden: !finalBlogVisible },
+    { href: '/contact', label: getContent('global', 'navigation', 'contact', 'Contact') },
+  ].filter(item => !item.hidden);
+
+  const linkItems = navItems.map((item) => {
+    const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
+    return (
+      <li key={item.href}>
+        <Link href={item.href} className={isActive ? styles.active : ''} onClick={() => setMenuOpen(false)}>
+          {item.label}
+        </Link>
+      </li>
+    )
+  });
+
   return (
     <header className={styles.header}>
       <div className={`container ${styles.headerInner}`}>
@@ -46,29 +69,52 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
         </Link>
         <nav className={styles.nav}>
           <ul>
-            {[
-              { href: '/', label: getContent('global', 'navigation', 'home', 'Home') },
-              { href: '/about', label: getContent('global', 'navigation', 'about', 'About Us') },
-              { href: '/sourcing', label: getContent('global', 'navigation', 'sourcing', 'Sourcing') },
-              { href: '/industries', label: getContent('global', 'navigation', 'industries', 'Industries') },
-              { href: '/quality-packaging', label: getContent('global', 'navigation', 'quality', 'Quality & Packaging') },
-              { href: '/logistics', label: getContent('global', 'navigation', 'logistics', 'Logistics') },
-              { href: '/blogs', label: getContent('global', 'navigation', 'blog', 'Blog'), hidden: !finalBlogVisible },
-              { href: '/contact', label: getContent('global', 'navigation', 'contact', 'Contact') },
-
-            ].filter(item => !item.hidden).map((item) => {
-              const isActive =
-                item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
-              return (
-                <li key={item.href}>
-                  <Link href={item.href} className={isActive ? styles.active : ''}>
-                    {item.label}
-                  </Link>
-                </li>
-              )
-            })}
+            {linkItems}
           </ul>
         </nav>
+
+        <button
+          type="button"
+          className={styles.menuToggle}
+          aria-label={menuOpen ? 'Close mobile menu' : 'Open mobile menu'}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span aria-hidden="true">{menuOpen ? '✕' : '☰'}</span>
+        </button>
+
+        <div className={`${styles.mobileNav} ${menuOpen ? styles.open : ''}`}>
+          <div className={styles.mobileNavHeader}>
+            <Link href="/" className={styles.logo} onClick={() => setMenuOpen(false)}>
+              <img
+                src="/logo.jpeg"
+                alt="ABC International"
+                style={{ height: '48px', width: 'auto', display: 'block' }}
+              />
+            </Link>
+            <button type="button" className={styles.closeButton} onClick={() => setMenuOpen(false)} aria-label="Close mobile menu">
+              ✕
+            </button>
+          </div>
+          <ul>
+            {linkItems}
+          </ul>
+          <div className={styles.mobileFooter}>
+            <select
+              value={language}
+              onChange={(e) => {
+                setLanguage(e.target.value)
+                window.location.reload()
+              }}
+              className={styles.langSelect}
+            >
+              {languages.map(lang => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.code.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
         <div className={styles.headerActions}>
           <select 
