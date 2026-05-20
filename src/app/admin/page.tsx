@@ -401,6 +401,8 @@ export default function AdminDashboard() {
   };
 
 
+  const isVideoUrl = (url: string) => /\.(webm|mp4|mov)(\?|#|$)/i.test(url);
+
   const handleImageUpload = async (file: File) => {
     try {
       const signRes = await fetch('/api/upload/sign', {
@@ -421,8 +423,9 @@ export default function AdminDashboard() {
         formData.append('signature', uploadSignature.signature);
         formData.append('folder', uploadSignature.folder);
         formData.append('allowed_formats', uploadSignature.allowedFormats);
+        formData.append('resource_type', uploadSignature.resourceType);
 
-        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${uploadSignature.cloudName}/image/upload`, {
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${uploadSignature.cloudName}/${uploadSignature.resourceType}/upload`, {
           method: 'POST',
           body: formData,
         });
@@ -470,26 +473,37 @@ export default function AdminDashboard() {
         onMouseOut={e => e.currentTarget.style.borderColor = '#e2e8f0'}
         >
           {value ? (
+            isVideoUrl(value) ? (
+              <video src={value} style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px' }} controls muted />
+            ) : (
             <img src={value} style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px' }} alt="Preview" />
+            )
           ) : (
             <div style={{ padding: '2rem', color: '#64748b', textAlign: 'center' }}>
               <FiPlus style={{ fontSize: '2rem', marginBottom: '0.5rem' }} />
-              <p>Click to upload image</p>
+              <p>Click to upload media</p>
             </div>
           )}
           
           <input 
             type="file" 
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/webm,video/mp4,video/quicktime"
             ref={fileInputRef}
             style={{ display: 'none' }} 
             onChange={async (e) => {
               const file = e.target.files?.[0];
               console.log('File selected:', file?.name, 'Size:', file?.size);
               if (file) {
-                // Cloudinary free-plan image uploads are limited to 10MB.
+                const isAllowedMedia = file.type.startsWith('image/') || ['video/webm', 'video/mp4', 'video/quicktime'].includes(file.type);
+                if (!isAllowedMedia) {
+                  setMessage({ text: 'Unsupported file type. Please upload JPG, PNG, WebP, GIF, AVIF, WebM, MP4, or MOV.', type: 'error' });
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  return;
+                }
+
+                // Keep admin media uploads within 10MB.
                 if (file.size > 10 * 1024 * 1024) {
-                  setMessage({ text: 'Image is too large! Please use an image smaller than 10MB (Current: ' + (file.size / 1024 / 1024).toFixed(2) + 'MB)', type: 'error' });
+                  setMessage({ text: 'File is too large! Please use media smaller than 10MB (Current: ' + (file.size / 1024 / 1024).toFixed(2) + 'MB)', type: 'error' });
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   return;
                 }

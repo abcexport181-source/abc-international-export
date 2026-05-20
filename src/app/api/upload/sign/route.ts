@@ -6,7 +6,7 @@ import { adminAuth } from '@/lib/firebase/admin';
 export const runtime = 'nodejs';
 
 const UPLOAD_FOLDER = 'abc-export';
-const ALLOWED_FORMATS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'];
+const ALLOWED_FORMATS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif', 'webm', 'mp4', 'mov'];
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -49,6 +49,7 @@ export async function POST() {
   const paramsToSign = {
     allowed_formats: ALLOWED_FORMATS.join(','),
     folder: UPLOAD_FOLDER,
+    resource_type: 'auto',
     timestamp,
   };
   const signature = cloudinary.utils.api_sign_request(
@@ -61,6 +62,7 @@ export async function POST() {
     apiKey,
     cloudName,
     folder: UPLOAD_FOLDER,
+    resourceType: paramsToSign.resource_type,
     signature,
     timestamp,
   });
