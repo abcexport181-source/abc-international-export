@@ -24,13 +24,15 @@ const Header = ({ isBlogVisible = false }: { isBlogVisible?: boolean }) => {
           .from('site_content')
           .select('content_value')
           .eq('content_key', 'blog_visibility')
-          .eq('language_code', 'en')
+          .eq('language_code', language)
           .limit(1);
         if (data && data.length > 0) setClientBlogVisible(data[0].content_value === 'true');
-      } catch (err) {}
+      } catch (err) {
+        console.error('Header blog visibility fetch failed:', err);
+      }
     };
     fetchVisibility();
-  }, [pathname]); // Check on navigation in case server cache is stale
+  }, [language, pathname]); // Refresh when language or path changes
 
   useEffect(() => {
     const handler = (e: Event) => {

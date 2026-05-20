@@ -5,6 +5,8 @@ import Footer from '@/components/layout/Footer'
 import BackToTop from '@/components/common/BackToTop'
 import { LanguageProvider } from '@/context/LanguageContext'
 
+export const dynamic = 'force-dynamic';
+
 import { createClient } from '@supabase/supabase-js'
 
 export const metadata: Metadata = {
