@@ -147,7 +147,7 @@ const SeoAnalyticsPanel = () => {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => [value, 'Sessions']} />
+                    <Tooltip formatter={(value: any) => [Number(value ?? 0), 'Sessions']} />
                     <Legend verticalAlign="bottom" height={36} />
                   </PieChart>
                 ) : (
@@ -155,7 +155,7 @@ const SeoAnalyticsPanel = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                     <YAxis />
-                    <Tooltip formatter={(value: number) => [value, 'Sessions']} />
+                    <Tooltip formatter={(value: any) => [Number(value ?? 0), 'Sessions']} />
                     <Legend verticalAlign="bottom" height={36} />
                     <Bar dataKey="value" name="Sessions">
                       {pieData.map((entry, index) => (
