@@ -7,7 +7,7 @@ import BackToTop from '@/components/common/BackToTop';
 import { languages, defaultLanguage } from '@/lib/languages';
 
 
-type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'global-content' | 'product-content' | 'industries' | 'products' | 'blogs';
+type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'global-content' | 'industries' | 'products' | 'blogs';
 
 
 import { auth } from '@/lib/firebase/config';
@@ -604,28 +604,6 @@ export default function AdminDashboard() {
         { page: 'home', section: 'CTA', key: 'btn_sourcing', val: 'Request Sourcing' },
         { page: 'home', section: 'CTA', key: 'btn_about', val: 'Learn More About Us' },
 
-        // PRODUCT PAGE
-        { page: 'product', section: 'Breadcrumb', key: 'industries', val: 'Industries' },
-        { page: 'product', section: 'Header', key: 'merchant', val: 'Merchant Exporter:' },
-        { page: 'product', section: 'Header', key: 'verified', val: 'Verified Supplier' },
-        { page: 'product', section: 'Header', key: 'about', val: 'About this product' },
-        { page: 'product', section: 'Export Details', key: 'title', val: 'Global Export Details' },
-        { page: 'product', section: 'Export Details', key: 'moq', val: 'MOQ' },
-        { page: 'product', section: 'Export Details', key: 'origin', val: 'Origin' },
-        { page: 'product', section: 'Export Details', key: 'capacity', val: 'Monthly Capacity' },
-        { page: 'product', section: 'Export Details', key: 'delivery', val: 'Port of Delivery' },
-        { page: 'product', section: 'Buttons', key: 'quote', val: 'Request Quotation' },
-        { page: 'product', section: 'Buttons', key: 'brochure', val: 'Download Brochure' },
-        { page: 'product', section: 'Specs', key: 'title', val: 'Technical Specifications' },
-        { page: 'product', section: 'Specs', key: 'desc', val: 'Detailed chemical and physical properties of our product.' },
-        { page: 'product', section: 'Features', key: 'quality_title', val: 'Quality Assurance' },
-        { page: 'product', section: 'Features', key: 'quality_desc', val: 'Pre-shipment inspection by SGS or Intertek available.' },
-        { page: 'product', section: 'Features', key: 'comp_title', val: 'Compliance' },
-        { page: 'product', section: 'Features', key: 'comp_desc', val: 'All export certificates provided: COO, MSDS, FSSAI, etc.' },
-        { page: 'product', section: 'Features', key: 'pkg_title', val: 'Packaging' },
-        { page: 'product', section: 'Features', key: 'ship_title', val: 'Shipping' },
-        { page: 'product', section: 'Features', key: 'ship_desc', val: 'Global delivery via Sea or Air Freight.' },
-
         // ABOUT PAGE
         { page: 'about', section: 'Hero', key: 'title', val: 'About ABC International', limit: 150 },
         { page: 'about', section: 'Hero', key: 'desc', val: 'Your trusted partner for high-quality sourcing and global export support from India.' },
@@ -1070,6 +1048,13 @@ export default function AdminDashboard() {
   };
 
   const toggleVisibility = async (type: 'industries' | 'products' | 'blogs', id: string, currentStatus: boolean) => {
+    const isEnglish = !id.includes(':') || id.startsWith('en:');
+    
+    if ((type === 'industries' || type === 'products') && isEnglish) {
+      const action = currentStatus ? 'hide' : 'show';
+      if (!confirm(`Are you sure you want to ${action} this ${type === 'industries' ? 'industry' : 'product'}? This will also ${action} ALL its translations.`)) return;
+    }
+
     let result;
     if (type === 'industries') result = await toggleIndustryVisibilityAction(id, !currentStatus);
     else if (type === 'products') result = await toggleProductVisibilityAction(id, !currentStatus);
@@ -1082,7 +1067,15 @@ export default function AdminDashboard() {
 
 
   const deleteItem = async (type: 'industries' | 'products' | 'blogs', id: string) => {
-    if (!confirm('Are you sure you want to delete this item? This cannot be undone.')) return;
+    let confirmMessage = 'Are you sure you want to delete this item? This cannot be undone.';
+    const isEnglish = !id.includes(':') || id.startsWith('en:');
+    
+    if ((type === 'industries' || type === 'products') && isEnglish) {
+        confirmMessage = `Are you sure you want to delete this ${type === 'industries' ? 'industry' : 'product'}? This will also delete ALL its translations. This cannot be undone.`;
+    }
+
+    if (!confirm(confirmMessage)) return;
+
     let result;
     if (type === 'industries') result = await deleteIndustryAction(id);
     else if (type === 'products') result = await deleteProductAction(id);
@@ -1160,7 +1153,6 @@ export default function AdminDashboard() {
             { id: 'about-content', label: 'About Us', icon: FiInfo },
             { id: 'sourcing-content', label: 'Sourcing', icon: FiSearch },
             { id: 'industries-content', label: 'Industries Page', icon: FiGrid },
-            { id: 'product-content', label: 'Single Product Layout', icon: FiBox },
             { id: 'quality-packaging-content', label: 'Quality & Packaging', icon: FiShield },
             { id: 'logistics-content', label: 'Logistics', icon: FiTruck },
             { id: 'contact-content', label: 'Contact', icon: FiMail },
@@ -1622,7 +1614,6 @@ export default function AdminDashboard() {
               {activeTab === 'home-content' && 'Home Page Content'}
               {activeTab === 'about-content' && 'About Page Content'}
               {activeTab === 'contact-content' && 'Contact Page Content'}
-              {activeTab === 'product-content' && 'Product Layout Content'}
               {activeTab === 'industries' && 'Manage Industries'}
               {activeTab === 'products' && 'Manage Products'}
               {activeTab === 'blogs' && 'Manage Blogs'}
@@ -1720,7 +1711,6 @@ export default function AdminDashboard() {
                 'global': ['navigation', 'footer'],
                 'logistics': ['Hero', 'Expertise', 'Docs', 'Solutions', 'Partner', 'Compliance', 'Timeline', 'Trust'],
                 'industries': ['Hero', 'Missing', 'Expertise', 'CTA'],
-                'product': ['Breadcrumb', 'Header', 'Export Details', 'Buttons', 'Specs', 'Features'],
                 'quality-packaging': ['Hero', 'Inspection', 'Standards', 'Solutions', 'Options', 'Sustainable', 'Compliance', 'CTA']
               };
 

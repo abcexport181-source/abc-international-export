@@ -20,25 +20,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const langSlug = lang === 'en' ? baseSlug : `${lang}:${baseSlug}`;
   
   let product: any = null;
-  let contentMap: Record<string, string> = {};
 
   // Try fetching from Supabase first
   if (supabaseUrl && supabaseServiceKey) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
-    // Fetch product layout content
-    const { data: contentData } = await supabase
-      .from('site_content')
-      .select('content_key, content_value')
-      .eq('page_name', 'product')
-      .eq('language_code', lang);
-      
-    if (contentData) {
-      contentData.forEach(item => {
-        contentMap[item.content_key] = item.content_value;
-      });
-    }
-
     const { data } = await supabase
       .from('products')
       .select('*')
@@ -87,15 +72,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   if (!product) {
     notFound();
   }
-  
-  const t = (key: string, fallback: string) => contentMap[key] || fallback;
 
   return (
     <>
       <section className="section" style={{ paddingTop: '4rem' }}>
         <div className="container">
           <nav style={{ marginBottom: '2rem', fontSize: '0.9rem', color: '#718096' }}>
-            <Link href="/industries" style={{ color: '#1f5ff5' }}>{t('industries', 'Industries')}</Link>
+            <Link href="/industries" style={{ color: '#1f5ff5' }}>Industries</Link>
             <span style={{ margin: '0 0.5rem' }}>/</span>
             <Link href={`/industries/${product.category_id}`} style={{ color: '#1f5ff5' }}>{product.category_id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '').replace('-', ' ')}</Link>
             <span style={{ margin: '0 0.5rem' }}>/</span>
@@ -136,12 +119,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div style={{ flex: 1.5 }}>
               <h1 style={{ fontSize: '2.2rem', color: '#1b2638', marginBottom: '1rem', lineHeight: '1.2' }}>{product.name}</h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid #edf2f7' }}>
-                <span style={{ color: '#4a5568', fontSize: '0.9rem' }}>{t('merchant', 'Merchant Exporter:')} <strong>ABC International</strong></span>
-                <span style={{ color: '#1f5ff5', fontSize: '0.9rem', fontWeight: 600 }}>{t('verified', 'Verified Supplier')}</span>
+                <span style={{ color: '#4a5568', fontSize: '0.9rem' }}>Merchant Exporter: <strong>ABC International</strong></span>
+                <span style={{ color: '#1f5ff5', fontSize: '0.9rem', fontWeight: 600 }}>Verified Supplier</span>
               </div>
 
               <div style={{ marginBottom: '2.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>{t('about', 'About this product')}</h3>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>About this product</h3>
                 <p style={{ color: '#4a5568', lineHeight: '1.6', marginBottom: '1.5rem' }}>{product.description}</p>
                 <ul className="checkList" style={{ color: '#1b2638' }}>
                   {product.features?.map((feature: string) => (
@@ -154,23 +137,23 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
               <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '1.5rem', border: '1px solid #e2e8f0', marginBottom: '2rem' }}>
                 <h3 style={{ fontSize: '1rem', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <FiPackage /> {t('title', 'Global Export Details')}
+                  <FiPackage /> Global Export Details
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem' }}>
                   <div>
-                    <p style={{ fontSize: '0.8rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('moq', 'MOQ')}</p>
+                    <p style={{ fontSize: '0.8rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>MOQ</p>
                     <p style={{ fontWeight: 600 }}>{product.export_details?.moq || '-'}</p>
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.8rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('origin', 'Origin')}</p>
+                    <p style={{ fontSize: '0.8rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Origin</p>
                     <p style={{ fontWeight: 600 }}>{product.export_details?.origin || '-'}</p>
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.8rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('capacity', 'Monthly Capacity')}</p>
+                    <p style={{ fontSize: '0.8rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monthly Capacity</p>
                     <p style={{ fontWeight: 600 }}>{product.export_details?.capacity || '-'}</p>
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.8rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('delivery', 'Port of Delivery')}</p>
+                    <p style={{ fontSize: '0.8rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Port of Delivery</p>
                     <p style={{ fontWeight: 600 }}>{product.export_details?.delivery || '-'}</p>
                   </div>
                 </div>
@@ -178,10 +161,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <Link href="/contact" className="btnPrimary" style={{ flex: 1, padding: '1rem', textAlign: 'center' }}>
-                  {t('quote', 'Request Quotation')}
+                  Request Quotation
                 </Link>
                 <Link href="/contact" className="btnSecondary" style={{ flex: 1, padding: '1rem', textAlign: 'center' }}>
-                  {t('brochure', 'Download Brochure')}
+                  Download Brochure
                 </Link>
               </div>
             </div>
@@ -192,8 +175,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       <section className="section sectionSoft">
         <div className="container">
           <div className="sectionHeader" style={{ textAlign: 'left' }}>
-            <h2>{t('title', 'Technical Specifications')}</h2>
-            <p>{t('desc', 'Detailed chemical and physical properties of our product.')}</p>
+            <h2>Technical Specifications</h2>
+            <p>Detailed chemical and physical properties of our product.</p>
           </div>
           <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden', marginTop: '2rem' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -224,23 +207,23 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <div className="container cardsGrid4">
           <div className="card" style={{ padding: '1.5rem' }}>
             <FiShield style={{ color: '#1f5ff5', fontSize: '1.5rem', marginBottom: '1rem' }} />
-            <h4 style={{ marginBottom: '0.5rem' }}>{t('quality_title', 'Quality Assurance')}</h4>
-            <p className="muted" style={{ fontSize: '0.85rem' }}>{t('quality_desc', 'Pre-shipment inspection by SGS or Intertek available.')}</p>
+            <h4 style={{ marginBottom: '0.5rem' }}>Quality Assurance</h4>
+            <p className="muted" style={{ fontSize: '0.85rem' }}>Pre-shipment inspection by SGS or Intertek available.</p>
           </div>
           <div className="card" style={{ padding: '1.5rem' }}>
             <FiFileText style={{ color: '#1f5ff5', fontSize: '1.5rem', marginBottom: '1rem' }} />
-            <h4 style={{ marginBottom: '0.5rem' }}>{t('comp_title', 'Compliance')}</h4>
-            <p className="muted" style={{ fontSize: '0.85rem' }}>{t('comp_desc', 'All export certificates provided: COO, MSDS, FSSAI, etc.')}</p>
+            <h4 style={{ marginBottom: '0.5rem' }}>Compliance</h4>
+            <p className="muted" style={{ fontSize: '0.85rem' }}>All export certificates provided: COO, MSDS, FSSAI, etc.</p>
           </div>
           <div className="card" style={{ padding: '1.5rem' }}>
             <FiPackage style={{ color: '#1f5ff5', fontSize: '1.5rem', marginBottom: '1rem' }} />
-            <h4 style={{ marginBottom: '0.5rem' }}>{t('pkg_title', 'Packaging')}</h4>
+            <h4 style={{ marginBottom: '0.5rem' }}>Packaging</h4>
             <p className="muted" style={{ fontSize: '0.85rem' }}>{product.export_details?.packaging || '-'}</p>
           </div>
           <div className="card" style={{ padding: '1.5rem' }}>
             <FiTruck style={{ color: '#1f5ff5', fontSize: '1.5rem', marginBottom: '1rem' }} />
-            <h4 style={{ marginBottom: '0.5rem' }}>{t('ship_title', 'Shipping')}</h4>
-            <p className="muted" style={{ fontSize: '0.85rem' }}>{t('ship_desc', 'Global delivery via Sea or Air Freight.')}</p>
+            <h4 style={{ marginBottom: '0.5rem' }}>Shipping</h4>
+            <p className="muted" style={{ fontSize: '0.85rem' }}>Global delivery via Sea or Air Freight.</p>
           </div>
         </div>
       </section>
