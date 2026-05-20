@@ -63,7 +63,20 @@ export default function AdminDashboard() {
     google_tag_manager_id: 'GTM container ID, e.g. GTM-XXXXXXX',
     facebook_pixel_id: 'Facebook Pixel ID number, e.g. 123456789012345',
     twitter_pixel_id: 'Twitter Pixel ID value, e.g. px1234',
-    linkedin_insight_tag: 'LinkedIn Insight Tag ID from your LinkedIn campaign settings.'
+    linkedin_insight_tag: 'LinkedIn Insight Tag ID from your LinkedIn campaign settings.',
+    site_title: 'Default browser title and search result title for the website.',
+    meta_description: 'Default search engine description. Keep it clear and under about 160 characters.',
+    meta_keywords: 'Optional comma-separated keywords, for example: merchant exporter, sourcing India, export logistics.',
+    canonical_url: 'Preferred full website URL, for example: https://www.abc-international.co.in/',
+    og_title: 'Title shown when the website is shared on WhatsApp, LinkedIn, Facebook, etc.',
+    og_description: 'Description shown in social sharing previews.',
+    og_image: 'Full image URL used for social sharing previews.',
+    twitter_card: 'Use summary_large_image for a large preview image, or summary for a compact card.',
+    twitter_title: 'Title shown in X/Twitter sharing previews.',
+    twitter_description: 'Description shown in X/Twitter sharing previews.',
+    twitter_image: 'Full image URL used for X/Twitter sharing previews.',
+    robots_index: 'Use true to allow indexing, false to ask search engines not to index.',
+    robots_follow: 'Use true to allow following links, false to ask search engines not to follow links.'
   };
 
 
@@ -1040,6 +1053,19 @@ export default function AdminDashboard() {
         { page: 'global', section: 'navigation', key: 'contact', val: 'Contact' },
 
         // SEO SETTINGS
+        { page: 'seo', section: 'Metadata', key: 'site_title', val: 'ABC International Logistics | Your Trusted Merchant Exporter' },
+        { page: 'seo', section: 'Metadata', key: 'meta_description', val: 'Global sourcing expertise backed by comprehensive logistics support.' },
+        { page: 'seo', section: 'Metadata', key: 'meta_keywords', val: 'merchant exporter, sourcing India, export logistics, ABC International' },
+        { page: 'seo', section: 'Metadata', key: 'canonical_url', val: '' },
+        { page: 'seo', section: 'Social Sharing', key: 'og_title', val: 'ABC International Logistics | Your Trusted Merchant Exporter' },
+        { page: 'seo', section: 'Social Sharing', key: 'og_description', val: 'Global sourcing expertise backed by comprehensive logistics support.' },
+        { page: 'seo', section: 'Social Sharing', key: 'og_image', val: '' },
+        { page: 'seo', section: 'Social Sharing', key: 'twitter_card', val: 'summary_large_image' },
+        { page: 'seo', section: 'Social Sharing', key: 'twitter_title', val: 'ABC International Logistics | Your Trusted Merchant Exporter' },
+        { page: 'seo', section: 'Social Sharing', key: 'twitter_description', val: 'Global sourcing expertise backed by comprehensive logistics support.' },
+        { page: 'seo', section: 'Social Sharing', key: 'twitter_image', val: '' },
+        { page: 'seo', section: 'Indexing', key: 'robots_index', val: 'true' },
+        { page: 'seo', section: 'Indexing', key: 'robots_follow', val: 'true' },
         { page: 'seo', section: 'Verification', key: 'google_search_console', val: '' },
         { page: 'seo', section: 'Verification', key: 'bing_site_verification', val: '' },
         { page: 'seo', section: 'Verification', key: 'pinterest_site_verification', val: '' },
@@ -1787,7 +1813,7 @@ export default function AdminDashboard() {
                 'contact': ['Hero', 'Form', 'Info', 'Stats'],
                 'sourcing': ['Hero', 'Source', 'Process', 'Network', 'Custom', 'Quality', 'CTA'],
                 'global': ['navigation', 'footer'],
-                'seo': ['Verification', 'Tracking'],
+                'seo': ['Metadata', 'Social Sharing', 'Indexing', 'Verification', 'Tracking'],
                 'logistics': ['Hero', 'Expertise', 'Docs', 'Solutions', 'Partner', 'Compliance', 'Timeline', 'Trust'],
                 'industries': ['Hero', 'Missing', 'Expertise', 'CTA'],
                 'quality-packaging': ['Hero', 'Inspection', 'Standards', 'Solutions', 'Options', 'Sustainable', 'Compliance', 'CTA']
