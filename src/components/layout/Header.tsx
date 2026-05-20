@@ -79,7 +79,10 @@ const Header = () => {
         <div className={styles.headerActions}>
           <select 
             value={language} 
-            onChange={(e) => setLanguage(e.target.value)}
+            onChange={(e) => {
+              setLanguage(e.target.value)
+              window.location.reload()
+            }}
             className={styles.langSelect}
           >
             {languages.map(lang => (
