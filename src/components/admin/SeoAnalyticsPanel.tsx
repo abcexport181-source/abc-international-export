@@ -62,6 +62,9 @@ const SeoAnalyticsPanel = () => {
       <p style={{ marginBottom: '1rem', color: '#475569' }}>
         Country-wise visitor and session summary powered by your GA4 property.
       </p>
+      <p style={{ marginBottom: '1rem', color: '#475569', fontSize: '0.95rem' }}>
+        Note: verification codes are used for Search Console / site ownership and are different from your tracking IDs. Use the GA4 Measurement ID field only for analytics reporting (e.g. G-XXXXXXXXXX).
+      </p>
       {!measurementId && (
         <div style={{ padding: '1rem', borderRadius: '10px', background: '#f8fafc', color: '#334155' }}>
           Set your <strong>Google Analytics Measurement ID</strong> in the SEO Settings section above to enable visitor tracking.

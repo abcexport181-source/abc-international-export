@@ -47,6 +47,18 @@ export default function AdminDashboard() {
   const [currentLanguage, setCurrentLanguage] = useState(defaultLanguage);
   const [englishReferenceData, setEnglishReferenceData] = useState<{industries: IndustryData[], products: ProductData[]}>({ industries: [], products: [] });
 
+  const seoFieldHelp: Record<string, string> = {
+    google_search_console: 'Google Search Console verification code only, for example: abc123def456gh789 — not your GA4 Measurement ID or GTM container ID.',
+    bing_site_verification: 'Bing Webmaster verification token from your Bing account; this is site ownership verification, not a tracking ID.',
+    pinterest_site_verification: 'Pinterest site verification code from your Pinterest Business dashboard; this is for ownership verification, not analytics tracking.',
+    yandex_verification: 'Yandex site verification code from Yandex Webmaster; this is site ownership verification, not a tracking ID.',
+    site_verification_meta_tag: 'Full HTML meta tag string, for example: <meta name="google-site-verification" content="abc123..." />',
+    google_analytics_measurement_id: 'GA4 Measurement ID format, e.g. G-XXXXXXXXXX',
+    google_tag_manager_id: 'GTM container ID, e.g. GTM-XXXXXXX',
+    facebook_pixel_id: 'Facebook Pixel ID number, e.g. 123456789012345',
+    twitter_pixel_id: 'Twitter Pixel ID value, e.g. px1234',
+    linkedin_insight_tag: 'LinkedIn Insight Tag ID from your LinkedIn campaign settings.'
+  };
 
 
 
@@ -1799,32 +1811,38 @@ export default function AdminDashboard() {
                                 : (item.page_name === 'sourcing' && item.section_name === 'CTA' && item.content_key === 'btn_text')
                                   ? 50
                                   : item.char_limit;
+                        const currentValue = pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value;
+                        const helpText = seoFieldHelp[item.content_key];
+
                         return (
                           <div key={item.id}>
                             <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
                             {item.content_key.includes('img') ? (
                               <DirectUpload 
                                 label={item.content_key.replace(/_/g, ' ')} 
-                                value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
+                                value={currentValue} 
                                 onChange={(url) => updateLocalContent(item.id, url)} 
                               />
                             ) : item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') || item.content_key.includes('address') ? (
                               <textarea 
-                                value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
+                                value={currentValue} 
                                 onChange={e => updateLocalContent(item.id, e.target.value)}
                                 maxLength={effectiveCharLimit}
                                 style={{...field, height: item.content_key === 'content' ? '200px' : '80px'}}
+                                placeholder={helpText || undefined}
                               />
                             ) : (
                               <input 
-                                value={pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value} 
+                                value={currentValue} 
                                 onChange={e => updateLocalContent(item.id, e.target.value)}
                                 maxLength={effectiveCharLimit}
                                 style={field}
+                                placeholder={helpText || undefined}
                               />
                             )}
+                            {helpText && <small className="muted" style={{ display: 'block', marginTop: '0.4rem' }}>{helpText}</small>}
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
-                              <small className="muted">{(pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value).length} / {effectiveCharLimit} characters</small>
+                              <small className="muted">{currentValue.length} / {effectiveCharLimit} characters</small>
                               {pendingChanges[item.id] !== undefined && <small style={{ color: '#059669', fontWeight: 600 }}>Unsaved changes</small>}
                             </div>
                           </div>
