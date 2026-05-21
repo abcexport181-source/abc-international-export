@@ -36,6 +36,16 @@ import ReCAPTCHA from 'react-google-recaptcha';
 export default function ContactPage() {
   const { getContent, loading } = useWebsiteData();
   const [captchaValue, setCaptchaValue] = React.useState<string | null>(null);
+  const [formData, setFormData] = React.useState({
+    name: '',
+    company: '',
+    email: '',
+    country: '',
+    requirement: '',
+    message: ''
+  });
+  const [status, setStatus] = React.useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   if (loading) {
     return (
@@ -78,6 +88,46 @@ export default function ContactPage() {
     setCaptchaValue(value);
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.company || !formData.email || !formData.country || !formData.requirement) {
+      setErrorMessage('Please fill in all required fields.');
+      setStatus('error');
+      return;
+    }
+
+    setStatus('submitting');
+    setErrorMessage('');
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to submit inquiry. Please try again.');
+      }
+
+      setStatus('success');
+      setFormData({
+        name: '',
+        company: '',
+        email: '',
+        country: '',
+        requirement: '',
+        message: ''
+      });
+    } catch (err: any) {
+      setErrorMessage(err.message || 'An error occurred. Please try again.');
+      setStatus('error');
+    }
+  };
+
   return (
     <>
       <MediaBackground 
@@ -94,30 +144,66 @@ export default function ContactPage() {
         <div className="container split" style={{ alignItems: 'start', gap: '4rem' }}>
           <div style={{ flex: 1.2 }}>
             <h2 style={{ fontSize: '2rem', marginBottom: '2rem' }}>{getContent('contact', 'Form', 'title', 'Send Us a Message')}</h2>
-            <form style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <div>
                 <label style={label}>{getContent('contact', 'Form', 'label_name', 'Name *')}</label>
-                <input placeholder={getContent('contact', 'Form', 'placeholder_name', 'Your full name')} style={field} />
+                <input 
+                  placeholder={getContent('contact', 'Form', 'placeholder_name', 'Your full name')} 
+                  style={field} 
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
               </div>
               <div>
                 <label style={label}>{getContent('contact', 'Form', 'label_company', 'Company *')}</label>
-                <input placeholder={getContent('contact', 'Form', 'placeholder_company', 'Your company name')} style={field} />
+                <input 
+                  placeholder={getContent('contact', 'Form', 'placeholder_company', 'Your company name')} 
+                  style={field} 
+                  required
+                  value={formData.company}
+                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                />
               </div>
               <div>
                 <label style={label}>{getContent('contact', 'Form', 'label_email', 'Email *')}</label>
-                <input placeholder={getContent('contact', 'Form', 'placeholder_email', 'your@email.com')} style={field} />
+                <input 
+                  type="email"
+                  placeholder={getContent('contact', 'Form', 'placeholder_email', 'your@email.com')} 
+                  style={field} 
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                />
               </div>
               <div>
                 <label style={label}>{getContent('contact', 'Form', 'label_country', 'Country *')}</label>
-                <input placeholder={getContent('contact', 'Form', 'placeholder_country', 'Your country')} style={field} />
+                <input 
+                  placeholder={getContent('contact', 'Form', 'placeholder_country', 'Your country')} 
+                  style={field} 
+                  required
+                  value={formData.country}
+                  onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                />
               </div>
               <div>
                 <label style={label}>{getContent('contact', 'Form', 'label_requirement', 'Product Requirement *')}</label>
-                <input placeholder={getContent('contact', 'Form', 'placeholder_requirement', 'What products are you looking for?')} style={field} />
+                <input 
+                  placeholder={getContent('contact', 'Form', 'placeholder_requirement', 'What products are you looking for?')} 
+                  style={field} 
+                  required
+                  value={formData.requirement}
+                  onChange={(e) => setFormData({ ...formData, requirement: e.target.value })}
+                />
               </div>
               <div>
                 <label style={label}>{getContent('contact', 'Form', 'label_message', 'Message')}</label>
-                <textarea placeholder={getContent('contact', 'Form', 'placeholder_message', 'Additional details about your requirements...')} style={{ ...field, minHeight: '120px', resize: 'vertical' }} />
+                <textarea 
+                  placeholder={getContent('contact', 'Form', 'placeholder_message', 'Additional details about your requirements...')} 
+                  style={{ ...field, minHeight: '120px', resize: 'vertical' }} 
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                />
               </div>
 
               {/* Google reCAPTCHA - Temporarily Hidden (On Hold) */}
@@ -131,9 +217,9 @@ export default function ContactPage() {
               */}
 
               <button 
-                type="button" 
+                type="submit" 
                 className="btnPrimary" 
-                // disabled={!captchaValue} // On hold
+                disabled={status === 'submitting'}
                 style={{ 
                   background: '#1f5ff5', 
                   color: '#fff', 
@@ -144,11 +230,24 @@ export default function ContactPage() {
                   justifyContent: 'center', 
                   gap: '0.6rem', 
                   fontSize: '1rem',
-                  cursor: 'pointer'
+                  cursor: status === 'submitting' ? 'not-allowed' : 'pointer',
+                  opacity: status === 'submitting' ? 0.7 : 1
                 }}
               >
-                {getContent('contact', 'Form', 'submit_btn', 'Submit Inquiry')} <FiSend />
+                {status === 'submitting' ? 'Submitting...' : getContent('contact', 'Form', 'submit_btn', 'Submit Inquiry')} <FiSend />
               </button>
+
+              {status === 'success' && (
+                <div style={{ padding: '1rem', background: '#d1e7dd', color: '#0f5132', borderRadius: '8px', fontSize: '0.95rem', fontWeight: 500 }}>
+                  Thank you! Your inquiry has been successfully sent. We will get back to you shortly.
+                </div>
+              )}
+              {status === 'error' && (
+                <div style={{ padding: '1rem', background: '#f8d7da', color: '#842029', borderRadius: '8px', fontSize: '0.95rem', fontWeight: 500 }}>
+                  {errorMessage}
+                </div>
+              )}
+
               <p style={{ fontSize: '0.75rem', color: '#718096', textAlign: 'center', marginTop: '0.5rem' }}>
                 Note: Bot protection (reCAPTCHA) is currently on hold.
               </p>
