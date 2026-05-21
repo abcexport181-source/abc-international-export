@@ -11,6 +11,44 @@ const industries = ['Agro & Food', 'Packaging', 'Industrial', 'Chemicals', 'Cons
 
 export default function Home() {
   const { getContent, loading } = useWebsiteData();
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '60vh',
+        background: '#ffffff',
+        gap: '1.5rem',
+      }}>
+        <div style={{
+          width: '50px',
+          height: '50px',
+          border: '3px solid #e7ecf4',
+          borderTop: '3px solid #1f5ff5',
+          borderRadius: '50%',
+          animation: 'spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+        }}></div>
+        <p style={{
+          color: '#66738d',
+          fontSize: '0.95rem',
+          fontWeight: 500,
+          letterSpacing: '0.05em',
+        }}>
+          Loading Live Version...
+        </p>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   const heroBg = getContent('home', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000');
 
   return (

@@ -37,6 +37,43 @@ export default function ContactPage() {
   const { getContent, loading } = useWebsiteData();
   const [captchaValue, setCaptchaValue] = React.useState<string | null>(null);
 
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '60vh',
+        background: '#ffffff',
+        gap: '1.5rem',
+      }}>
+        <div style={{
+          width: '50px',
+          height: '50px',
+          border: '3px solid #e7ecf4',
+          borderTop: '3px solid #1f5ff5',
+          borderRadius: '50%',
+          animation: 'spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+        }}></div>
+        <p style={{
+          color: '#66738d',
+          fontSize: '0.95rem',
+          fontWeight: 500,
+          letterSpacing: '0.05em',
+        }}>
+          Loading Live Version...
+        </p>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   const onCaptchaChange = (value: string | null) => {
     setCaptchaValue(value);
   };
