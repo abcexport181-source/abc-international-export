@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { FiCheckCircle, FiActivity, FiDatabase, FiInfo, FiGlobe, FiMonitor, FiCpu, FiExternalLink, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiActivity, FiGlobe, FiMonitor, FiCpu, FiExternalLink, FiTerminal, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
 interface DimensionRow {
   name: string;
@@ -66,37 +66,13 @@ const initialStreamData: EventStreamRow[] = [
   { timestamp: '4m ago', eventType: 'pageview', path: '/about', country: 'DE', device: 'desktop', browser: 'Firefox' },
 ];
 
-const dataFields = [
-  { name: 'eventType', type: 'string', desc: 'Type of event', example: 'pageview or event' },
-  { name: 'eventName', type: 'string', desc: 'Custom event name', example: 'button_click' },
-  { name: 'eventData', type: 'string', desc: 'Custom event payload', example: '{"button": "signup"}' },
-  { name: 'timestamp', type: 'number', desc: 'Unix timestamp', example: '1694723400000' },
-  { name: 'sessionId', type: 'number', desc: 'Unique session ID', example: '12345' },
-  { name: 'deviceId', type: 'number', desc: 'Unique device ID', example: '67890' },
-  { name: 'origin', type: 'string', desc: 'Origin URL', example: 'https://example.com' },
-  { name: 'path', type: 'string', desc: 'URL path', example: '/dashboard' },
-  { name: 'route', type: 'string', desc: 'Route pattern', example: '/dashboard/[id]' },
-  { name: 'referrer', type: 'string', desc: 'Referrer URL', example: 'https://google.com' },
-  { name: 'queryParams', type: 'string', desc: 'UTM & query params', example: 'utm_source=google' },
-  { name: 'country', type: 'string', desc: 'Country code', example: 'US' },
-  { name: 'region', type: 'string', desc: 'Region code', example: 'CA' },
-  { name: 'city', type: 'string', desc: 'City name', example: 'San Francisco' },
-  { name: 'osName', type: 'string', desc: 'Operating system', example: 'macOS' },
-  { name: 'osVersion', type: 'string', desc: 'OS version', example: '13.4' },
-  { name: 'clientName', type: 'string', desc: 'Browser name', example: 'Chrome' },
-  { name: 'clientVersion', type: 'string', desc: 'Browser version', example: '114.0.5735.90' },
-  { name: 'deviceType', type: 'string', desc: 'Device type', example: 'desktop, mobile, tablet' },
-  { name: 'deviceBrand', type: 'string', desc: 'Device brand', example: 'Apple' },
-  { name: 'deviceModel', type: 'string', desc: 'Device model', example: 'MacBook Pro' },
-  { name: 'browserEngine', type: 'string', desc: 'Browser engine', example: 'Blink' },
-  { name: 'vercelEnvironment', type: 'string', desc: 'Environment', example: 'production, preview' },
-  { name: 'flags', type: 'string', desc: 'Feature flags data', example: '{"feature_a": true}' },
-];
+
 
 const SeoAnalyticsPanel = () => {
   const [activeDimension, setActiveDimension] = useState<'countries' | 'paths' | 'devices' | 'browsers' | 'referrers'>('countries');
   const [chartType, setChartType] = useState<'pie' | 'bar'>('pie');
-  const [showFields, setShowFields] = useState(false);
+
+  const [showApiDocs, setShowApiDocs] = useState(false);
   const [stream, setStream] = useState<EventStreamRow[]>(initialStreamData);
 
   // Dynamic simulation of incoming real-time traffic
@@ -370,11 +346,11 @@ const SeoAnalyticsPanel = () => {
         </div>
       </section>
 
-      {/* Accordion: Available Data Fields Documentation */}
+      {/* Accordion: Web Analytics API Endpoints */}
       <section style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
         <button
           type="button"
-          onClick={() => setShowFields(!showFields)}
+          onClick={() => setShowApiDocs(!showApiDocs)}
           style={{
             width: '100%',
             padding: '1.5rem 2rem',
@@ -388,67 +364,128 @@ const SeoAnalyticsPanel = () => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <FiDatabase style={{ color: '#0f172a', fontSize: '1.2rem' }} />
+            <FiTerminal style={{ color: '#0f172a', fontSize: '1.2rem' }} />
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>Available Data Fields</h3>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>View the 24 backend tracking dimensions natively collected by Vercel Analytics.</p>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>Web Analytics API Endpoints</h3>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>Query Vercel Web Analytics data programmatically via REST endpoints.</p>
             </div>
           </div>
-          {showFields ? <FiChevronUp style={{ fontSize: '1.3rem' }} /> : <FiChevronDown style={{ fontSize: '1.3rem' }} />}
+          {showApiDocs ? <FiChevronUp style={{ fontSize: '1.3rem' }} /> : <FiChevronDown style={{ fontSize: '1.3rem' }} />}
         </button>
 
-        {showFields && (
-          <div style={{ padding: '0 2rem 2rem 2rem', borderTop: '1px solid #f1f5f9' }}>
-            <div style={{ overflowX: 'auto', marginTop: '1.5rem' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
-                    <th style={{ padding: '0.8rem 1rem' }}>Field</th>
-                    <th style={{ padding: '0.8rem 1rem' }}>Type</th>
-                    <th style={{ padding: '0.8rem 1rem' }}>Description</th>
-                    <th style={{ padding: '0.8rem 1rem' }}>Example</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dataFields.map(field => (
-                    <tr key={field.name} style={{ borderBottom: '1px solid #f1f5f9', color: '#1e293b' }}>
-                      <td style={{ padding: '0.8rem 1rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>{field.name}</td>
-                      <td style={{ padding: '0.8rem 1rem' }}>
-                        <span style={{ background: '#f1f5f9', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontFamily: 'monospace', color: '#475569' }}>
-                          {field.type}
-                        </span>
-                      </td>
-                      <td style={{ padding: '0.8rem 1rem', color: '#475569' }}>{field.desc}</td>
-                      <td style={{ padding: '0.8rem 1rem', fontFamily: 'monospace', fontSize: '0.8rem', color: '#64748b' }}>{field.example}</td>
+        {showApiDocs && (
+          <div style={{ padding: '0 2rem 2rem 2rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{ marginTop: '1.5rem' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Base URL</span>
+              <div style={{ background: '#f8fafc', padding: '0.8rem 1rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontFamily: 'monospace', fontSize: '0.9rem', color: '#0f172a', marginTop: '0.4rem' }}>
+                https://api.vercel.com
+              </div>
+            </div>
+
+            <div>
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Endpoints</span>
+              <div style={{ overflowX: 'auto', marginTop: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
+                      <th style={{ padding: '0.8rem 1rem', fontWeight: 600 }}>Endpoint</th>
+                      <th style={{ padding: '0.8rem 1rem', fontWeight: 600 }}>Purpose</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#1e293b' }}>
+                      <td style={{ padding: '0.8rem 1rem', fontWeight: 600, fontFamily: 'monospace', color: '#000000' }}>
+                        <span style={{ background: '#eff6ff', color: '#1e5df7', padding: '0.2rem 0.4rem', borderRadius: '4px', marginRight: '0.5rem', fontSize: '0.75rem', fontWeight: 700 }}>GET</span>
+                        /v1/query/web-analytics/visits/aggregate
+                      </td>
+                      <td style={{ padding: '0.8rem 1rem', color: '#475569' }}>Aggregate page views with breakdowns</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#1e293b' }}>
+                      <td style={{ padding: '0.8rem 1rem', fontWeight: 600, fontFamily: 'monospace', color: '#000000' }}>
+                        <span style={{ background: '#eff6ff', color: '#1e5df7', padding: '0.2rem 0.4rem', borderRadius: '4px', marginRight: '0.5rem', fontSize: '0.75rem', fontWeight: 700 }}>GET</span>
+                        /v1/query/web-analytics/visits/count
+                      </td>
+                      <td style={{ padding: '0.8rem 1rem', color: '#475569' }}>Count total page views</td>
+                    </tr>
+                    <tr style={{ color: '#1e293b' }}>
+                      <td style={{ padding: '0.8rem 1rem', fontWeight: 600, fontFamily: 'monospace', color: '#000000' }}>
+                        <span style={{ background: '#eff6ff', color: '#1e5df7', padding: '0.2rem 0.4rem', borderRadius: '4px', marginRight: '0.5rem', fontSize: '0.75rem', fontWeight: 700 }}>GET</span>
+                        /v1/query/web-analytics/events/aggregate
+                      </td>
+                      <td style={{ padding: '0.8rem 1rem', color: '#475569' }}>Aggregate custom events</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '0.5rem' }}>
+              <div>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Required Parameters</span>
+                <div style={{ overflowX: 'auto', marginTop: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
+                    <thead>
+                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
+                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Parameter</th>
+                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Description</th>
+                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Example</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>projectId</td>
+                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>Your Vercel project ID</td>
+                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>prj_XLKmu1DyR1eY7zq8UgeRKbA7yVLA</td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>since</td>
+                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>Start date (timestamp in ms or date string)</td>
+                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>2024-01-01</td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>until</td>
+                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>End date (timestamp in ms or date string)</td>
+                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>2024-01-31</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>by</td>
+                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>Dimension to group by (for aggregate endpoints)</td>
+                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>country, path, browser, etc.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Optional Parameters</span>
+                <div style={{ overflowX: 'auto', marginTop: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
+                    <thead>
+                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
+                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Parameter</th>
+                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Description</th>
+                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Example</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>filter</td>
+                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>Filter results by dimension</td>
+                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>{"requestPath eq \"/docs\""}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>limit</td>
+                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>Number of results (default 10)</td>
+                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>50</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         )}
-      </section>
-
-      {/* Accordion: Integration Options */}
-      <section style={{ background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
-        <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#0f172a', fontSize: '1.1rem' }}>
-          <FiInfo style={{ color: '#1f5ff5' }} /> Options for Backend Integration
-        </h4>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '0.5rem' }}>
-          <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <h5 style={{ margin: '0 0 0.5rem 0', color: '#0f172a', fontWeight: 700, fontSize: '0.95rem' }}>Option 1: Vercel REST API</h5>
-            <p style={{ margin: 0, color: '#475569', fontSize: '0.85rem', lineHeight: '1.5' }}>
-              Query analytics data directly using the Vercel REST API. You can authenticate programmatically using a Vercel personal access token or OAuth token with appropriate scopes to aggregate metrics.
-            </p>
-          </div>
-          <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <h5 style={{ margin: '0 0 0.5rem 0', color: '#0f172a', fontWeight: 700, fontSize: '0.95rem' }}>Option 2: Web Analytics Drains</h5>
-            <p style={{ margin: 0, color: '#475569', fontSize: '0.85rem', lineHeight: '1.5' }}>
-              Export and stream your Web Analytics events in real-time to external databases or query clusters (like ClickHouse or BigQuery) using Vercel Data Drains for robust reporting and aggregation.
-            </p>
-          </div>
-        </div>
       </section>
 
     </div>
