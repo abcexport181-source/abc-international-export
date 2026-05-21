@@ -52,6 +52,7 @@ export default function AdminDashboard() {
   const [editingBlog, setEditingBlog] = useState<BlogData | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState(defaultLanguage);
   const [englishReferenceData, setEnglishReferenceData] = useState<{industries: IndustryData[], products: ProductData[]}>({ industries: [], products: [] });
+  const [englishSiteContent, setEnglishSiteContent] = useState<SiteContent[]>([]);
 
   const seoFieldHelp: Record<string, string> = {
     google_search_console: 'Google Search Console verification code only, for example: abc123def456gh789 — not your GA4 Measurement ID or GTM container ID.',
@@ -205,16 +206,22 @@ export default function AdminDashboard() {
 
   const fetchSiteContent = async () => {
     setBlogVisibilityLoading(true);
-    // Add a dummy filter to bust any potential caches
     const { data } = await supabase
       .from('site_content')
       .select('*')
       .eq('language_code', currentLanguage)
       .order('page_name')
       .filter('id', 'neq', `cache_buster_${Date.now()}`); 
+    const { data: englishContentData } = await supabase
+      .from('site_content')
+      .select('*')
+      .eq('language_code', 'en')
+      .order('page_name')
+      .filter('id', 'neq', `cache_buster_${Date.now()}`);
       
     if (data) {
       setSiteContent(data);
+      setEnglishSiteContent(englishContentData || []);
       const blogVis = data.find((c: SiteContent) =>
         c.page_name === 'global' &&
         c.section_name === 'navigation' &&
@@ -318,6 +325,14 @@ export default function AdminDashboard() {
     }
   };
 
+  const getEnglishMediaContent = (item: SiteContent) => {
+    return englishSiteContent.find(c =>
+      c.page_name === item.page_name &&
+      c.section_name === item.section_name &&
+      c.content_key === item.content_key
+    );
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -354,7 +369,10 @@ export default function AdminDashboard() {
           );
           
           if (translation) {
-            return translation;
+            return {
+              ...translation,
+              icon: engItem.icon
+            };
           } else {
             return {
               ...engItem,
@@ -382,7 +400,10 @@ export default function AdminDashboard() {
           );
           
           if (translation) {
-            return translation;
+            return {
+              ...translation,
+              image: engItem.image
+            };
           } else {
             const baseCategorySlug = engItem.category_id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
             return {
@@ -460,7 +481,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const DirectUpload = ({ value, onChange, label: fieldLabel }: { value: string, onChange: (url: string) => void, label: string }) => {
+  const DirectUpload = ({ value, onChange, label: fieldLabel, readOnly = false }: { value: string, onChange: (url: string) => void, label: string, readOnly?: boolean }) => {
     const [uploading, setUploading] = useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     
@@ -481,6 +502,7 @@ export default function AdminDashboard() {
           transition: 'all 0.2s',
         }}
         onClick={() => {
+          if (readOnly) return;
           console.log('Upload area clicked for:', fieldLabel);
           fileInputRef.current?.click();
         }}
@@ -500,12 +522,13 @@ export default function AdminDashboard() {
             </div>
           )}
           
-          <input 
-            type="file" 
-            accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/webm,video/mp4,video/quicktime"
-            ref={fileInputRef}
-            style={{ display: 'none' }} 
-            onChange={async (e) => {
+          {!readOnly && (
+            <input 
+              type="file" 
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/webm,video/mp4,video/quicktime"
+              ref={fileInputRef}
+              style={{ display: 'none' }} 
+              onChange={async (e) => {
               const file = e.target.files?.[0];
               console.log('File selected:', file?.name, 'Size:', file?.size);
               if (file) {
@@ -529,8 +552,9 @@ export default function AdminDashboard() {
                 if (url) onChange(url);
                 setUploading(false);
               }
-            }}
-          />
+              }}
+            />
+          )}
           
           {uploading && <div style={{ fontSize: '0.85rem', color: '#1f5ff5' }}>Uploading...</div>}
           
@@ -538,11 +562,13 @@ export default function AdminDashboard() {
             <input 
               value={value} 
               onChange={e => onChange(e.target.value)}
+              readOnly={readOnly}
               style={{ ...field, marginTop: 0, fontSize: '0.75rem' }}
-              placeholder="Or paste image URL here..."
+              placeholder={readOnly ? 'Shared from English version' : 'Or paste image URL here...'}
               onClick={e => e.stopPropagation()}
             />
           </div>
+          {readOnly && <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Media is managed from the English version.</div>}
         </div>
       </div>
     );
@@ -1401,8 +1427,9 @@ export default function AdminDashboard() {
 
                   <DirectUpload 
                     label="Icon / Image" 
-                    value={editingIndustry.icon} 
+                    value={isTrans ? (engRef?.icon || editingIndustry.icon) : editingIndustry.icon} 
                     onChange={(url) => setEditingIndustry({...editingIndustry, icon: url})} 
+                    readOnly={isTrans}
                   />
                   <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                     <button type="submit" className="btnPrimary" style={{ flex: 1 }}>Save Changes</button>
@@ -1483,8 +1510,9 @@ export default function AdminDashboard() {
                   <div style={{ gridColumn: 'span 2' }}>
                     <DirectUpload 
                       label="Product Image" 
-                      value={editingProduct.image} 
+                      value={editingProduct.language_code !== 'en' ? ((getEnglishReference('product', editingProduct.id) as any)?.image || editingProduct.image) : editingProduct.image} 
                       onChange={(url) => setEditingProduct({...editingProduct, image: url})} 
+                      readOnly={editingProduct.language_code !== 'en'}
                     />
                   </div>
                 </div>
@@ -1883,17 +1911,22 @@ export default function AdminDashboard() {
                                 : (item.page_name === 'sourcing' && item.section_name === 'CTA' && item.content_key === 'btn_text')
                                   ? 50
                                   : item.char_limit;
-                        const currentValue = pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value;
+                        const isMediaField = item.content_key.includes('img') || item.content_key.includes('image');
+                        const englishMediaItem = isMediaField ? getEnglishMediaContent(item) : null;
+                        const currentValue = isMediaField && currentLanguage !== 'en'
+                          ? (englishMediaItem?.content_value || item.content_value)
+                          : pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value;
                         const helpText = seoFieldHelp[item.content_key];
 
                         return (
                           <div key={item.id}>
                             <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
-                            {item.content_key.includes('img') ? (
+                            {isMediaField ? (
                               <DirectUpload 
                                 label={item.content_key.replace(/_/g, ' ')} 
                                 value={currentValue} 
                                 onChange={(url) => updateLocalContent(item.id, url)} 
+                                readOnly={currentLanguage !== 'en'}
                               />
                             ) : item.content_key === 'robots_index' || item.content_key === 'robots_follow' ? (
                               <select

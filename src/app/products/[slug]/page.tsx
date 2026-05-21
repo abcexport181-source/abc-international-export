@@ -33,6 +33,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     
     if (data) {
       product = data;
+      const { data: enProd } = await supabase
+        .from('products')
+        .select('image')
+        .in('id', [`en:${baseSlug}`, baseSlug])
+        .limit(1)
+        .maybeSingle();
+      if (enProd?.image) product.image = enProd.image;
     } else {
       // Fallback to English version if translation is missing
       const { data: enProd } = await supabase

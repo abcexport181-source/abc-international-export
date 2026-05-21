@@ -17,6 +17,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const lang = cookieStore.get('site_language')?.value || defaultLanguage;
 
   const langSlug = slug.includes(':') ? slug : `${lang}:${slug}`;
+  const baseSlug = slug.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
   
   let industry: any = null;
   let products: any[] = [];
@@ -42,6 +43,26 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         .eq('is_visible', true);
       
       if (prods) products = prods;
+      const { data: enIndustry } = await supabase
+        .from('industries')
+        .select('icon')
+        .in('id', [`en:${baseSlug}`, baseSlug])
+        .limit(1)
+        .maybeSingle();
+      if (enIndustry?.icon) industry.icon = enIndustry.icon;
+
+      const { data: enProducts } = await supabase
+        .from('products')
+        .select('id, image')
+        .in('category_id', [`en:${baseSlug}`, baseSlug]);
+      const englishImages = new Map((enProducts || []).map((product: any) => [
+        product.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, ''),
+        product.image
+      ]));
+      products = products.map((product: any) => ({
+        ...product,
+        image: englishImages.get(product.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '')) || product.image
+      }));
     } else if (lang === 'en') {
       // Try to fetch without prefix for legacy support in English
       const { data: legacyInd } = await supabase

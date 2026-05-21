@@ -22,6 +22,11 @@ async function getIndustriesAndProducts(lang: string) {
       .eq('is_visible', true)
       .eq('language_code', lang)
       .order('title');
+    const { data: enIndData } = await supabase
+      .from('industries')
+      .select('id, icon')
+      .eq('is_visible', true)
+      .eq('language_code', 'en');
       
     const { data: prodData } = await supabase
       .from('products')
@@ -29,7 +34,16 @@ async function getIndustriesAndProducts(lang: string) {
       .eq('is_visible', true)
       .eq('language_code', lang);
     
-    if (indData) industries = indData;
+    if (indData) {
+      const englishIcons = new Map((enIndData || []).map((industry: any) => [
+        industry.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, ''),
+        industry.icon
+      ]));
+      industries = indData.map((industry: any) => ({
+        ...industry,
+        icon: englishIcons.get(industry.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '')) || industry.icon
+      }));
+    }
     if (prodData) products = prodData;
   }
 

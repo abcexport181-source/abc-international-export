@@ -6,6 +6,7 @@ export const useWebsiteData = () => {
     const { language } = useLanguage();
     const [content, setContent] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const isMediaKey = (key: string) => key.includes('img') || key.includes('image');
 
     const fetchData = async () => {
         if (!isSupabaseConfigured) {
@@ -18,7 +19,7 @@ export const useWebsiteData = () => {
             const { data, error } = await supabase
                 .from('site_content')
                 .select('*')
-                .eq('language_code', language);
+                .in('language_code', Array.from(new Set(['en', language])));
             
             if (error) {
               console.error('Supabase fetch ERROR:', error);
@@ -38,12 +39,30 @@ export const useWebsiteData = () => {
     }, [language]);
 
     const getContent = (page: string, section: string, key: string, defaultValue: string) => {
-        const item = content.find(c => 
+        const item = content.find(c =>
             c.page_name === page && 
             c.section_name.toLowerCase() === section.toLowerCase() && 
-            c.content_key === key
+            c.content_key === key &&
+            c.language_code === language
         );
-        return item ? item.content_value : defaultValue;
+        const englishMediaItem = isMediaKey(key) ? content.find(c =>
+            c.page_name === page &&
+            c.section_name.toLowerCase() === section.toLowerCase() &&
+            c.content_key === key &&
+            c.language_code === 'en'
+        ) : null;
+
+        if (englishMediaItem) {
+            return englishMediaItem.content_value;
+        }
+
+        const englishFallback = content.find(c =>
+            c.page_name === page &&
+            c.section_name.toLowerCase() === section.toLowerCase() &&
+            c.content_key === key &&
+            c.language_code === 'en'
+        );
+        return item ? item.content_value : englishFallback ? englishFallback.content_value : defaultValue;
     };
 
     return { getContent, loading, refresh: fetchData };
