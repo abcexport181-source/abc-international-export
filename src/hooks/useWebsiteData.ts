@@ -20,7 +20,8 @@ export const useWebsiteData = () => {
             const { data, error } = await supabase
                 .from('site_content')
                 .select('*')
-                .in('language_code', Array.from(new Set(['en', language])));
+                .in('language_code', Array.from(new Set(['en', language])))
+                .filter('id', 'neq', `cache_buster_${Date.now()}`);
             
             if (error) {
               console.error('Supabase fetch ERROR:', error);

@@ -37,7 +37,14 @@ function getSupabaseForCms() {
 
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+    {
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: 'no-store' });
+        }
+      }
+    }
   );
 }
 
@@ -116,7 +123,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  let isBlogVisible = false;
+  let isBlogVisible = true;
   const cookieStore = await cookies();
   const languageCookie = cookieStore.get('site_language')?.value || 'en';
 
@@ -124,11 +131,18 @@ export default async function RootLayout({
   if (supabase) {
     const { data } = await supabase
       .from('site_content')
-      .select('content_value')
+      .select('content_value, language_code')
       .eq('content_key', 'blog_visibility')
-      .eq('language_code', languageCookie)
-      .limit(1);
-    if (data && data.length > 0) isBlogVisible = String(data[0].content_value).trim().toLowerCase() === 'true';
+      .in('language_code', [languageCookie, 'en']);
+      
+    if (data && data.length > 0) {
+      const langItem = data.find(item => item.language_code === languageCookie);
+      const enItem = data.find(item => item.language_code === 'en');
+      const val = langItem ? langItem.content_value : enItem ? enItem.content_value : null;
+      if (val !== null) {
+        isBlogVisible = String(val).trim().toLowerCase() === 'true';
+      }
+    }
   }
 
   return (

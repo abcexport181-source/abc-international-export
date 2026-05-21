@@ -5,6 +5,7 @@ import { FiLayout, FiGrid, FiBox, FiEye, FiEyeOff, FiEdit2, FiPlus, FiTrash2, Fi
 import { industriesData, productsData } from '@/data/products';
 import BackToTop from '@/components/common/BackToTop';
 import { languages, defaultLanguage } from '@/lib/languages';
+import { useRouter } from 'next/navigation';
 
 
 type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-content' | 'quality-packaging-content' | 'industries-content' | 'contact-content' | 'global-content' | 'seo-content' | 'industries' | 'products' | 'blogs';
@@ -30,6 +31,7 @@ type AdminUser = {
 
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [user, setUser] = useState<AdminUser | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -249,6 +251,8 @@ export default function AdminDashboard() {
     if (result.success) {
       setIsBlogVisibleOnSite(newValue);
       setMessage({ text: `Blog page is now ${newValue ? 'visible' : 'hidden'} in the menu bar.`, type: 'success' });
+      await fetchSiteContent();
+      router.refresh();
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('website-data-updated'));
       }
