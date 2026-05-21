@@ -91,6 +91,24 @@ const getReferrerName = (ref: string) => {
   return ref;
 };
 
+const getToday = () => {
+  return new Date().toISOString().split('T')[0];
+};
+
+const getDaysAgo = (days: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date.toISOString().split('T')[0];
+};
+
+const getDefaultSince = () => {
+  return getDaysAgo(30);
+};
+
+const getDefaultUntil = () => {
+  return getToday();
+};
+
 const SeoAnalyticsPanel = () => {
   const [activeDimension, setActiveDimension] = useState<'countries' | 'paths' | 'devices' | 'browsers' | 'referrers'>('countries');
   const [chartType, setChartType] = useState<'pie' | 'bar'>('pie');
@@ -101,6 +119,11 @@ const SeoAnalyticsPanel = () => {
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
   const [notConfigured, setNotConfigured] = useState(false);
+  
+  // Date range picker states
+  const [since, setSince] = useState(getDefaultSince());
+  const [until, setUntil] = useState(getDefaultUntil());
+
   const [liveTotals, setLiveTotals] = useState<{ total: number; devices: number } | null>(null);
   const [liveCountries, setLiveCountries] = useState<DimensionRow[]>([]);
   const [livePaths, setLivePaths] = useState<DimensionRow[]>([]);
@@ -108,80 +131,95 @@ const SeoAnalyticsPanel = () => {
   const [liveBrowsers, setLiveBrowsers] = useState<DimensionRow[]>([]);
   const [liveReferrers, setLiveReferrers] = useState<DimensionRow[]>([]);
 
-  // Fetch real analytics data from Vercel
-  useEffect(() => {
-    const fetchLiveAnalytics = async () => {
-      setLoading(true);
-      try {
-        // 1. Fetch page view and unique devices count
-        const countRes = await fetch('/api/analytics/count');
-        const countData = await countRes.json();
-        
-        if (countData.notConfigured) {
-          setNotConfigured(true);
-          setIsLive(false);
-          setLoading(false);
-          return;
-        }
-
-        if (countData.data) {
-          setLiveTotals({
-            total: countData.data.total || 0,
-            devices: countData.data.devices || 0,
-          });
-        }
-
-        // 2. Fetch aggregates for dimensions in parallel
-        const [countriesRes, pathsRes, devicesRes, browsersRes, referrersRes] = await Promise.all([
-          fetch('/api/analytics?by=country'),
-          fetch('/api/analytics?by=path'),
-          fetch('/api/analytics?by=device'),
-          fetch('/api/analytics?by=browser'),
-          fetch('/api/analytics?by=referrer'),
-        ]);
-
-        const [countriesJSON, pathsJSON, devicesJSON, browsersJSON, referrersJSON] = await Promise.all([
-          countriesRes.json(),
-          pathsRes.json(),
-          devicesRes.json(),
-          browsersRes.json(),
-          referrersRes.json(),
-        ]);
-
-        // Mapping function to adapt Vercel response key/total/devices to DimensionRow
-        const mapVercelData = (vercelData: any, nameMapper?: (key: string) => string): DimensionRow[] => {
-          if (!vercelData || !Array.isArray(vercelData.data)) return [];
-          const items = vercelData.data;
-          const totalSum = items.reduce((acc: number, item: any) => acc + (item.devices || item.total || 0), 0);
-          return items.map((item: any) => {
-            const val = item.devices || item.total || 0;
-            const pct = totalSum > 0 ? Math.round((val / totalSum) * 100) : 0;
-            return {
-              name: nameMapper ? nameMapper(item.key) : item.key,
-              value: val,
-              percentage: pct,
-            };
-          });
-        };
-
-        setLiveCountries(mapVercelData(countriesJSON, getCountryName));
-        setLivePaths(mapVercelData(pathsJSON));
-        setLiveDevices(mapVercelData(devicesJSON));
-        setLiveBrowsers(mapVercelData(browsersJSON));
-        setLiveReferrers(mapVercelData(referrersJSON, getReferrerName));
-
-        setIsLive(true);
-        setNotConfigured(false);
-      } catch (err) {
-        console.error('Error fetching Vercel Analytics:', err);
+  // Dynamic parameterized Vercel Analytics fetch handler
+  const fetchLiveAnalytics = async (startDate: string, endDate: string) => {
+    setLoading(true);
+    try {
+      // 1. Fetch page view and unique devices count
+      const countRes = await fetch(`/api/analytics/count?since=${startDate}&until=${endDate}`);
+      const countData = await countRes.json();
+      
+      if (countData.notConfigured) {
+        setNotConfigured(true);
         setIsLive(false);
-      } finally {
         setLoading(false);
+        return;
       }
-    };
 
-    fetchLiveAnalytics();
+      if (countData.data) {
+        setLiveTotals({
+          total: countData.data.total || 0,
+          devices: countData.data.devices || 0,
+        });
+      }
+
+      // 2. Fetch aggregates for dimensions in parallel
+      const [countriesRes, pathsRes, devicesRes, browsersRes, referrersRes] = await Promise.all([
+        fetch(`/api/analytics?by=country&since=${startDate}&until=${endDate}`),
+        fetch(`/api/analytics?by=path&since=${startDate}&until=${endDate}`),
+        fetch(`/api/analytics?by=device&since=${startDate}&until=${endDate}`),
+        fetch(`/api/analytics?by=browser&since=${startDate}&until=${endDate}`),
+        fetch(`/api/analytics?by=referrer&since=${startDate}&until=${endDate}`),
+      ]);
+
+      const [countriesJSON, pathsJSON, devicesJSON, browsersJSON, referrersJSON] = await Promise.all([
+        countriesRes.json(),
+        pathsRes.json(),
+        devicesRes.json(),
+        browsersRes.json(),
+        referrersRes.json(),
+      ]);
+
+      // Mapping function to adapt Vercel response key/total/devices to DimensionRow
+      const mapVercelData = (vercelData: any, nameMapper?: (key: string) => string): DimensionRow[] => {
+        if (!vercelData || !Array.isArray(vercelData.data)) return [];
+        const items = vercelData.data;
+        const totalSum = items.reduce((acc: number, item: any) => acc + (item.devices || item.total || 0), 0);
+        return items.map((item: any) => {
+          const val = item.devices || item.total || 0;
+          const pct = totalSum > 0 ? Math.round((val / totalSum) * 100) : 0;
+          return {
+            name: nameMapper ? nameMapper(item.key) : item.key,
+            value: val,
+            percentage: pct,
+          };
+        });
+      };
+
+      setLiveCountries(mapVercelData(countriesJSON, getCountryName));
+      setLivePaths(mapVercelData(pathsJSON));
+      setLiveDevices(mapVercelData(devicesJSON));
+      setLiveBrowsers(mapVercelData(browsersJSON));
+      setLiveReferrers(mapVercelData(referrersJSON, getReferrerName));
+
+      setIsLive(true);
+      setNotConfigured(false);
+    } catch (err) {
+      console.error('Error fetching Vercel Analytics:', err);
+      setIsLive(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial mount load
+  useEffect(() => {
+    fetchLiveAnalytics(since, until);
   }, []);
+
+  // Quick preset loader
+  const handlePreset = (days: number) => {
+    const startDate = getDaysAgo(days);
+    const endDate = getToday();
+    setSince(startDate);
+    setUntil(endDate);
+    fetchLiveAnalytics(startDate, endDate);
+  };
+
+  // Manual range applier
+  const handleApplyRange = () => {
+    fetchLiveAnalytics(since, until);
+  };
 
   // Dynamic simulation of incoming real-time traffic
   useEffect(() => {
@@ -216,6 +254,18 @@ const SeoAnalyticsPanel = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Date range day duration parser for high-fidelity mock scaling
+  const getDaysBetween = (startStr: string, endStr: string): number => {
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
+    return diffDays > 0 ? diffDays : 30;
+  };
+
+  const diffDays = getDaysBetween(since, until);
+  const simulatedScale = diffDays / 30;
+
   const getActiveData = (): DimensionRow[] => {
     if (isLive) {
       switch (activeDimension) {
@@ -226,12 +276,13 @@ const SeoAnalyticsPanel = () => {
         case 'referrers': return liveReferrers;
       }
     } else {
+      const scale = simulatedScale;
       switch (activeDimension) {
-        case 'countries': return countriesData;
-        case 'paths': return pathsData;
-        case 'devices': return devicesData;
-        case 'browsers': return browsersData;
-        case 'referrers': return referrersData;
+        case 'countries': return countriesData.map(item => ({ ...item, value: Math.round(item.value * scale) }));
+        case 'paths': return pathsData.map(item => ({ ...item, value: Math.round(item.value * scale) }));
+        case 'devices': return devicesData.map(item => ({ ...item, value: Math.round(item.value * scale) }));
+        case 'browsers': return browsersData.map(item => ({ ...item, value: Math.round(item.value * scale) }));
+        case 'referrers': return referrersData.map(item => ({ ...item, value: Math.round(item.value * scale) }));
       }
     }
   };
@@ -288,6 +339,141 @@ const SeoAnalyticsPanel = () => {
           </div>
         </div>
       )}
+
+      {/* Dynamic Date Range Picker & Presets Controls */}
+      <section style={{ 
+        background: '#ffffff', 
+        borderRadius: '16px', 
+        border: '1px solid #e2e8f0', 
+        padding: '1.5rem', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '1.2rem', 
+        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' 
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>📅</span> Analytics Timeframe
+          </h3>
+          
+          {/* Quick Presets */}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button 
+              type="button"
+              onClick={() => handlePreset(7)}
+              style={{
+                padding: '0.45rem 0.9rem',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                background: since === getDaysAgo(7) && until === getToday() ? '#000000' : '#ffffff',
+                color: since === getDaysAgo(7) && until === getToday() ? '#ffffff' : '#475569',
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Last 7 Days
+            </button>
+            <button 
+              type="button"
+              onClick={() => handlePreset(30)}
+              style={{
+                padding: '0.45rem 0.9rem',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                background: since === getDaysAgo(30) && until === getToday() ? '#000000' : '#ffffff',
+                color: since === getDaysAgo(30) && until === getToday() ? '#ffffff' : '#475569',
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Last 30 Days
+            </button>
+            <button 
+              type="button"
+              onClick={() => handlePreset(90)}
+              style={{
+                padding: '0.45rem 0.9rem',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                background: since === getDaysAgo(90) && until === getToday() ? '#000000' : '#ffffff',
+                color: since === getDaysAgo(90) && until === getToday() ? '#ffffff' : '#475569',
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Last 90 Days
+            </button>
+          </div>
+        </div>
+
+        {/* Custom Inputs */}
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderTop: '1px solid #f1f5f9', paddingTop: '1.2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>From:</span>
+            <input 
+              type="date" 
+              value={since} 
+              onChange={(e) => setSince(e.target.value)}
+              style={{
+                padding: '0.5rem 0.8rem',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                outline: 'none',
+                fontSize: '0.85rem',
+                color: '#334155',
+                fontWeight: 500,
+                background: '#ffffff'
+              }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>To:</span>
+            <input 
+              type="date" 
+              value={until} 
+              onChange={(e) => setUntil(e.target.value)}
+              style={{
+                padding: '0.5rem 0.8rem',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                outline: 'none',
+                fontSize: '0.85rem',
+                color: '#334155',
+                fontWeight: 500,
+                background: '#ffffff'
+              }}
+            />
+          </div>
+
+          <button 
+            type="button"
+            onClick={handleApplyRange}
+            disabled={loading}
+            style={{
+              padding: '0.5rem 1.5rem',
+              borderRadius: '8px',
+              border: 'none',
+              background: '#000000',
+              color: '#ffffff',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              transition: 'all 0.2s ease',
+              marginLeft: 'auto'
+            }}
+          >
+            {loading ? 'Fetching...' : 'Apply Range'}
+          </button>
+        </div>
+      </section>
       
       {/* Vercel Web Analytics Banner */}
       <section style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.2rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
@@ -315,7 +501,7 @@ const SeoAnalyticsPanel = () => {
           <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Total Page Views</span>
             <h3 style={{ fontSize: '2rem', fontWeight: 800, margin: '0.5rem 0 0 0', color: '#0f172a' }}>
-              {loading ? '...' : (isLive ? liveTotals?.total?.toLocaleString() : '15,420')}
+              {loading ? '...' : (isLive ? liveTotals?.total?.toLocaleString() : Math.round(15420 * simulatedScale).toLocaleString())}
             </h3>
             <span style={{ fontSize: '0.75rem', color: isLive ? '#10b981' : '#64748b', fontWeight: 600 }}>
               {isLive ? '● Live from Vercel' : '○ Simulated Demo'}
@@ -324,7 +510,7 @@ const SeoAnalyticsPanel = () => {
           <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Unique Visitors (Devices)</span>
             <h3 style={{ fontSize: '2rem', fontWeight: 800, margin: '0.5rem 0 0 0', color: '#0f172a' }}>
-              {loading ? '...' : (isLive ? liveTotals?.devices?.toLocaleString() : '8,350')}
+              {loading ? '...' : (isLive ? liveTotals?.devices?.toLocaleString() : Math.round(8350 * simulatedScale).toLocaleString())}
             </h3>
             <span style={{ fontSize: '0.75rem', color: isLive ? '#10b981' : '#64748b', fontWeight: 600 }}>
               {isLive ? '● Live from Vercel' : '○ Simulated Demo'}
