@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BackToTop from '@/components/common/BackToTop'
 import { LanguageProvider } from '@/context/LanguageContext'
+import { Analytics } from '@vercel/analytics/react'
 
 export const dynamic = 'force-dynamic';
 
@@ -153,6 +154,7 @@ export default async function RootLayout({
           <main>{children}</main>
           <Footer />
           <BackToTop />
+          <Analytics />
         </LanguageProvider>
       </body>
     </html>

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import ReactGA from 'react-ga4';
+
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { useWebsiteData } from '@/hooks/useWebsiteData';
 
@@ -22,11 +22,6 @@ const SeoAnalyticsPanel = () => {
 
   const measurementId = getContent('seo', 'Tracking', 'google_analytics_measurement_id', '');
 
-  useEffect(() => {
-    if (!measurementId) return;
-    ReactGA.initialize(measurementId);
-    ReactGA.send({ hitType: 'pageview', page: '/admin/seo-analytics' });
-  }, [measurementId]);
 
   useEffect(() => {
     const fetchReport = async () => {
