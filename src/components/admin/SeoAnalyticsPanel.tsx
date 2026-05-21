@@ -66,13 +66,122 @@ const initialStreamData: EventStreamRow[] = [
   { timestamp: '4m ago', eventType: 'pageview', path: '/about', country: 'DE', device: 'desktop', browser: 'Firefox' },
 ];
 
+const getCountryName = (code: string) => {
+  const map: Record<string, string> = {
+    IN: 'India (IN)',
+    US: 'United States (US)',
+    AE: 'United Arab Emirates (AE)',
+    GB: 'United Kingdom (GB)',
+    DE: 'Germany (DE)',
+    CA: 'Canada (CA)',
+    FR: 'France (FR)',
+    AU: 'Australia (AU)',
+    JP: 'Japan (JP)',
+    SG: 'Singapore (SG)',
+  };
+  return map[code.toUpperCase()] || code;
+};
 
+const getReferrerName = (ref: string) => {
+  if (!ref || ref === '' || ref === 'direct') return 'direct (Direct Traffic)';
+  if (ref.toLowerCase().includes('google')) return 'google.com (Organic)';
+  if (ref.toLowerCase().includes('linkedin')) return 'linkedin.com (Social)';
+  if (ref.toLowerCase().includes('twitter') || ref.toLowerCase().includes('t.co')) return 'twitter.com (Social)';
+  if (ref.toLowerCase().includes('facebook') || ref.toLowerCase().includes('fb')) return 'facebook.com (Social)';
+  return ref;
+};
 
 const SeoAnalyticsPanel = () => {
   const [activeDimension, setActiveDimension] = useState<'countries' | 'paths' | 'devices' | 'browsers' | 'referrers'>('countries');
   const [chartType, setChartType] = useState<'pie' | 'bar'>('pie');
 
   const [stream, setStream] = useState<EventStreamRow[]>(initialStreamData);
+  
+  // Real-time Vercel Analytics state
+  const [loading, setLoading] = useState(true);
+  const [isLive, setIsLive] = useState(false);
+  const [notConfigured, setNotConfigured] = useState(false);
+  const [liveTotals, setLiveTotals] = useState<{ total: number; devices: number } | null>(null);
+  const [liveCountries, setLiveCountries] = useState<DimensionRow[]>([]);
+  const [livePaths, setLivePaths] = useState<DimensionRow[]>([]);
+  const [liveDevices, setLiveDevices] = useState<DimensionRow[]>([]);
+  const [liveBrowsers, setLiveBrowsers] = useState<DimensionRow[]>([]);
+  const [liveReferrers, setLiveReferrers] = useState<DimensionRow[]>([]);
+
+  // Fetch real analytics data from Vercel
+  useEffect(() => {
+    const fetchLiveAnalytics = async () => {
+      setLoading(true);
+      try {
+        // 1. Fetch page view and unique devices count
+        const countRes = await fetch('/api/analytics/count');
+        const countData = await countRes.json();
+        
+        if (countData.notConfigured) {
+          setNotConfigured(true);
+          setIsLive(false);
+          setLoading(false);
+          return;
+        }
+
+        if (countData.data) {
+          setLiveTotals({
+            total: countData.data.total || 0,
+            devices: countData.data.devices || 0,
+          });
+        }
+
+        // 2. Fetch aggregates for dimensions in parallel
+        const [countriesRes, pathsRes, devicesRes, browsersRes, referrersRes] = await Promise.all([
+          fetch('/api/analytics?by=country'),
+          fetch('/api/analytics?by=path'),
+          fetch('/api/analytics?by=device'),
+          fetch('/api/analytics?by=browser'),
+          fetch('/api/analytics?by=referrer'),
+        ]);
+
+        const [countriesJSON, pathsJSON, devicesJSON, browsersJSON, referrersJSON] = await Promise.all([
+          countriesRes.json(),
+          pathsRes.json(),
+          devicesRes.json(),
+          browsersRes.json(),
+          referrersRes.json(),
+        ]);
+
+        // Mapping function to adapt Vercel response key/total/devices to DimensionRow
+        const mapVercelData = (vercelData: any, nameMapper?: (key: string) => string): DimensionRow[] => {
+          if (!vercelData || !Array.isArray(vercelData.data)) return [];
+          const items = vercelData.data;
+          const totalSum = items.reduce((acc: number, item: any) => acc + (item.devices || item.total || 0), 0);
+          return items.map((item: any) => {
+            const val = item.devices || item.total || 0;
+            const pct = totalSum > 0 ? Math.round((val / totalSum) * 100) : 0;
+            return {
+              name: nameMapper ? nameMapper(item.key) : item.key,
+              value: val,
+              percentage: pct,
+            };
+          });
+        };
+
+        setLiveCountries(mapVercelData(countriesJSON, getCountryName));
+        setLivePaths(mapVercelData(pathsJSON));
+        setLiveDevices(mapVercelData(devicesJSON));
+        setLiveBrowsers(mapVercelData(browsersJSON));
+        setLiveReferrers(mapVercelData(referrersJSON, getReferrerName));
+
+        setIsLive(true);
+        setNotConfigured(false);
+      } catch (err) {
+        console.error('Error fetching Vercel Analytics:', err);
+        setIsLive(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLiveAnalytics();
+  }, []);
 
   // Dynamic simulation of incoming real-time traffic
   useEffect(() => {
@@ -108,12 +217,22 @@ const SeoAnalyticsPanel = () => {
   }, []);
 
   const getActiveData = (): DimensionRow[] => {
-    switch (activeDimension) {
-      case 'countries': return countriesData;
-      case 'paths': return pathsData;
-      case 'devices': return devicesData;
-      case 'browsers': return browsersData;
-      case 'referrers': return referrersData;
+    if (isLive) {
+      switch (activeDimension) {
+        case 'countries': return liveCountries;
+        case 'paths': return livePaths;
+        case 'devices': return liveDevices;
+        case 'browsers': return liveBrowsers;
+        case 'referrers': return liveReferrers;
+      }
+    } else {
+      switch (activeDimension) {
+        case 'countries': return countriesData;
+        case 'paths': return pathsData;
+        case 'devices': return devicesData;
+        case 'browsers': return browsersData;
+        case 'referrers': return referrersData;
+      }
     }
   };
 
@@ -137,6 +256,38 @@ const SeoAnalyticsPanel = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '2rem' }}>
+
+      {/* Warning/Setup Notice if Vercel Environment variables are missing */}
+      {notConfigured && (
+        <div style={{
+          background: '#fffbeb',
+          border: '1px solid #fef3c7',
+          borderRadius: '16px',
+          padding: '1.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.8rem',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+            <div>
+              <h4 style={{ margin: 0, color: '#92400e', fontWeight: 600 }}>Vercel Web Analytics Setup Required</h4>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#b45309' }}>
+                Real-time integration is currently in fallback mode because environment variables are not yet configured in your Vercel project settings.
+              </p>
+            </div>
+          </div>
+          <div style={{ fontSize: '0.82rem', color: '#78350f', background: '#fff', padding: '1rem', borderRadius: '8px', border: '1px solid #fde68a' }}>
+            <p style={{ margin: '0 0 0.5rem 0', fontWeight: 600 }}>To enable live data, add the following Environment Variables in Vercel Settings:</p>
+            <ul style={{ margin: 0, paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+              <li><code>VERCEL_ANALYTICS_TOKEN</code> — Create a token at <a href="https://vercel.com/account/tokens" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: '#b45309' }}>vercel.com/account/tokens</a></li>
+              <li><code>VERCEL_PROJECT_ID</code> — Found under your Project Settings → General</li>
+              <li><code>VERCEL_TEAM_ID</code> — <code>team_7vWWSeOa0pG3hC8fFPtPfI6n</code> (included by default)</li>
+            </ul>
+          </div>
+        </div>
+      )}
       
       {/* Vercel Web Analytics Banner */}
       <section style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.2rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
@@ -149,15 +300,37 @@ const SeoAnalyticsPanel = () => {
             </div>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 1rem', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '999px' }}>
-            <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></span>
-            <span style={{ color: '#065f46', fontSize: '0.85rem', fontWeight: 600 }}>Active Tracking</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 1rem', background: isLive ? '#ecfdf5' : '#f8fafc', border: '1px solid ' + (isLive ? '#a7f3d0' : '#e2e8f0'), borderRadius: '999px' }}>
+            <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: isLive ? '#10b981' : '#94a3b8', animation: isLive ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none' }}></span>
+            <span style={{ color: isLive ? '#065f46' : '#475569', fontSize: '0.85rem', fontWeight: 600 }}>{isLive ? 'Active Live Tracking' : 'Demo Offline Mode'}</span>
           </div>
         </div>
 
         <p style={{ color: '#334155', fontSize: '0.95rem', lineHeight: '1.6', margin: 0 }}>
           Vercel Web Analytics tracks visitor behavior on your site without using cookies, in a privacy-friendly manner. This data can be accessed programmatically via the Vercel API or exported via Web Analytics Drains.
         </p>
+
+        {/* Live Stats Row */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1rem' }}>
+          <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Total Page Views</span>
+            <h3 style={{ fontSize: '2rem', fontWeight: 800, margin: '0.5rem 0 0 0', color: '#0f172a' }}>
+              {loading ? '...' : (isLive ? liveTotals?.total?.toLocaleString() : '15,420')}
+            </h3>
+            <span style={{ fontSize: '0.75rem', color: isLive ? '#10b981' : '#64748b', fontWeight: 600 }}>
+              {isLive ? '● Live from Vercel' : '○ Simulated Demo'}
+            </span>
+          </div>
+          <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Unique Visitors (Devices)</span>
+            <h3 style={{ fontSize: '2rem', fontWeight: 800, margin: '0.5rem 0 0 0', color: '#0f172a' }}>
+              {loading ? '...' : (isLive ? liveTotals?.devices?.toLocaleString() : '8,350')}
+            </h3>
+            <span style={{ fontSize: '0.75rem', color: isLive ? '#10b981' : '#64748b', fontWeight: 600 }}>
+              {isLive ? '● Live from Vercel' : '○ Simulated Demo'}
+            </span>
+          </div>
+        </div>
 
         <style>{`
           @keyframes pulse {
