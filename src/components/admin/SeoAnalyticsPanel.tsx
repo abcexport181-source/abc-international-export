@@ -484,6 +484,24 @@ const SeoAnalyticsPanel = () => {
                 </div>
               </div>
             </div>
+
+            <div style={{ marginTop: '1.5rem', borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Authentication & Example Request</span>
+              <p style={{ fontSize: '0.85rem', color: '#475569', margin: '0.4rem 0 1rem 0', lineHeight: '1.5' }}>
+                Use a personal access token or project-scoped integration token (e.g. <strong>siteanalytics</strong>) passed as a Bearer token in the <code>Authorization</code> header to query the API.
+              </p>
+              
+              <div style={{ background: '#0f172a', padding: '1.2rem', borderRadius: '12px', color: '#f8fafc', fontFamily: 'monospace', fontSize: '0.85rem', overflowX: 'auto', border: '1px solid #1e293b', boxShadow: 'inset 0 2px 4px 0 rgb(0 0 0 / 0.3)' }}>
+                <div style={{ color: '#64748b', marginBottom: '0.6rem', borderBottom: '1px solid #1e293b', paddingBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>cURL Request Example (Token: siteanalytics)</span>
+                  <span style={{ fontSize: '0.75rem', background: '#1e293b', color: '#94a3b8', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>GET</span>
+                </div>
+                <code style={{ whiteSpace: 'pre', color: '#38bdf8' }}>
+                  {`curl -X GET "https://api.vercel.com/v1/query/web-analytics/visits/aggregate?projectId=YOUR_PROJECT_ID&since=2024-01-01&until=2024-01-31&by=country&teamId=team_7vWWSeOa0pG3hC8fFPtPfI6n" \\\n  -H "Authorization: Bearer vcp_YOUR_siteanalytics_TOKEN"`}
+                </code>
+              </div>
+            </div>
+
           </div>
         )}
       </section>
