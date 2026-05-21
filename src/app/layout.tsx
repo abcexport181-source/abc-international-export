@@ -5,7 +5,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BackToTop from '@/components/common/BackToTop'
 import { LanguageProvider } from '@/context/LanguageContext'
-import { Analytics } from '@vercel/analytics/react'
+import { Analytics } from '@vercel/analytics/next'
 
 export const dynamic = 'force-dynamic';
 
