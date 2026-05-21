@@ -249,7 +249,6 @@ export default function AdminDashboard() {
     if (result.success) {
       setIsBlogVisibleOnSite(newValue);
       setMessage({ text: `Blog page is now ${newValue ? 'visible' : 'hidden'} in the menu bar.`, type: 'success' });
-      fetchSiteContent();
     } else {
       setMessage({ text: 'Error updating blog visibility: ' + result.error, type: 'error' });
     }
