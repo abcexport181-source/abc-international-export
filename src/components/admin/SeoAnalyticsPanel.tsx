@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { FiActivity, FiGlobe, FiMonitor, FiCpu, FiExternalLink, FiTerminal, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiActivity, FiGlobe, FiMonitor, FiCpu, FiExternalLink } from 'react-icons/fi';
 
 interface DimensionRow {
   name: string;
@@ -72,7 +72,6 @@ const SeoAnalyticsPanel = () => {
   const [activeDimension, setActiveDimension] = useState<'countries' | 'paths' | 'devices' | 'browsers' | 'referrers'>('countries');
   const [chartType, setChartType] = useState<'pie' | 'bar'>('pie');
 
-  const [showApiDocs, setShowApiDocs] = useState(false);
   const [stream, setStream] = useState<EventStreamRow[]>(initialStreamData);
 
   // Dynamic simulation of incoming real-time traffic
@@ -346,165 +345,6 @@ const SeoAnalyticsPanel = () => {
         </div>
       </section>
 
-      {/* Accordion: Web Analytics API Endpoints */}
-      <section style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
-        <button
-          type="button"
-          onClick={() => setShowApiDocs(!showApiDocs)}
-          style={{
-            width: '100%',
-            padding: '1.5rem 2rem',
-            border: 'none',
-            background: 'none',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            cursor: 'pointer',
-            textAlign: 'left'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <FiTerminal style={{ color: '#0f172a', fontSize: '1.2rem' }} />
-            <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>Web Analytics API Endpoints</h3>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>Query Vercel Web Analytics data programmatically via REST endpoints.</p>
-            </div>
-          </div>
-          {showApiDocs ? <FiChevronUp style={{ fontSize: '1.3rem' }} /> : <FiChevronDown style={{ fontSize: '1.3rem' }} />}
-        </button>
-
-        {showApiDocs && (
-          <div style={{ padding: '0 2rem 2rem 2rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div style={{ marginTop: '1.5rem' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Base URL</span>
-              <div style={{ background: '#f8fafc', padding: '0.8rem 1rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontFamily: 'monospace', fontSize: '0.9rem', color: '#0f172a', marginTop: '0.4rem' }}>
-                https://api.vercel.com
-              </div>
-            </div>
-
-            <div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Endpoints</span>
-              <div style={{ overflowX: 'auto', marginTop: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem', textAlign: 'left' }}>
-                  <thead>
-                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
-                      <th style={{ padding: '0.8rem 1rem', fontWeight: 600 }}>Endpoint</th>
-                      <th style={{ padding: '0.8rem 1rem', fontWeight: 600 }}>Purpose</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#1e293b' }}>
-                      <td style={{ padding: '0.8rem 1rem', fontWeight: 600, fontFamily: 'monospace', color: '#000000' }}>
-                        <span style={{ background: '#eff6ff', color: '#1e5df7', padding: '0.2rem 0.4rem', borderRadius: '4px', marginRight: '0.5rem', fontSize: '0.75rem', fontWeight: 700 }}>GET</span>
-                        /v1/query/web-analytics/visits/aggregate
-                      </td>
-                      <td style={{ padding: '0.8rem 1rem', color: '#475569' }}>Aggregate page views with breakdowns</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #f1f5f9', color: '#1e293b' }}>
-                      <td style={{ padding: '0.8rem 1rem', fontWeight: 600, fontFamily: 'monospace', color: '#000000' }}>
-                        <span style={{ background: '#eff6ff', color: '#1e5df7', padding: '0.2rem 0.4rem', borderRadius: '4px', marginRight: '0.5rem', fontSize: '0.75rem', fontWeight: 700 }}>GET</span>
-                        /v1/query/web-analytics/visits/count
-                      </td>
-                      <td style={{ padding: '0.8rem 1rem', color: '#475569' }}>Count total page views</td>
-                    </tr>
-                    <tr style={{ color: '#1e293b' }}>
-                      <td style={{ padding: '0.8rem 1rem', fontWeight: 600, fontFamily: 'monospace', color: '#000000' }}>
-                        <span style={{ background: '#eff6ff', color: '#1e5df7', padding: '0.2rem 0.4rem', borderRadius: '4px', marginRight: '0.5rem', fontSize: '0.75rem', fontWeight: 700 }}>GET</span>
-                        /v1/query/web-analytics/events/aggregate
-                      </td>
-                      <td style={{ padding: '0.8rem 1rem', color: '#475569' }}>Aggregate custom events</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '0.5rem' }}>
-              <div>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Required Parameters</span>
-                <div style={{ overflowX: 'auto', marginTop: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
-                    <thead>
-                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
-                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Parameter</th>
-                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Description</th>
-                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Example</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>projectId</td>
-                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>Your Vercel project ID</td>
-                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>prj_XLKmu1DyR1eY7zq8UgeRKbA7yVLA</td>
-                      </tr>
-                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>since</td>
-                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>Start date (timestamp in ms or date string)</td>
-                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>2024-01-01</td>
-                      </tr>
-                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>until</td>
-                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>End date (timestamp in ms or date string)</td>
-                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>2024-01-31</td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>by</td>
-                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>Dimension to group by (for aggregate endpoints)</td>
-                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>country, path, browser, etc.</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Optional Parameters</span>
-                <div style={{ overflowX: 'auto', marginTop: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
-                    <thead>
-                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
-                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Parameter</th>
-                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Description</th>
-                        <th style={{ padding: '0.6rem 0.8rem', fontWeight: 600 }}>Example</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>filter</td>
-                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>Filter results by dimension</td>
-                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>{"requestPath eq \"/docs\""}</td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: '0.6rem 0.8rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>limit</td>
-                        <td style={{ padding: '0.6rem 0.8rem', color: '#475569' }}>Number of results (default 10)</td>
-                        <td style={{ padding: '0.6rem 0.8rem', fontFamily: 'monospace', fontSize: '0.78rem', color: '#64748b' }}>50</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ marginTop: '1.5rem', borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Authentication & Example Request</span>
-              <p style={{ fontSize: '0.85rem', color: '#475569', margin: '0.4rem 0 1rem 0', lineHeight: '1.5' }}>
-                Use a personal access token or project-scoped integration token (e.g. <strong>siteanalytics</strong>) passed as a Bearer token in the <code>Authorization</code> header to query the API.
-              </p>
-              
-              <div style={{ background: '#0f172a', padding: '1.2rem', borderRadius: '12px', color: '#f8fafc', fontFamily: 'monospace', fontSize: '0.85rem', overflowX: 'auto', border: '1px solid #1e293b', boxShadow: 'inset 0 2px 4px 0 rgb(0 0 0 / 0.3)' }}>
-                <div style={{ color: '#64748b', marginBottom: '0.6rem', borderBottom: '1px solid #1e293b', paddingBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>cURL Request Example (Token: siteanalytics)</span>
-                  <span style={{ fontSize: '0.75rem', background: '#1e293b', color: '#94a3b8', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>GET</span>
-                </div>
-                <code style={{ whiteSpace: 'pre', color: '#38bdf8' }}>
-                  {`curl -X GET "https://api.vercel.com/v1/query/web-analytics/visits/aggregate?projectId=YOUR_PROJECT_ID&since=2024-01-01&until=2024-01-31&by=country&teamId=team_7vWWSeOa0pG3hC8fFPtPfI6n" \\\n  -H "Authorization: Bearer vcp_YOUR_siteanalytics_TOKEN"`}
-                </code>
-              </div>
-            </div>
-
-          </div>
-        )}
-      </section>
 
     </div>
   );
