@@ -41,10 +41,26 @@ const Footer = () => {
         <div>
           <h4>{getContent('global', 'footer', 'services', 'Services')}</h4>
           <ul className={styles.links}>
-            <li>{getContent('global', 'footer', 'service_sourcing', 'Product Sourcing')}</li>
-            <li>{getContent('global', 'footer', 'service_quality', 'Quality Assurance')}</li>
-            <li>{getContent('global', 'footer', 'service_packaging', 'Export Packaging')}</li>
-            <li>{getContent('global', 'footer', 'service_docs', 'Export Documentation')}</li>
+            <li>
+              <Link href="/sourcing#process">
+                {getContent('global', 'footer', 'service_sourcing', 'Product Sourcing')}
+              </Link>
+            </li>
+            <li>
+              <Link href="/quality-packaging#inspection">
+                {getContent('global', 'footer', 'service_quality', 'Quality Assurance')}
+              </Link>
+            </li>
+            <li>
+              <Link href="/quality-packaging#packaging">
+                {getContent('global', 'footer', 'service_packaging', 'Export Packaging')}
+              </Link>
+            </li>
+            <li>
+              <Link href="/quality-packaging#compliance">
+                {getContent('global', 'footer', 'service_docs', 'Export Documentation')}
+              </Link>
+            </li>
           </ul>
         </div>
         <div>

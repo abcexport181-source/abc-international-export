@@ -118,7 +118,7 @@ export default function QualityPackagingPage() {
         </div>
       </MediaBackground>
 
-      <section className="section sectionSoft">
+      <section id="inspection" className="section sectionSoft">
         <div className="container">
           <div className="sectionHeader">
             <h2>{getContent('quality-packaging', 'Inspection', 'title', 'Quality Inspection Process')}</h2>
@@ -188,7 +188,7 @@ export default function QualityPackagingPage() {
         </div>
       </section>
 
-      <section className="section">
+      <section id="packaging" className="section">
         <div className="container split">
           <div>
             <h2>{getContent('quality-packaging', 'Options', 'title', 'Comprehensive Packaging Options')}</h2>
@@ -257,7 +257,7 @@ export default function QualityPackagingPage() {
         </div>
       </section>
 
-      <section className="section sectionSoft" style={{ textAlign: 'center' }}>
+      <section id="compliance" className="section sectionSoft" style={{ textAlign: 'center' }}>
         <div className="container">
           <div style={{ fontSize: '3rem', color: '#1f5ff5', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
             <FiClipboard />

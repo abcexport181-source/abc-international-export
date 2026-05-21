@@ -101,7 +101,7 @@ export default function SourcingPage() {
         </div>
       </section>
 
-      <section className="section sectionSoft" style={{ paddingTop: 0 }}>
+      <section id="process" className="section sectionSoft" style={{ paddingTop: 0 }}>
         <div className="container">
           <div className="sectionHeader">
             <h2>{getContent('sourcing', 'Process', 'title', 'Our Sourcing Process')}</h2>
