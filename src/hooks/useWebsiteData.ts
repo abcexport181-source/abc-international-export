@@ -8,6 +8,7 @@ export const useWebsiteData = () => {
     const [loading, setLoading] = useState(true);
     const isMediaKey = (key: string) => key.includes('img') || key.includes('image');
 
+
     const fetchData = async () => {
         if (!isSupabaseConfigured) {
             setLoading(false);
@@ -36,6 +37,21 @@ export const useWebsiteData = () => {
 
     useEffect(() => {
         fetchData();
+
+        const handleUpdate = () => {
+            console.log('Website data update event received, refetching...');
+            fetchData();
+        };
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('website-data-updated', handleUpdate);
+        }
+
+        return () => {
+            if (typeof window !== 'undefined') {
+                window.removeEventListener('website-data-updated', handleUpdate);
+            }
+        };
     }, [language]);
 
     const getContent = (page: string, section: string, key: string, defaultValue: string) => {

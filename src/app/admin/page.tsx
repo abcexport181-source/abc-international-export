@@ -249,6 +249,9 @@ export default function AdminDashboard() {
     if (result.success) {
       setIsBlogVisibleOnSite(newValue);
       setMessage({ text: `Blog page is now ${newValue ? 'visible' : 'hidden'} in the menu bar.`, type: 'success' });
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('website-data-updated'));
+      }
     } else {
       setMessage({ text: 'Error updating blog visibility: ' + result.error, type: 'error' });
     }
@@ -1784,23 +1787,61 @@ export default function AdminDashboard() {
               </button>
             )}
             {activeTab === 'blogs' && (
-              <button 
-                onClick={toggleBlogPageVisibility} 
-                className="btnSecondary" 
-                disabled={blogVisibilityLoading}
-                style={{ 
-                  fontSize: '0.85rem', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '0.5rem',
-                  borderColor: isBlogVisibleOnSite ? '#def7ec' : '#fecaca',
-                  color: isBlogVisibleOnSite ? '#03543f' : '#ef4444',
-                  padding: '0.5rem 1rem'
-                }}
-              >
-                {isBlogVisibleOnSite ? <FiEye /> : <FiEyeOff />}
-                Blog Page: {blogVisibilityLoading ? 'Checking...' : isBlogVisibleOnSite ? 'Visible in Menu' : 'Hidden from Menu'}
-              </button>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.75rem',
+                background: '#f1f5f9',
+                padding: '0.4rem 0.8rem',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                height: '38px'
+              }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>
+                  Blog Menu:
+                </span>
+                <button
+                  onClick={toggleBlogPageVisibility}
+                  disabled={blogVisibilityLoading}
+                  style={{
+                    position: 'relative',
+                    width: '40px',
+                    height: '20px',
+                    borderRadius: '10px',
+                    background: isBlogVisibleOnSite ? '#10b981' : '#cbd5e1',
+                    border: 'none',
+                    cursor: blogVisibilityLoading ? 'not-allowed' : 'pointer',
+                    padding: 0,
+                    outline: 'none',
+                    transition: 'background-color 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    opacity: blogVisibilityLoading ? 0.6 : 1,
+                  }}
+                  title={isBlogVisibleOnSite ? "Hide Blog from header menu" : "Show Blog in header menu"}
+                >
+                  <span
+                    style={{
+                      position: 'absolute',
+                      left: isBlogVisibleOnSite ? '22px' : '2px',
+                      width: '16px',
+                      height: '16px',
+                      borderRadius: '50%',
+                      background: '#ffffff',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                      transition: 'left 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}
+                  />
+                </button>
+                <span style={{ 
+                  fontSize: '0.8rem', 
+                  fontWeight: 600, 
+                  color: isBlogVisibleOnSite ? '#10b981' : '#64748b',
+                  minWidth: '45px'
+                }}>
+                  {blogVisibilityLoading ? '...' : isBlogVisibleOnSite ? 'Visible' : 'Hidden'}
+                </span>
+              </div>
             )}
 
             <button 
