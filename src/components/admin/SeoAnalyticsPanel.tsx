@@ -123,6 +123,8 @@ const SeoAnalyticsPanel = () => {
   // Date range picker states
   const [since, setSince] = useState(getDefaultSince());
   const [until, setUntil] = useState(getDefaultUntil());
+  const [activePreset, setActivePreset] = useState<string>('30d');
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
   const [liveTotals, setLiveTotals] = useState<{ total: number; devices: number } | null>(null);
   const [liveCountries, setLiveCountries] = useState<DimensionRow[]>([]);
@@ -219,6 +221,23 @@ const SeoAnalyticsPanel = () => {
   // Manual range applier
   const handleApplyRange = () => {
     fetchLiveAnalytics(since, until);
+  };
+
+  const handleSelectPreset = (presetId: string, days: number | null) => {
+    setActivePreset(presetId);
+    if (days !== null) {
+      const startDate = getDaysAgo(days);
+      const endDate = getToday();
+      setSince(startDate);
+      setUntil(endDate);
+      fetchLiveAnalytics(startDate, endDate);
+      setShowDropdown(false);
+    }
+  };
+
+  const handleApplyCustomRange = () => {
+    fetchLiveAnalytics(since, until);
+    setShowDropdown(false);
   };
 
   // Dynamic simulation of incoming real-time traffic
@@ -340,141 +359,6 @@ const SeoAnalyticsPanel = () => {
         </div>
       )}
 
-      {/* Dynamic Date Range Picker & Presets Controls */}
-      <section style={{ 
-        background: '#ffffff', 
-        borderRadius: '16px', 
-        border: '1px solid #e2e8f0', 
-        padding: '1.5rem', 
-        display: 'flex', 
-        flexDirection: 'column', 
-        gap: '1.2rem', 
-        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' 
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span>📅</span> Analytics Timeframe
-          </h3>
-          
-          {/* Quick Presets */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button 
-              type="button"
-              onClick={() => handlePreset(7)}
-              style={{
-                padding: '0.45rem 0.9rem',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0',
-                background: since === getDaysAgo(7) && until === getToday() ? '#000000' : '#ffffff',
-                color: since === getDaysAgo(7) && until === getToday() ? '#ffffff' : '#475569',
-                fontWeight: 600,
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Last 7 Days
-            </button>
-            <button 
-              type="button"
-              onClick={() => handlePreset(30)}
-              style={{
-                padding: '0.45rem 0.9rem',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0',
-                background: since === getDaysAgo(30) && until === getToday() ? '#000000' : '#ffffff',
-                color: since === getDaysAgo(30) && until === getToday() ? '#ffffff' : '#475569',
-                fontWeight: 600,
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Last 30 Days
-            </button>
-            <button 
-              type="button"
-              onClick={() => handlePreset(90)}
-              style={{
-                padding: '0.45rem 0.9rem',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0',
-                background: since === getDaysAgo(90) && until === getToday() ? '#000000' : '#ffffff',
-                color: since === getDaysAgo(90) && until === getToday() ? '#ffffff' : '#475569',
-                fontWeight: 600,
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Last 90 Days
-            </button>
-          </div>
-        </div>
-
-        {/* Custom Inputs */}
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderTop: '1px solid #f1f5f9', paddingTop: '1.2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>From:</span>
-            <input 
-              type="date" 
-              value={since} 
-              onChange={(e) => setSince(e.target.value)}
-              style={{
-                padding: '0.5rem 0.8rem',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                outline: 'none',
-                fontSize: '0.85rem',
-                color: '#334155',
-                fontWeight: 500,
-                background: '#ffffff'
-              }}
-            />
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>To:</span>
-            <input 
-              type="date" 
-              value={until} 
-              onChange={(e) => setUntil(e.target.value)}
-              style={{
-                padding: '0.5rem 0.8rem',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                outline: 'none',
-                fontSize: '0.85rem',
-                color: '#334155',
-                fontWeight: 500,
-                background: '#ffffff'
-              }}
-            />
-          </div>
-
-          <button 
-            type="button"
-            onClick={handleApplyRange}
-            disabled={loading}
-            style={{
-              padding: '0.5rem 1.5rem',
-              borderRadius: '8px',
-              border: 'none',
-              background: '#000000',
-              color: '#ffffff',
-              fontWeight: 600,
-              fontSize: '0.85rem',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.7 : 1,
-              transition: 'all 0.2s ease',
-              marginLeft: 'auto'
-            }}
-          >
-            {loading ? 'Fetching...' : 'Apply Range'}
-          </button>
-        </div>
-      </section>
-      
       {/* Vercel Web Analytics Banner */}
       <section style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.2rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
@@ -486,9 +370,240 @@ const SeoAnalyticsPanel = () => {
             </div>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 1rem', background: isLive ? '#ecfdf5' : '#f8fafc', border: '1px solid ' + (isLive ? '#a7f3d0' : '#e2e8f0'), borderRadius: '999px' }}>
-            <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: isLive ? '#10b981' : '#94a3b8', animation: isLive ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none' }}></span>
-            <span style={{ color: isLive ? '#065f46' : '#475569', fontSize: '0.85rem', fontWeight: 600 }}>{isLive ? 'Active Live Tracking' : 'Demo Offline Mode'}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            {/* Live/Demo Badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 1rem', background: isLive ? '#ecfdf5' : '#f8fafc', border: '1px solid ' + (isLive ? '#a7f3d0' : '#e2e8f0'), borderRadius: '999px' }}>
+              <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: isLive ? '#10b981' : '#94a3b8', animation: isLive ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none' }}></span>
+              <span style={{ color: isLive ? '#065f46' : '#475569', fontSize: '0.85rem', fontWeight: 600 }}>{isLive ? 'Active Live Tracking' : 'Demo Offline Mode'}</span>
+            </div>
+
+            {/* Vercel-Style Premium Date Picker Dropdown */}
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                onClick={() => setShowDropdown(!showDropdown)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  background: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '8px',
+                  color: '#334155',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                  transition: 'all 0.2s ease',
+                  outline: 'none',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f8fafc';
+                  e.currentTarget.style.borderColor = '#94a3b8';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.borderColor = '#cbd5e1';
+                }}
+              >
+                <span>📅</span>
+                <span>
+                  {activePreset === '24h' && 'Last 24 Hours'}
+                  {activePreset === '7d' && 'Last 7 Days'}
+                  {activePreset === '30d' && 'Last 30 Days'}
+                  {activePreset === '90d' && 'Last 90 Days'}
+                  {activePreset === 'custom' && `${since} to ${until}`}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>▼</span>
+              </button>
+
+              {/* Overlay for closing dropdown on outer clicks */}
+              {showDropdown && (
+                <div 
+                  onClick={() => setShowDropdown(false)}
+                  style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'transparent',
+                    zIndex: 99,
+                    cursor: 'default'
+                  }}
+                />
+              )}
+
+              {/* Dropdown Card */}
+              {showDropdown && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 6px)',
+                    right: 0,
+                    background: '#ffffff',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    zIndex: 100,
+                    minWidth: '220px',
+                    padding: '0.4rem 0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    animation: 'dropdownFadeIn 0.15s ease-out'
+                  }}
+                >
+                  {/* Preset Choices */}
+                  {[
+                    { id: '24h', label: 'Last 24 Hours', days: 1 },
+                    { id: '7d', label: 'Last 7 Days', days: 7 },
+                    { id: '30d', label: 'Last 30 Days', days: 30 },
+                    { id: '90d', label: 'Last 90 Days', days: 90 },
+                  ].map((preset) => {
+                    const isSelected = activePreset === preset.id;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => handleSelectPreset(preset.id, preset.days)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '0.6rem 1.2rem',
+                          background: isSelected ? '#f1f5f9' : 'transparent',
+                          border: 'none',
+                          color: '#1e293b',
+                          fontSize: '0.875rem',
+                          fontWeight: isSelected ? 600 : 400,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          width: '100%',
+                          transition: 'background 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = '#f8fafc';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <span>{preset.label}</span>
+                        {isSelected && <span style={{ color: '#10b981', fontWeight: 'bold' }}>✓</span>}
+                      </button>
+                    );
+                  })}
+
+                  {/* Custom option */}
+                  <button
+                    type="button"
+                    onClick={() => setActivePreset('custom')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0.6rem 1.2rem',
+                      background: activePreset === 'custom' ? '#f1f5f9' : 'transparent',
+                      border: 'none',
+                      color: '#1e293b',
+                      fontSize: '0.875rem',
+                      fontWeight: activePreset === 'custom' ? 600 : 400,
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      width: '100%',
+                      transition: 'background 0.15s ease',
+                      borderTop: '1px solid #f1f5f9',
+                      marginTop: '0.2rem',
+                      paddingTop: '0.6rem',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (activePreset !== 'custom') e.currentTarget.style.background = '#f8fafc';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (activePreset !== 'custom') e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span>Custom Range...</span>
+                    {activePreset === 'custom' && <span style={{ color: '#10b981', fontWeight: 'bold' }}>✓</span>}
+                  </button>
+
+                  {/* Inline inputs for Custom Range */}
+                  {activePreset === 'custom' && (
+                    <div
+                      style={{
+                        padding: '0.8rem 1.2rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.6rem',
+                        background: '#f8fafc',
+                        borderTop: '1px solid #e2e8f0',
+                        marginTop: '0.4rem',
+                      }}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Start Date:</span>
+                        <input
+                          type="date"
+                          value={since}
+                          onChange={(e) => setSince(e.target.value)}
+                          style={{
+                            padding: '0.4rem 0.6rem',
+                            borderRadius: '6px',
+                            border: '1px solid #cbd5e1',
+                            fontSize: '0.8rem',
+                            outline: 'none',
+                            color: '#334155',
+                            fontWeight: 500,
+                            background: '#ffffff',
+                            width: '100%'
+                          }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>End Date:</span>
+                        <input
+                          type="date"
+                          value={until}
+                          onChange={(e) => setUntil(e.target.value)}
+                          style={{
+                            padding: '0.4rem 0.6rem',
+                            borderRadius: '6px',
+                            border: '1px solid #cbd5e1',
+                            fontSize: '0.8rem',
+                            outline: 'none',
+                            color: '#334155',
+                            fontWeight: 500,
+                            background: '#ffffff',
+                            width: '100%'
+                          }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleApplyCustomRange}
+                        disabled={loading}
+                        style={{
+                          padding: '0.45rem 1rem',
+                          background: '#000000',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          cursor: loading ? 'not-allowed' : 'pointer',
+                          opacity: loading ? 0.7 : 1,
+                          marginTop: '0.2rem',
+                          transition: 'opacity 0.15s ease'
+                        }}
+                      >
+                        {loading ? 'Applying...' : 'Apply'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -522,6 +637,10 @@ const SeoAnalyticsPanel = () => {
           @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: .5; transform: scale(1.2); }
+          }
+          @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
           }
         `}</style>
       </section>
