@@ -35,6 +35,7 @@ import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function ContactPage() {
   const { getContent, loading } = useWebsiteData();
+  const recaptchaRef = React.useRef<ReCAPTCHA>(null);
   const [captchaValue, setCaptchaValue] = React.useState<string | null>(null);
   const [formData, setFormData] = React.useState({
     name: '',
@@ -96,6 +97,13 @@ export default function ContactPage() {
       return;
     }
 
+    const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    if (recaptchaKey && !captchaValue) {
+      setErrorMessage('Please complete the reCAPTCHA verification.');
+      setStatus('error');
+      return;
+    }
+
     setStatus('submitting');
     setErrorMessage('');
 
@@ -105,7 +113,7 @@ export default function ContactPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, captchaToken: captchaValue })
       });
 
       if (!res.ok) {
@@ -122,7 +130,11 @@ export default function ContactPage() {
         requirement: '',
         message: ''
       });
+      recaptchaRef.current?.reset();
+      setCaptchaValue(null);
     } catch (err: any) {
+      recaptchaRef.current?.reset();
+      setCaptchaValue(null);
       setErrorMessage(err.message || 'An error occurred. Please try again.');
       setStatus('error');
     }
@@ -206,15 +218,15 @@ export default function ContactPage() {
                 />
               </div>
 
-              {/* Google reCAPTCHA - Temporarily Hidden (On Hold) */}
-              {/* 
-              <div style={{ marginTop: '0.5rem' }}>
-                <ReCAPTCHA
-                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
-                  onChange={onCaptchaChange}
-                />
-              </div>
-              */}
+              {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+                <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'center' }}>
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+                    onChange={onCaptchaChange}
+                  />
+                </div>
+              )}
 
               <button 
                 type="submit" 
@@ -248,9 +260,11 @@ export default function ContactPage() {
                 </div>
               )}
 
-              <p style={{ fontSize: '0.75rem', color: '#718096', textAlign: 'center', marginTop: '0.5rem' }}>
-                Note: Bot protection (reCAPTCHA) is currently on hold.
-              </p>
+              {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+                <p style={{ fontSize: '0.75rem', color: '#718096', textAlign: 'center', marginTop: '0.5rem' }}>
+                  Protected by Google reCAPTCHA.
+                </p>
+              )}
             </form>
           </div>
 

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, company, email, country, requirement, message } = body;
+    const { name, company, email, country, requirement, message, captchaToken } = body;
 
     // Validate request
     if (!name || !company || !email || !country || !requirement) {
@@ -11,6 +11,37 @@ export async function POST(request: Request) {
         { message: 'Missing required fields' },
         { status: 400 }
       );
+    }
+
+    // Google reCAPTCHA Verification (if secret key is configured)
+    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+    if (recaptchaSecret) {
+      if (!captchaToken) {
+        return NextResponse.json(
+          { message: 'reCAPTCHA verification token is missing' },
+          { status: 400 }
+        );
+      }
+
+      const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${captchaToken}`;
+      try {
+        const verifyRes = await fetch(verifyUrl, { method: 'POST' });
+        const verifyData = await verifyRes.json();
+
+        if (!verifyData.success) {
+          console.error('reCAPTCHA Verification Failed:', verifyData);
+          return NextResponse.json(
+            { message: 'reCAPTCHA verification failed. Please try again.' },
+            { status: 400 }
+          );
+        }
+      } catch (err: any) {
+        console.error('reCAPTCHA server verification error:', err);
+        return NextResponse.json(
+          { message: 'Unable to verify reCAPTCHA' },
+          { status: 500 }
+        );
+      }
     }
 
     const resendApiKey = process.env.RESEND_API_KEY;
