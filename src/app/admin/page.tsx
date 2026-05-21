@@ -14,7 +14,7 @@ type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-co
 import { auth } from '@/lib/firebase/config';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { createSession, removeSession, getSession } from '@/app/actions/auth';
-import { updateSiteContentBatch, syncInitialDataBatch, upsertSiteContent } from '@/app/actions/content';
+import { updateSiteContentBatch, syncInitialDataBatch, upsertSiteContent, updateBlogMenuVisibilityAction } from '@/app/actions/content';
 
 import { saveIndustryAction, deleteIndustryAction, toggleIndustryVisibilityAction } from '@/app/actions/industries';
 import { saveProductAction, deleteProductAction, toggleProductVisibilityAction } from '@/app/actions/products';
@@ -237,16 +237,7 @@ export default function AdminDashboard() {
   const toggleBlogPageVisibility = async () => {
     const newValue = !isBlogVisibleOnSite;
     
-    const updates = languages.map(lang => ({
-      id: `${lang.code}_global_navigation_blog_visibility`,
-      page_name: 'global',
-      section_name: 'navigation',
-      content_key: 'blog_visibility',
-      content_value: String(newValue),
-      language_code: lang.code
-    }));
-    
-    const result = await upsertSiteContent(updates);
+    const result = await updateBlogMenuVisibilityAction(newValue);
 
     if (result.success) {
       setIsBlogVisibleOnSite(newValue);

@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { requireAdminSession } from './auth';
+import { languages } from '@/lib/languages';
 // Force re-deployment and re-sync check
 
 export async function updateSiteContentBatch(updates: { id: string, value: string }[]) {
@@ -177,6 +178,62 @@ export async function upsertSiteContent(updates: {
     revalidatePath('/', 'layout');
     return { success: true, data };
   } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function updateBlogMenuVisibilityAction(newValue: boolean) {
+  try {
+    await requireAdminSession();
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return { success: false, error: 'SUPABASE_SERVICE_ROLE_KEY is missing.' };
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+  try {
+    // 1. DELETE all existing rows for global navigation blog_visibility to avoid duplicates/stale keys
+    const { error: deleteError } = await supabaseAdmin
+      .from('site_content')
+      .delete()
+      .eq('page_name', 'global')
+      .eq('section_name', 'navigation')
+      .eq('content_key', 'blog_visibility');
+
+    if (deleteError) {
+      console.error('Error deleting old visibility keys:', deleteError);
+    }
+
+    // 2. Prepare fresh clean rows for all supported languages
+    const dataToInsert = languages.map(lang => ({
+      id: `${lang.code}_global_navigation_blog_visibility`,
+      page_name: 'global',
+      section_name: 'navigation',
+      content_key: 'blog_visibility',
+      content_value: String(newValue),
+      language_code: lang.code,
+      char_limit: 500
+    }));
+
+    // 3. Insert the new clean set
+    const { data, error: insertError } = await supabaseAdmin
+      .from('site_content')
+      .insert(dataToInsert)
+      .select();
+
+    if (insertError) throw insertError;
+
+    revalidatePath('/', 'layout');
+    return { success: true, data };
+  } catch (err: any) {
+    console.error('Error in updateBlogMenuVisibilityAction:', err);
     return { success: false, error: err.message };
   }
 }
