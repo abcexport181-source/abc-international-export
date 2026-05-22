@@ -19,7 +19,6 @@ import { updateSiteContentBatch, syncInitialDataBatch, upsertSiteContent, update
 import { saveIndustryAction, deleteIndustryAction, toggleIndustryVisibilityAction } from '@/app/actions/industries';
 import { saveProductAction, deleteProductAction, toggleProductVisibilityAction } from '@/app/actions/products';
 import { saveBlogAction, deleteBlogAction, toggleBlogVisibilityAction } from '@/app/actions/blogs';
-import SeoAnalyticsPanel from '@/components/admin/SeoAnalyticsPanel';
 import { FiFileText } from 'react-icons/fi';
 import { BlogData } from '@/lib/supabase';
 
@@ -2016,8 +2015,6 @@ export default function AdminDashboard() {
             })()}
           </div>
         )}
-
-        {activeTab === 'seo-content' && <SeoAnalyticsPanel />}
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '5rem' }}>Loading CMS data...</div>
