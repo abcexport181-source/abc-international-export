@@ -148,7 +148,13 @@ export async function upsertSiteContent(updates: {
   try {
     const dataToUpsert = updates.map(u => {
       let charLimit = 500;
-      if (u.page_name === 'about' && u.section_name === 'Approach') {
+      if (
+        u.page_name === 'global' &&
+        u.section_name === 'footer' &&
+        ['social_linkedin', 'social_facebook', 'social_twitter'].includes(u.content_key)
+      ) {
+        charLimit = 300;
+      } else if (u.page_name === 'about' && u.section_name === 'Approach') {
         charLimit = 180;
       } else if (u.page_name === 'about' && u.section_name === 'Linear' && u.content_key === 'item4') {
         charLimit = 80;

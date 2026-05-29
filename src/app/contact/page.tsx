@@ -1,42 +1,24 @@
 'use client'
 import React from 'react';
-import { FiMail, FiPhone, FiMapPin, FiClock, FiSend } from 'react-icons/fi';
+import Script from 'next/script';
+import { FiMail, FiPhone, FiMapPin, FiSend } from 'react-icons/fi';
 import { useWebsiteData } from '@/hooks/useWebsiteData';
 import { MediaBackground } from '@/components/common/EditableMedia';
 
-const contactInfo = [
-  {
-    title: 'Email',
-    details: ['info@abc-international.co.in', 'export@abc-international.co.in'],
-    Icon: FiMail
-  },
-  {
-    title: 'Phone',
-    details: ['+91 XXXX XXXXXX', 'Monday - Friday, 9:00 AM - 6:00 PM IST'],
-    Icon: FiPhone
-  },
-  {
-    title: 'Address',
-    details: ['ABC International', 'Mumbai, Maharashtra', 'India'],
-    Icon: FiMapPin
-  },
-  {
-    title: 'Business Hours',
-    details: [
-      'Monday - Friday: 9:00 AM - 6:00 PM IST',
-      'Saturday: 9:00 AM - 1:00 PM IST',
-      'Sunday: Closed'
-    ],
-    Icon: FiClock
-  }
-];
+const RECAPTCHA_ACTION = 'contact_form';
 
-import ReCAPTCHA from 'react-google-recaptcha';
+declare global {
+  interface Window {
+    grecaptcha?: {
+      ready: (callback: () => void) => void;
+      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+    };
+  }
+}
 
 export default function ContactPage() {
   const { getContent, loading } = useWebsiteData();
-  const recaptchaRef = React.useRef<ReCAPTCHA>(null);
-  const [captchaValue, setCaptchaValue] = React.useState<string | null>(null);
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
   const [formData, setFormData] = React.useState({
     name: '',
     company: '',
@@ -85,8 +67,14 @@ export default function ContactPage() {
     );
   }
 
-  const onCaptchaChange = (value: string | null) => {
-    setCaptchaValue(value);
+  const getRecaptchaToken = async () => {
+    if (!recaptchaSiteKey) return null;
+    if (!window.grecaptcha) {
+      throw new Error('reCAPTCHA is still loading. Please try again in a moment.');
+    }
+
+    await new Promise<void>((resolve) => window.grecaptcha?.ready(resolve));
+    return window.grecaptcha.execute(recaptchaSiteKey, { action: RECAPTCHA_ACTION });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,23 +85,17 @@ export default function ContactPage() {
       return;
     }
 
-    const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-    if (recaptchaKey && !captchaValue) {
-      setErrorMessage('Please complete the reCAPTCHA verification.');
-      setStatus('error');
-      return;
-    }
-
     setStatus('submitting');
     setErrorMessage('');
 
     try {
+      const captchaToken = await getRecaptchaToken();
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ ...formData, captchaToken: captchaValue })
+        body: JSON.stringify({ ...formData, captchaToken, captchaAction: RECAPTCHA_ACTION })
       });
 
       if (!res.ok) {
@@ -130,18 +112,21 @@ export default function ContactPage() {
         requirement: '',
         message: ''
       });
-      recaptchaRef.current?.reset();
-      setCaptchaValue(null);
-    } catch (err: any) {
-      recaptchaRef.current?.reset();
-      setCaptchaValue(null);
-      setErrorMessage(err.message || 'An error occurred. Please try again.');
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : 'An error occurred. Please try again.');
       setStatus('error');
     }
   };
 
   return (
     <>
+      {recaptchaSiteKey && (
+        <Script
+          src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`}
+          strategy="afterInteractive"
+        />
+      )}
+
       <MediaBackground 
         className="heroBand heroBandCentered"
         url={getContent('contact', 'Hero', 'bg_img', 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000')}
@@ -218,16 +203,6 @@ export default function ContactPage() {
                 />
               </div>
 
-              {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
-                <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'center' }}>
-                  <ReCAPTCHA
-                    ref={recaptchaRef}
-                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-                    onChange={onCaptchaChange}
-                  />
-                </div>
-              )}
-
               <button 
                 type="submit" 
                 className="btnPrimary" 
@@ -260,7 +235,7 @@ export default function ContactPage() {
                 </div>
               )}
 
-              {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+              {recaptchaSiteKey && (
                 <p style={{ fontSize: '0.75rem', color: '#718096', textAlign: 'center', marginTop: '0.5rem' }}>
                   Protected by Google reCAPTCHA.
                 </p>

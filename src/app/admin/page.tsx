@@ -27,6 +27,29 @@ type AdminUser = {
   email?: string;
 };
 
+const footerSocialFields = [
+  {
+    key: 'social_linkedin',
+    label: 'LinkedIn URL',
+    help: 'Full LinkedIn page URL. Leave blank to hide the LinkedIn footer icon.'
+  },
+  {
+    key: 'social_facebook',
+    label: 'Facebook URL',
+    help: 'Full Facebook page URL. Leave blank to hide the Facebook footer icon.'
+  },
+  {
+    key: 'social_twitter',
+    label: 'X/Twitter URL',
+    help: 'Full X/Twitter profile URL. Leave blank to hide the X/Twitter footer icon.'
+  }
+] as const;
+
+const isFooterSocialField = (item: Pick<SiteContent, 'page_name' | 'section_name' | 'content_key'>) =>
+  item.page_name === 'global' &&
+  item.section_name === 'footer' &&
+  footerSocialFields.some(field => field.key === item.content_key);
+
 
 
 export default function AdminDashboard() {
@@ -66,9 +89,9 @@ export default function AdminDashboard() {
     facebook_pixel_id: 'Facebook Pixel ID number, e.g. 123456789012345',
     twitter_pixel_id: 'Twitter Pixel ID value, e.g. px1234',
     linkedin_insight_tag: 'LinkedIn Insight Tag ID from your LinkedIn campaign settings.',
-    social_linkedin: 'Full LinkedIn page URL. Leave blank to hide the LinkedIn footer icon.',
-    social_facebook: 'Full Facebook page URL. Leave blank to hide the Facebook footer icon.',
-    social_twitter: 'Full X/Twitter profile URL. Leave blank to hide the X/Twitter footer icon.',
+    social_linkedin: footerSocialFields.find(field => field.key === 'social_linkedin')?.help || '',
+    social_facebook: footerSocialFields.find(field => field.key === 'social_facebook')?.help || '',
+    social_twitter: footerSocialFields.find(field => field.key === 'social_twitter')?.help || '',
     site_title: 'Default browser title and search result title for the website.',
     meta_description: 'Default search engine description. Keep it clear and under about 160 characters.',
     meta_keywords: 'Optional comma-separated keywords, for example: merchant exporter, sourcing India, export logistics.',
@@ -224,7 +247,24 @@ export default function AdminDashboard() {
       .filter('id', 'neq', `cache_buster_${Date.now()}`);
       
     if (data) {
-      setSiteContent(data);
+      const existingGlobalFooterKeys = new Set(
+        data
+          .filter((item: SiteContent) => item.page_name === 'global' && item.section_name === 'footer')
+          .map((item: SiteContent) => item.content_key)
+      );
+      const missingFooterSocialFields = footerSocialFields
+        .filter(field => !existingGlobalFooterKeys.has(field.key))
+        .map(field => ({
+          id: `${currentLanguage}_global_footer_${field.key}`,
+          page_name: 'global',
+          section_name: 'footer',
+          content_key: field.key,
+          content_value: '',
+          char_limit: 300,
+          language_code: currentLanguage
+        }));
+
+      setSiteContent([...data, ...missingFooterSocialFields]);
       setEnglishSiteContent(englishContentData || []);
       const blogVis = data.find((c: SiteContent) =>
         c.page_name === 'global' &&
@@ -1120,9 +1160,9 @@ export default function AdminDashboard() {
         { page: 'global', section: 'footer', key: 'contact_email', val: 'info@abc-international.co.in' },
         { page: 'global', section: 'footer', key: 'contact_phone', val: '+91 XXX XX XXXXX' },
         { page: 'global', section: 'footer', key: 'contact_address', val: 'Mumbai, Maharashtra, India' },
-        { page: 'global', section: 'footer', key: 'social_linkedin', val: '' },
-        { page: 'global', section: 'footer', key: 'social_facebook', val: '' },
-        { page: 'global', section: 'footer', key: 'social_twitter', val: '' },
+        { page: 'global', section: 'footer', key: 'social_linkedin', val: '', limit: 300 },
+        { page: 'global', section: 'footer', key: 'social_facebook', val: '', limit: 300 },
+        { page: 'global', section: 'footer', key: 'social_twitter', val: '', limit: 300 },
         { page: 'global', section: 'footer', key: 'copyright', val: '© 2026 ABC International. All rights reserved.' }
       ];
 
@@ -1943,7 +1983,9 @@ export default function AdminDashboard() {
                       })
                       .map(item => {
                         const effectiveCharLimit = 
-                          (item.page_name === 'about' && item.section_name === 'Approach') 
+                          isFooterSocialField(item)
+                            ? 300
+                            : (item.page_name === 'about' && item.section_name === 'Approach') 
                             ? 180 
                             : (item.page_name === 'about' && item.section_name === 'Linear' && item.content_key === 'item4') 
                               ? 80 
@@ -1958,10 +2000,12 @@ export default function AdminDashboard() {
                           ? (englishMediaItem?.content_value || item.content_value)
                           : pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value;
                         const helpText = seoFieldHelp[item.content_key];
+                        const footerSocialLabel = footerSocialFields.find(field => field.key === item.content_key)?.label;
+                        const displayLabel = footerSocialLabel || item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ');
 
                         return (
                           <div key={item.id}>
-                            <label style={label}>{item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ')} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
+                            <label style={label}>{displayLabel} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
                             {isMediaField ? (
                               <DirectUpload 
                                 label={item.content_key.replace(/_/g, ' ')} 

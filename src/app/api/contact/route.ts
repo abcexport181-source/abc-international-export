@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, company, email, country, requirement, message, captchaToken } = body;
+    const { name, company, email, country, requirement, message, captchaToken, captchaAction } = body;
 
     // Validate request
     if (!name || !company || !email || !country || !requirement) {
@@ -23,19 +23,35 @@ export async function POST(request: Request) {
         );
       }
 
-      const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${captchaToken}`;
       try {
-        const verifyRes = await fetch(verifyUrl, { method: 'POST' });
+        const verifyParams = new URLSearchParams({
+          secret: recaptchaSecret,
+          response: captchaToken
+        });
+        const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: verifyParams
+        });
         const verifyData = await verifyRes.json();
+        const minScore = Number(process.env.RECAPTCHA_MIN_SCORE || '0.5');
 
-        if (!verifyData.success) {
+        if (
+          !verifyData.success ||
+          verifyData.action !== 'contact_form' ||
+          verifyData.action !== captchaAction ||
+          typeof verifyData.score !== 'number' ||
+          verifyData.score < minScore
+        ) {
           console.error('reCAPTCHA Verification Failed:', verifyData);
           return NextResponse.json(
             { message: 'reCAPTCHA verification failed. Please try again.' },
             { status: 400 }
           );
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('reCAPTCHA server verification error:', err);
         return NextResponse.json(
           { message: 'Unable to verify reCAPTCHA' },
@@ -122,10 +138,11 @@ export async function POST(request: Request) {
       { message: 'Inquiry successfully sent', id: responseData.id },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API Contact Error:', error);
+    const message = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { message: error.message || 'Internal server error' },
+      { message },
       { status: 500 }
     );
   }
