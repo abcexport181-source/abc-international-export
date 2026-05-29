@@ -66,6 +66,9 @@ export default function AdminDashboard() {
     facebook_pixel_id: 'Facebook Pixel ID number, e.g. 123456789012345',
     twitter_pixel_id: 'Twitter Pixel ID value, e.g. px1234',
     linkedin_insight_tag: 'LinkedIn Insight Tag ID from your LinkedIn campaign settings.',
+    social_linkedin: 'Full LinkedIn page URL. Leave blank to hide the LinkedIn footer icon.',
+    social_facebook: 'Full Facebook page URL. Leave blank to hide the Facebook footer icon.',
+    social_twitter: 'Full X/Twitter profile URL. Leave blank to hide the X/Twitter footer icon.',
     site_title: 'Default browser title and search result title for the website.',
     meta_description: 'Default search engine description. Keep it clear and under about 160 characters.',
     meta_keywords: 'Optional comma-separated keywords, for example: merchant exporter, sourcing India, export logistics.',
@@ -1117,6 +1120,9 @@ export default function AdminDashboard() {
         { page: 'global', section: 'footer', key: 'contact_email', val: 'info@abc-international.co.in' },
         { page: 'global', section: 'footer', key: 'contact_phone', val: '+91 XXX XX XXXXX' },
         { page: 'global', section: 'footer', key: 'contact_address', val: 'Mumbai, Maharashtra, India' },
+        { page: 'global', section: 'footer', key: 'social_linkedin', val: '' },
+        { page: 'global', section: 'footer', key: 'social_facebook', val: '' },
+        { page: 'global', section: 'footer', key: 'social_twitter', val: '' },
         { page: 'global', section: 'footer', key: 'copyright', val: '© 2026 ABC International. All rights reserved.' }
       ];
 
@@ -1916,7 +1922,8 @@ export default function AdminDashboard() {
                           // Footer
                           'quick_links': 20, 'link_about': 21, 'link_sourcing': 22, 'link_industries': 23, 'link_logistics': 24,
                           'services': 30, 'service_sourcing': 31, 'service_quality': 32, 'service_packaging': 33, 'service_docs': 34,
-                          'contact_us': 40, 'contact_email': 41, 'contact_phone': 42, 'contact_address': 43, 'copyright': 44,
+                          'contact_us': 40, 'contact_email': 41, 'contact_phone': 42, 'contact_address': 43,
+                          'social_linkedin': 44, 'social_facebook': 45, 'social_twitter': 46, 'copyright': 47,
                           // Buttons
                           'btn_sourcing': 50, 'btn_contact': 51, 'btn_text': 52,
                           // Form

@@ -6,6 +6,11 @@ import { useWebsiteData } from '@/hooks/useWebsiteData'
 
 const Footer = () => {
   const { getContent } = useWebsiteData();
+  const socialLinks = [
+    { href: getContent('global', 'footer', 'social_linkedin', ''), label: 'LinkedIn', Icon: FiLinkedin },
+    { href: getContent('global', 'footer', 'social_facebook', ''), label: 'Facebook', Icon: FiFacebook },
+    { href: getContent('global', 'footer', 'social_twitter', ''), label: 'Twitter', Icon: FiTwitter },
+  ].filter(link => link.href.trim().length > 0);
 
   return (
     <footer className={styles.footer}>
@@ -15,11 +20,15 @@ const Footer = () => {
           <p className={styles.muted}>
             {getContent('global', 'footer', 'brand_desc', 'Your trusted merchant exporter and global sourcing partner, backed by logistics expertise.')}
           </p>
-          <div className={styles.socials}>
-            <a href="#" aria-label="LinkedIn"><FiLinkedin /></a>
-            <a href="#" aria-label="Facebook"><FiFacebook /></a>
-            <a href="#" aria-label="Twitter"><FiTwitter /></a>
-          </div>
+          {socialLinks.length > 0 && (
+            <div className={styles.socials}>
+              {socialLinks.map(({ href, label, Icon }) => (
+                <a key={label} href={href} aria-label={label} target="_blank" rel="noopener noreferrer">
+                  <Icon />
+                </a>
+              ))}
+            </div>
+          )}
         </div>
         <div>
           <h4>{getContent('global', 'footer', 'quick_links', 'Quick Links')}</h4>
