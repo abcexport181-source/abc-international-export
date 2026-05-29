@@ -9,10 +9,43 @@ import { defaultLanguage } from '@/lib/languages';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const languagePrefixPattern = /^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/;
+
+type IndustryListItem = {
+  id: string;
+  title: string;
+  icon: string;
+  description_short: string;
+  is_visible: boolean;
+};
+
+type ProductListItem = {
+  id: string;
+  category_id: string;
+  is_visible: boolean;
+};
+
+const normalizeId = (id: string) => id.replace(languagePrefixPattern, '');
+
+const getMockIndustries = (): IndustryListItem[] =>
+  industriesData.map(industry => ({
+    id: industry.id,
+    title: industry.title,
+    icon: industry.icon,
+    description_short: industry.desc,
+    is_visible: true
+  }));
+
+const getMockProducts = (): ProductListItem[] =>
+  productsData.map(product => ({
+    id: product.id,
+    category_id: product.category,
+    is_visible: true
+  }));
 
 async function getIndustriesAndProducts(lang: string) {
-  let industries: any[] = [];
-  let products: any[] = [];
+  let industries: IndustryListItem[] = [];
+  let products: ProductListItem[] = [];
 
   if (supabaseUrl && supabaseServiceKey) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -24,33 +57,48 @@ async function getIndustriesAndProducts(lang: string) {
       .order('title');
     const { data: enIndData } = await supabase
       .from('industries')
-      .select('id, icon')
+      .select('*')
       .eq('is_visible', true)
-      .eq('language_code', 'en');
+      .eq('language_code', 'en')
+      .order('title');
       
     const { data: prodData } = await supabase
       .from('products')
       .select('id, category_id, is_visible')
       .eq('is_visible', true)
       .eq('language_code', lang);
+    const { data: enProdData } = await supabase
+      .from('products')
+      .select('id, category_id, is_visible')
+      .eq('is_visible', true)
+      .eq('language_code', 'en');
     
-    if (indData) {
-      const englishIcons = new Map((enIndData || []).map((industry: any) => [
-        industry.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, ''),
+    const visibleTranslatedIndustries = indData || [];
+    const visibleEnglishIndustries = enIndData || [];
+    const activeIndustries = visibleTranslatedIndustries.length > 0
+      ? visibleTranslatedIndustries
+      : visibleEnglishIndustries;
+
+    if (activeIndustries.length > 0) {
+      const englishIcons = new Map(visibleEnglishIndustries.map((industry) => [
+        normalizeId(industry.id),
         industry.icon
       ]));
-      industries = indData.map((industry: any) => ({
-        ...industry,
-        icon: englishIcons.get(industry.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '')) || industry.icon
+      industries = activeIndustries.map((industry) => ({
+        id: industry.id,
+        title: industry.title,
+        icon: englishIcons.get(normalizeId(industry.id)) || industry.icon,
+        description_short: industry.description_short,
+        is_visible: industry.is_visible
       }));
     }
-    if (prodData) products = prodData;
+
+    products = (visibleTranslatedIndustries.length > 0 ? prodData : enProdData) || [];
   }
 
-  // Fallback / Merge with mock data if needed (Mock data is in English)
-  if (industries.length === 0 && lang === 'en') {
-    industries = industriesData.map(i => ({...i, is_visible: true, description_short: i.desc}));
-    products = productsData.map(p => ({id: p.id, category_id: p.category, is_visible: true}));
+  if (industries.length === 0) {
+    industries = getMockIndustries();
+    products = getMockProducts();
   }
 
   return { industries, products };
@@ -74,7 +122,8 @@ export default async function IndustriesPage() {
 
           <div className="cardsGrid3">
             {industries.map((industry) => {
-              const hasProducts = products.some(p => p.category_id === industry.id && p.is_visible);
+              const industrySlug = normalizeId(industry.id);
+              const hasProducts = products.some(p => normalizeId(p.category_id) === industrySlug && p.is_visible);
               
               return (
                 <div key={industry.id} className="card industryCard" style={{ 
@@ -105,7 +154,7 @@ export default async function IndustriesPage() {
                   </p>
                   
                   {hasProducts ? (
-                    <Link href={`/industries/${industry.id}`} className="link" style={{ 
+                    <Link href={`/industries/${industrySlug}`} className="link" style={{ 
                       display: 'inline-flex', 
                       alignItems: 'center', 
                       gap: '0.5rem', 
