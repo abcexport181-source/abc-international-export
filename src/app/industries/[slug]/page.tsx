@@ -9,7 +9,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 import { cookies } from 'next/headers';
-import { defaultLanguage } from '@/lib/languages';
+import { defaultLanguage, stripLanguagePrefix } from '@/lib/languages';
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -17,7 +17,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const lang = cookieStore.get('site_language')?.value || defaultLanguage;
 
   const langSlug = slug.includes(':') ? slug : `${lang}:${slug}`;
-  const baseSlug = slug.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+  const baseSlug = stripLanguagePrefix(slug);
   
   let industry: any = null;
   let products: any[] = [];
@@ -56,12 +56,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         .select('id, image')
         .in('category_id', [`en:${baseSlug}`, baseSlug]);
       const englishImages = new Map((enProducts || []).map((product: any) => [
-        product.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, ''),
+        stripLanguagePrefix(product.id),
         product.image
       ]));
       products = products.map((product: any) => ({
         ...product,
-        image: englishImages.get(product.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '')) || product.image
+        image: englishImages.get(stripLanguagePrefix(product.id)) || product.image
       }));
     } else if (lang === 'en') {
       // Try to fetch without prefix for legacy support in English

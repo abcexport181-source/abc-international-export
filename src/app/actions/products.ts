@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { requireAdminSession } from './auth';
+import { stripLanguagePrefix } from '@/lib/languages';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -39,7 +40,7 @@ export async function deleteProductAction(id: string) {
     await requireAdminSession();
     const supabaseAdmin = getSupabaseAdmin();
     const isEnglish = !id.includes(':') || id.startsWith('en:');
-    const baseId = id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+    const baseId = stripLanguagePrefix(id);
 
     // 1. Delete target record
     const { error } = await supabaseAdmin
@@ -71,7 +72,7 @@ export async function toggleProductVisibilityAction(id: string, isVisible: boole
     await requireAdminSession();
     const supabaseAdmin = getSupabaseAdmin();
     const isEnglish = !id.includes(':') || id.startsWith('en:');
-    const baseId = id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+    const baseId = stripLanguagePrefix(id);
 
     // 1. Update target record visibility
     const { error } = await supabaseAdmin

@@ -18,3 +18,8 @@ export const languages = [
 ];
 
 export const defaultLanguage = 'en';
+
+export const languageCodes = languages.map(language => language.code);
+export const languagePrefixPattern = new RegExp(`^(${languageCodes.join('|')}):`);
+
+export const stripLanguagePrefix = (id: string) => id.replace(languagePrefixPattern, '');

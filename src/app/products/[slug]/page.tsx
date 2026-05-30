@@ -9,15 +9,15 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 import { cookies } from 'next/headers';
-import { defaultLanguage } from '@/lib/languages';
+import { defaultLanguage, stripLanguagePrefix } from '@/lib/languages';
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const cookieStore = await cookies();
   const lang = cookieStore.get('site_language')?.value || defaultLanguage;
 
-  const baseSlug = slug.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
-  const langSlug = lang === 'en' ? baseSlug : `${lang}:${baseSlug}`;
+  const baseSlug = stripLanguagePrefix(slug);
+  const langSlug = `${lang}:${baseSlug}`;
   
   let product: any = null;
 
@@ -87,7 +87,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           <nav style={{ marginBottom: '2rem', fontSize: '0.9rem', color: '#718096' }}>
             <Link href="/industries" style={{ color: '#1f5ff5' }}>Industries</Link>
             <span style={{ margin: '0 0.5rem' }}>/</span>
-            <Link href={`/industries/${product.category_id}`} style={{ color: '#1f5ff5' }}>{product.category_id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '').replace('-', ' ')}</Link>
+            <Link href={`/industries/${stripLanguagePrefix(product.category_id)}`} style={{ color: '#1f5ff5' }}>{stripLanguagePrefix(product.category_id).replace('-', ' ')}</Link>
             <span style={{ margin: '0 0.5rem' }}>/</span>
             <span style={{ color: '#1b2638', fontWeight: 600 }}>{product.name}</span>
           </nav>

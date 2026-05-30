@@ -162,6 +162,24 @@ export async function upsertSiteContent(updates: {
         charLimit = 100;
       } else if (u.page_name === 'sourcing' && u.section_name === 'CTA' && u.content_key === 'btn_text') {
         charLimit = 50;
+      } else if (u.page_name === 'industries') {
+        const industriesLimits: Record<string, number> = {
+          'Hero.badge': 80,
+          'Hero.title': 150,
+          'Hero.desc': 240,
+          'Hero.products_link': 80,
+          'Sourcing.title': 150,
+          'Sourcing.desc': 320,
+          'Sourcing.item1': 120,
+          'Sourcing.item2': 120,
+          'Sourcing.item3': 120,
+          'Sourcing.item4': 120,
+          'Missing.title': 150,
+          'Missing.desc': 240,
+          'Missing.btn_text': 80,
+        };
+        const limitKey = `${u.section_name}.${u.content_key}`;
+        if (industriesLimits[limitKey]) charLimit = industriesLimits[limitKey];
       }
       return {
         id: u.id || `${u.language_code}_${u.page_name}_${u.section_name.replace(/\s+/g, '_').toLowerCase()}_${u.content_key}`,

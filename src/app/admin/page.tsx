@@ -4,7 +4,7 @@ import { supabase, IndustryData, ProductData, SiteContent, isSupabaseConfigured 
 import { FiLayout, FiGrid, FiBox, FiEye, FiEyeOff, FiEdit2, FiPlus, FiTrash2, FiSave, FiAlertCircle, FiHome, FiInfo, FiMail, FiLogOut, FiSearch, FiTruck, FiList, FiShield } from 'react-icons/fi';
 import { industriesData, productsData } from '@/data/products';
 import BackToTop from '@/components/common/BackToTop';
-import { languages, defaultLanguage } from '@/lib/languages';
+import { languages, defaultLanguage, stripLanguagePrefix } from '@/lib/languages';
 import { useRouter } from 'next/navigation';
 
 
@@ -49,6 +49,80 @@ const isFooterSocialField = (item: Pick<SiteContent, 'page_name' | 'section_name
   item.page_name === 'global' &&
   item.section_name === 'footer' &&
   footerSocialFields.some(field => field.key === item.content_key);
+
+const industriesPageFields = [
+  { section: 'Hero', key: 'badge', val: 'Our Expertise', limit: 80 },
+  { section: 'Hero', key: 'title', val: 'Industries We Serve', limit: 150 },
+  { section: 'Hero', key: 'desc', val: "Bridging global demand with India's manufacturing excellence across diverse sectors.", limit: 240 },
+  { section: 'Hero', key: 'products_link', val: 'View All Products', limit: 80 },
+  { section: 'Sourcing', key: 'title', val: 'Global Sourcing Made Simple', limit: 150 },
+  { section: 'Sourcing', key: 'desc', val: 'We understand that every industry has unique requirements. Our team specializes in finding the right manufacturers who meet your exact technical specifications and quality standards.', limit: 320 },
+  { section: 'Sourcing', key: 'item1', val: 'Verified Suppliers Only', limit: 120 },
+  { section: 'Sourcing', key: 'item2', val: 'Quality Control Inspections', limit: 120 },
+  { section: 'Sourcing', key: 'item3', val: 'Custom Packaging Solutions', limit: 120 },
+  { section: 'Sourcing', key: 'item4', val: 'End-to-end Logistics Management', limit: 120 },
+  { section: 'Missing', key: 'title', val: "Can't find what you're looking for?", limit: 150 },
+  { section: 'Missing', key: 'desc', val: 'We source thousands of products beyond what is listed here. Get in touch for a custom quote.', limit: 240 },
+  { section: 'Missing', key: 'btn_text', val: 'Contact Sourcing Desk', limit: 80 }
+] as const;
+
+const industriesPageFieldKeys = new Set(
+  industriesPageFields.map((field) => `${field.section}.${field.key}`)
+);
+
+const industriesSectionLabels: Record<string, string> = {
+  Hero: 'Page Header (badge, title, description)',
+  Sourcing: 'Global Sourcing Section (left column)',
+  Missing: 'Contact CTA Box (right column)',
+};
+
+const industriesFieldLabels: Record<string, string> = {
+  badge: 'Badge Text',
+  title: 'Title',
+  desc: 'Description',
+  products_link: 'Card Link Text (shown when industry has products)',
+  item1: 'Bullet Point 1',
+  item2: 'Bullet Point 2',
+  item3: 'Bullet Point 3',
+  item4: 'Bullet Point 4',
+  btn_text: 'Button Text',
+};
+
+const isIndustriesPageContentField = (item: SiteContent) =>
+  item.page_name === 'industries' &&
+  industriesPageFieldKeys.has(`${item.section_name}.${item.content_key}`);
+
+const obsoleteIndustriesContent: Record<string, string> = {
+  'Hero.desc': 'Comprehensive sourcing expertise across diverse manufacturing sectors in India.',
+  'Missing.title': "Don't See Your Industry?",
+  'Missing.desc': 'Our sourcing network handles specialized requirements. If your sector is not listed, we can still help find the right manufacturers in India.',
+  'Missing.btn_text': 'Discuss Your Requirements'
+};
+
+const getCurrentIndustriesContentValue = (item: SiteContent) => {
+  if (item.page_name !== 'industries') return item.content_value;
+  const fieldKey = `${item.section_name}.${item.content_key}`;
+  if (item.content_value !== obsoleteIndustriesContent[fieldKey]) return item.content_value;
+  return industriesPageFields.find(field => `${field.section}.${field.key}` === fieldKey)?.val || item.content_value;
+};
+
+const preferLanguageRows = <T extends { id: string; language_code?: string | null }>(
+  rows: T[],
+  preferredLanguage: string
+) => {
+  const bySlug = new Map<string, T>();
+
+  for (const row of rows) {
+    const slug = stripLanguagePrefix(row.id);
+    const existing = bySlug.get(slug);
+
+    if (!existing || existing.language_code !== preferredLanguage) {
+      bySlug.set(slug, row);
+    }
+  }
+
+  return Array.from(bySlug.values());
+};
 
 
 
@@ -263,8 +337,31 @@ export default function AdminDashboard() {
           char_limit: 300,
           language_code: currentLanguage
         }));
+      const existingIndustriesPageFields = new Set(
+        data
+          .filter((item: SiteContent) => item.page_name === 'industries')
+          .map((item: SiteContent) => `${item.section_name}.${item.content_key}`)
+      );
+      const missingIndustriesPageFields = industriesPageFields
+        .filter(field => !existingIndustriesPageFields.has(`${field.section}.${field.key}`))
+        .map(field => ({
+          id: `${currentLanguage}_industries_${field.section.replace(/\s+/g, '_').toLowerCase()}_${field.key}`,
+          page_name: 'industries',
+          section_name: field.section,
+          content_key: field.key,
+          content_value: field.val,
+          char_limit: field.limit,
+          language_code: currentLanguage
+        }));
 
-      setSiteContent([...data, ...missingFooterSocialFields]);
+      const normalizedContent = data
+        .map((item: SiteContent) => ({
+          ...item,
+          content_value: getCurrentIndustriesContentValue(item)
+        }))
+        .filter((item: SiteContent) => item.page_name !== 'industries' || isIndustriesPageContentField(item));
+
+      setSiteContent([...normalizedContent, ...missingFooterSocialFields, ...missingIndustriesPageFields]);
       setEnglishSiteContent(englishContentData || []);
       const blogVis = data.find((c: SiteContent) =>
         c.page_name === 'global' &&
@@ -356,11 +453,11 @@ export default function AdminDashboard() {
   const getCharLimit = (text: string) => Math.max(Math.ceil(text.length * 1.5), 30);
 
   const getEnglishReference = (type: 'industry' | 'product', id: string) => {
-    const cleanId = id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+    const cleanId = stripLanguagePrefix(id);
     if (type === 'industry') {
-      return englishReferenceData.industries.find(i => i.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '') === cleanId);
+      return englishReferenceData.industries.find(i => stripLanguagePrefix(i.id) === cleanId);
     } else {
-      return englishReferenceData.products.find(p => p.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '') === cleanId);
+      return englishReferenceData.products.find(p => stripLanguagePrefix(p.id) === cleanId);
     }
   };
 
@@ -381,30 +478,32 @@ export default function AdminDashboard() {
       const { data: blogData } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
 
       // 2. Filter baseline English data (either language_code is 'en' or missing/null)
-      const baselineIndustries = (allInd || []).filter((item: any) => 
+      const baselineIndustries = ((allInd || []) as IndustryData[]).filter((item) => 
         !item.language_code || item.language_code === 'en'
       );
-      const baselineProducts = (allProd || []).filter((item: any) => 
+      const baselineProducts = ((allProd || []) as ProductData[]).filter((item) => 
         !item.language_code || item.language_code === 'en'
       );
+      const currentBaselineIndustries = preferLanguageRows(baselineIndustries, 'en');
+      const currentBaselineProducts = preferLanguageRows(baselineProducts, 'en');
 
       // 3. Filter target language data
-      const targetIndustries = (allInd || []).filter((item: any) => 
+      const targetIndustries = ((allInd || []) as IndustryData[]).filter((item) => 
         item.language_code === currentLanguage
       );
-      const targetProducts = (allProd || []).filter((item: any) => 
+      const targetProducts = ((allProd || []) as ProductData[]).filter((item) => 
         item.language_code === currentLanguage
       );
 
       // 4. Merge Industries
       let mergedIndustries: any[] = [];
       if (currentLanguage === 'en') {
-        mergedIndustries = [...baselineIndustries];
+        mergedIndustries = [...currentBaselineIndustries];
       } else {
-        mergedIndustries = baselineIndustries.map((engItem: any) => {
-          const baseSlug = engItem.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+        mergedIndustries = currentBaselineIndustries.map((engItem: any) => {
+          const baseSlug = stripLanguagePrefix(engItem.id);
           const translation = targetIndustries.find((langItem: any) => 
-            langItem.id.replace(new RegExp(`^${currentLanguage}:`), '') === baseSlug
+            stripLanguagePrefix(langItem.id) === baseSlug
           );
           
           if (translation) {
@@ -430,12 +529,12 @@ export default function AdminDashboard() {
       // 5. Merge Products
       let mergedProducts: any[] = [];
       if (currentLanguage === 'en') {
-        mergedProducts = [...baselineProducts];
+        mergedProducts = [...currentBaselineProducts];
       } else {
-        mergedProducts = baselineProducts.map((engItem: any) => {
-          const baseSlug = engItem.id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+        mergedProducts = currentBaselineProducts.map((engItem: any) => {
+          const baseSlug = stripLanguagePrefix(engItem.id);
           const translation = targetProducts.find((langItem: any) => 
-            langItem.id.replace(new RegExp(`^${currentLanguage}:`), '') === baseSlug
+            stripLanguagePrefix(langItem.id) === baseSlug
           );
           
           if (translation) {
@@ -444,7 +543,7 @@ export default function AdminDashboard() {
               image: engItem.image
             };
           } else {
-            const baseCategorySlug = engItem.category_id.replace(/^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/, '');
+            const baseCategorySlug = stripLanguagePrefix(engItem.category_id);
             return {
               ...engItem,
               id: baseSlug,
@@ -464,8 +563,8 @@ export default function AdminDashboard() {
       setIndustries(mergedIndustries);
       setProducts(mergedProducts);
       setEnglishReferenceData({
-        industries: baselineIndustries,
-        products: baselineProducts
+        industries: currentBaselineIndustries,
+        products: currentBaselineProducts
       });
       if (blogData) setBlogs(blogData);
 
@@ -643,31 +742,34 @@ export default function AdminDashboard() {
   const syncInitialData = async () => {
     setLoading(true);
     try {
-      // Sync Industries
-      for (const ind of industriesData) {
-        await supabase.from('industries').upsert({
-          id: ind.id,
-          title: ind.title,
-          icon: ind.icon,
-          description_short: ind.desc,
-          full_info: ind.fullInfo,
-          keys: ind.keys,
-          is_visible: true
-        });
-      }
-      // Sync Products
-      for (const prod of productsData) {
-        await supabase.from('products').upsert({
-          id: prod.id,
-          category_id: prod.category,
-          name: prod.name,
-          description: prod.description,
-          image: prod.image,
-          features: prod.features,
-          specs: prod.specs,
-          export_details: prod.exportDetails,
-          is_visible: true
-        });
+      // Catalog mock data is English source data. Keep it out of translated rows.
+      if (currentLanguage === 'en') {
+        for (const ind of industriesData) {
+          await supabase.from('industries').upsert({
+            id: `en:${ind.id}`,
+            title: ind.title,
+            icon: ind.icon,
+            description_short: ind.desc,
+            full_info: ind.fullInfo,
+            keys: ind.keys,
+            is_visible: true,
+            language_code: 'en'
+          });
+        }
+        for (const prod of productsData) {
+          await supabase.from('products').upsert({
+            id: `en:${prod.id}`,
+            category_id: `en:${prod.category}`,
+            name: prod.name,
+            description: prod.description,
+            image: prod.image,
+            features: prod.features,
+            specs: prod.specs,
+            export_details: prod.exportDetails,
+            is_visible: true,
+            language_code: 'en'
+          });
+        }
       }
       // Sync Site Content - COMPLETE LIST
       const initialContent = [
@@ -1067,22 +1169,13 @@ export default function AdminDashboard() {
         { page: 'quality-packaging', section: 'CTA', key: 'btn_text', val: 'Contact Us' },
 
         // INDUSTRIES PAGE
-        { page: 'industries', section: 'Hero', key: 'title', val: 'Industries We Serve' },
-        { page: 'industries', section: 'Hero', key: 'desc', val: 'Comprehensive sourcing expertise across diverse manufacturing sectors in India.' },
-        { page: 'industries', section: 'Missing', key: 'title', val: 'Don\'t See Your Industry?' },
-        { page: 'industries', section: 'Missing', key: 'desc', val: 'Our sourcing network handles specialized requirements. If your sector is not listed, we can still help find the right manufacturers in India.' },
-        { page: 'industries', section: 'Missing', key: 'btn_text', val: 'Discuss Your Requirements' },
-        { page: 'industries', section: 'Expertise', key: 'title', val: 'Why Choose Our Multi-Industry Expertise' },
-        { page: 'industries', section: 'Expertise', key: 'item1_title', val: 'Vast Network' },
-        { page: 'industries', section: 'Expertise', key: 'item1_desc', val: 'Connections with thousands of verified manufacturers across all major industries' },
-        { page: 'industries', section: 'Expertise', key: 'item2_title', val: 'Quality Assurance' },
-        { page: 'industries', section: 'Expertise', key: 'item2_desc', val: 'Industry-specific quality standards and inspection protocols' },
-        { page: 'industries', section: 'Expertise', key: 'item3_title', val: 'Compliance Expertise' },
-        { page: 'industries', section: 'Expertise', key: 'item3_desc', val: 'Deep knowledge of export regulations for each industry segment' },
-        { page: 'industries', section: 'CTA', key: 'title', val: 'Ready to Source from India?' },
-        { page: 'industries', section: 'CTA', key: 'desc', val: 'Whatever your industry, we have the expertise and network to help you source quality products from India.' },
-        { page: 'industries', section: 'CTA', key: 'btn1_text', val: 'Explore Sourcing Services' },
-        { page: 'industries', section: 'CTA', key: 'btn2_text', val: 'Get In Touch' },
+        ...industriesPageFields.map(field => ({
+          page: 'industries',
+          section: field.section,
+          key: field.key,
+          val: field.val,
+          limit: field.limit
+        })),
 
         // IMAGES
         { page: 'home', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000' },
@@ -1099,8 +1192,6 @@ export default function AdminDashboard() {
         { page: 'logistics', section: 'Partner', key: 'side_img', val: 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=1000' },
         { page: 'logistics', section: 'Partner', key: 'bg_img', val: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000' },
         { page: 'logistics', section: 'Trust', key: 'bg_img', val: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000' },
-        { page: 'industries', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2000' },
-        { page: 'industries', section: 'CTA', key: 'bg_img', val: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=2000' },
         { page: 'quality-packaging', section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1521331908054-9a180b7d3912?auto=format&fit=crop&q=80&w=2000' },
         { page: 'quality-packaging', section: 'Standards', key: 'side_img', val: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000' },
         { page: 'quality-packaging', section: 'Options', key: 'side_img', val: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000' },
@@ -1786,7 +1877,13 @@ export default function AdminDashboard() {
             <h2 style={{ fontSize: '1.8rem', color: '#1b2638' }}>
               {activeTab === 'home-content' && 'Home Page Content'}
               {activeTab === 'about-content' && 'About Page Content'}
+              {activeTab === 'sourcing-content' && 'Sourcing Page Content'}
+              {activeTab === 'industries-content' && 'Industries Page Content'}
+              {activeTab === 'quality-packaging-content' && 'Quality & Packaging Page Content'}
+              {activeTab === 'logistics-content' && 'Logistics Page Content'}
               {activeTab === 'contact-content' && 'Contact Page Content'}
+              {activeTab === 'global-content' && 'Global (Menu & Footer)'}
+              {activeTab === 'seo-content' && 'SEO Settings'}
               {activeTab === 'industries' && 'Manage Industries'}
               {activeTab === 'products' && 'Manage Products'}
               {activeTab === 'blogs' && 'Manage Blogs'}
@@ -1911,7 +2008,99 @@ export default function AdminDashboard() {
 
         {activeTab.endsWith('-content') && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            {(() => {
+            {activeTab === 'industries-content' && (
+              <>
+                <div style={{
+                  padding: '1rem 1.25rem',
+                  background: '#eff6ff',
+                  border: '1px solid #bfdbfe',
+                  borderRadius: '8px',
+                  color: '#1e40af',
+                  fontSize: '0.92rem',
+                  lineHeight: 1.5
+                }}>
+                  <strong>Industry tiles/cards</strong> on the live page are edited in the sidebar under{' '}
+                  <strong>Manage Industries</strong>. This tab controls only the page text sections shown on{' '}
+                  <a href="/industries" target="_blank" rel="noreferrer" style={{ color: '#1f5ff5', fontWeight: 600 }}>
+                    /industries
+                  </a>.
+                </div>
+
+                {(['Hero', 'Sourcing', 'Missing'] as const).map((section) => (
+                  <div key={section} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '2rem' }}>
+                    <h3 style={{ marginBottom: '1.5rem' }}>{industriesSectionLabels[section]}</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      {industriesPageFields
+                        .filter((pageField) => pageField.section === section)
+                        .map((pageField) => {
+                          const item = siteContent.find(
+                            (c) =>
+                              c.page_name === 'industries' &&
+                              c.section_name === pageField.section &&
+                              c.content_key === pageField.key
+                          );
+                          if (!item) return null;
+
+                          const currentValue =
+                            pendingChanges[item.id] !== undefined ? pendingChanges[item.id] : item.content_value;
+                          const isLongText = pageField.key === 'desc';
+                          const displayLabel = industriesFieldLabels[pageField.key] || pageField.key;
+
+                          return (
+                            <div key={`${pageField.section}.${pageField.key}`}>
+                              <label style={label}>
+                                {displayLabel}{' '}
+                                <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>({pageField.key})</span>
+                              </label>
+                              {isLongText ? (
+                                <textarea
+                                  value={currentValue}
+                                  onChange={(e) => updateLocalContent(item.id, e.target.value)}
+                                  maxLength={pageField.limit}
+                                  style={{ ...field, height: '90px' }}
+                                />
+                              ) : (
+                                <input
+                                  value={currentValue}
+                                  onChange={(e) => updateLocalContent(item.id, e.target.value)}
+                                  maxLength={pageField.limit}
+                                  style={field}
+                                />
+                              )}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
+                                <small className="muted">
+                                  {currentValue.length} / {pageField.limit} characters
+                                </small>
+                                {pendingChanges[item.id] !== undefined && (
+                                  <small style={{ color: '#059669', fontWeight: 600 }}>Unsaved changes</small>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                ))}
+
+                {Object.keys(pendingChanges).some((id) => {
+                  const item = siteContent.find((c) => c.id === id);
+                  return item?.page_name === 'industries';
+                }) && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={saveAllChanges}
+                      className="btnPrimary"
+                      style={{ background: '#059669', color: '#ffffff', fontSize: '0.9rem', padding: '0.8rem 2rem' }}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? 'Saving...' : 'Save Industries Page Changes'}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {activeTab !== 'industries-content' && (() => {
               const currentPage = activeTab.replace('-content', '');
               
               // Define the sequence for each page to match the live site
@@ -1923,14 +2112,12 @@ export default function AdminDashboard() {
                 'global': ['navigation', 'footer'],
                 'seo': ['Metadata', 'Social Sharing', 'Indexing', 'Verification', 'Tracking'],
                 'logistics': ['Hero', 'Expertise', 'Docs', 'Solutions', 'Partner', 'Compliance', 'Timeline', 'Trust'],
-                'industries': ['Hero', 'Missing', 'Expertise', 'CTA'],
                 'quality-packaging': ['Hero', 'Inspection', 'Standards', 'Solutions', 'Options', 'Sustainable', 'Compliance', 'CTA']
               };
 
               const orderedSections = sectionOrder[currentPage] || [];
               const availableSections = Array.from(new Set(siteContent.filter(c => c.page_name === currentPage).map(c => c.section_name)));
               
-              // Combine ordered sections and any others not in the list
               const finalSections = [
                 ...orderedSections.filter(s => availableSections.includes(s)),
                 ...availableSections.filter(s => !orderedSections.includes(s))

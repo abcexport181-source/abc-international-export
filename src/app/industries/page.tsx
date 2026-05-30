@@ -5,11 +5,33 @@ import { industriesData, productsData } from '@/data/products';
 import { FiArrowRight } from 'react-icons/fi';
 
 import { cookies } from 'next/headers';
-import { defaultLanguage } from '@/lib/languages';
+import { defaultLanguage, stripLanguagePrefix } from '@/lib/languages';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const languagePrefixPattern = /^(en|es|fr|de|it|pt|nl|ru|zh|ja|ko|ar|hi|tr):/;
+
+const defaultIndustriesContent = {
+  'Hero.badge': 'Our Expertise',
+  'Hero.title': 'Industries We Serve',
+  'Hero.desc': "Bridging global demand with India's manufacturing excellence across diverse sectors.",
+  'Hero.products_link': 'View All Products',
+  'Sourcing.title': 'Global Sourcing Made Simple',
+  'Sourcing.desc': 'We understand that every industry has unique requirements. Our team specializes in finding the right manufacturers who meet your exact technical specifications and quality standards.',
+  'Sourcing.item1': 'Verified Suppliers Only',
+  'Sourcing.item2': 'Quality Control Inspections',
+  'Sourcing.item3': 'Custom Packaging Solutions',
+  'Sourcing.item4': 'End-to-end Logistics Management',
+  'Missing.title': "Can't find what you're looking for?",
+  'Missing.desc': 'We source thousands of products beyond what is listed here. Get in touch for a custom quote.',
+  'Missing.btn_text': 'Contact Sourcing Desk'
+};
+
+const obsoleteIndustriesContent: Partial<Record<keyof typeof defaultIndustriesContent, string>> = {
+  'Hero.desc': 'Comprehensive sourcing expertise across diverse manufacturing sectors in India.',
+  'Missing.title': "Don't See Your Industry?",
+  'Missing.desc': 'Our sourcing network handles specialized requirements. If your sector is not listed, we can still help find the right manufacturers in India.',
+  'Missing.btn_text': 'Discuss Your Requirements'
+};
 
 type IndustryListItem = {
   id: string;
@@ -25,7 +47,22 @@ type ProductListItem = {
   is_visible: boolean;
 };
 
-const normalizeId = (id: string) => id.replace(languagePrefixPattern, '');
+type SiteContentRow = {
+  section_name: string;
+  content_key: string;
+  content_value: string;
+  language_code: string;
+};
+
+const getCurrentContentValue = (
+  key: keyof typeof defaultIndustriesContent,
+  value: string
+) => value === obsoleteIndustriesContent[key] ? defaultIndustriesContent[key] : value;
+
+const getSupabaseClient = () => {
+  if (!supabaseUrl.startsWith('http') || !supabaseServiceKey) return null;
+  return createClient(supabaseUrl, supabaseServiceKey);
+};
 
 const getMockIndustries = (): IndustryListItem[] =>
   industriesData.map(industry => ({
@@ -47,8 +84,8 @@ async function getIndustriesAndProducts(lang: string) {
   let industries: IndustryListItem[] = [];
   let products: ProductListItem[] = [];
 
-  if (supabaseUrl && supabaseServiceKey) {
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const supabase = getSupabaseClient();
+  if (supabase) {
     const { data: indData } = await supabase
       .from('industries')
       .select('*')
@@ -81,13 +118,13 @@ async function getIndustriesAndProducts(lang: string) {
 
     if (activeIndustries.length > 0) {
       const englishIcons = new Map(visibleEnglishIndustries.map((industry) => [
-        normalizeId(industry.id),
+        stripLanguagePrefix(industry.id),
         industry.icon
       ]));
       industries = activeIndustries.map((industry) => ({
         id: industry.id,
         title: industry.title,
-        icon: englishIcons.get(normalizeId(industry.id)) || industry.icon,
+        icon: englishIcons.get(stripLanguagePrefix(industry.id)) || industry.icon,
         description_short: industry.description_short,
         is_visible: industry.is_visible
       }));
@@ -104,26 +141,51 @@ async function getIndustriesAndProducts(lang: string) {
   return { industries, products };
 }
 
+async function getIndustriesContent(lang: string) {
+  const content = { ...defaultIndustriesContent };
+  const supabase = getSupabaseClient();
+  if (!supabase) return content;
+
+  const { data } = await supabase
+    .from('site_content')
+    .select('section_name, content_key, content_value, language_code')
+    .eq('page_name', 'industries')
+    .in('language_code', Array.from(new Set(['en', lang])));
+
+  const rows = (data || []) as SiteContentRow[];
+  for (const item of rows.filter(item => item.language_code === 'en')) {
+    const key = `${item.section_name}.${item.content_key}` as keyof typeof defaultIndustriesContent;
+    if (key in content) content[key] = getCurrentContentValue(key, item.content_value || content[key]);
+  }
+  for (const item of rows.filter(item => item.language_code === lang)) {
+    const key = `${item.section_name}.${item.content_key}` as keyof typeof defaultIndustriesContent;
+    if (key in content) content[key] = getCurrentContentValue(key, item.content_value || content[key]);
+  }
+
+  return content;
+}
+
 export default async function IndustriesPage() {
   const cookieStore = await cookies();
   const lang = cookieStore.get('site_language')?.value || defaultLanguage;
 
   const { industries, products } = await getIndustriesAndProducts(lang);
+  const content = await getIndustriesContent(lang);
 
   return (
     <>
       <section className="section sectionSoft" style={{ paddingTop: '5rem' }}>
         <div className="container">
           <div className="sectionHeader">
-            <span className="badge">Our Expertise</span>
-            <h1>Industries We Serve</h1>
-            <p>Bridging global demand with India&apos;s manufacturing excellence across diverse sectors.</p>
+            <span className="badge">{content['Hero.badge']}</span>
+            <h1>{content['Hero.title']}</h1>
+            <p>{content['Hero.desc']}</p>
           </div>
 
           <div className="cardsGrid3">
             {industries.map((industry) => {
-              const industrySlug = normalizeId(industry.id);
-              const hasProducts = products.some(p => normalizeId(p.category_id) === industrySlug && p.is_visible);
+              const industrySlug = stripLanguagePrefix(industry.id);
+              const hasProducts = products.some(p => stripLanguagePrefix(p.category_id) === industrySlug && p.is_visible);
               
               return (
                 <div key={industry.id} className="card industryCard" style={{ 
@@ -161,7 +223,7 @@ export default async function IndustriesPage() {
                       fontWeight: 600,
                       color: '#1f5ff5'
                     }}>
-                      View All Products <FiArrowRight />
+                      {content['Hero.products_link']} <FiArrowRight />
                     </Link>
                   ) : (
                     <span style={{ height: '24px' }}></span>
@@ -177,21 +239,21 @@ export default async function IndustriesPage() {
       <section className="section">
         <div className="container split" style={{ alignItems: 'center' }}>
           <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: '2.2rem', marginBottom: '1.5rem' }}>Global Sourcing Made Simple</h2>
+            <h2 style={{ fontSize: '2.2rem', marginBottom: '1.5rem' }}>{content['Sourcing.title']}</h2>
             <p style={{ fontSize: '1.1rem', color: '#4a5568', lineHeight: '1.7', marginBottom: '2rem' }}>
-              We understand that every industry has unique requirements. Our team specializes in finding the right manufacturers who meet your exact technical specifications and quality standards.
+              {content['Sourcing.desc']}
             </p>
             <ul className="checkList">
-              <li>Verified Suppliers Only</li>
-              <li>Quality Control Inspections</li>
-              <li>Custom Packaging Solutions</li>
-              <li>End-to-end Logistics Management</li>
+              <li>{content['Sourcing.item1']}</li>
+              <li>{content['Sourcing.item2']}</li>
+              <li>{content['Sourcing.item3']}</li>
+              <li>{content['Sourcing.item4']}</li>
             </ul>
           </div>
           <div style={{ flex: 1, background: '#1b2638', borderRadius: '20px', padding: '4rem', color: '#fff', textAlign: 'center' }}>
-            <h3 style={{ color: '#fff', fontSize: '1.8rem', marginBottom: '1.5rem' }}>Can&apos;t find what you&apos;re looking for?</h3>
-            <p style={{ opacity: 0.9, marginBottom: '2rem' }}>We source thousands of products beyond what is listed here. Get in touch for a custom quote.</p>
-            <Link href="/contact" className="btnPrimary" style={{ background: '#fff', color: '#1b2638' }}>Contact Sourcing Desk</Link>
+            <h3 style={{ color: '#fff', fontSize: '1.8rem', marginBottom: '1.5rem' }}>{content['Missing.title']}</h3>
+            <p style={{ opacity: 0.9, marginBottom: '2rem' }}>{content['Missing.desc']}</p>
+            <Link href="/contact" className="btnPrimary" style={{ background: '#fff', color: '#1b2638' }}>{content['Missing.btn_text']}</Link>
           </div>
         </div>
       </section>
