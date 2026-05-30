@@ -228,7 +228,7 @@ export async function upsertSiteContent(updates: {
           'Standards.desc': 320,
           'Standards.item1': 120,
           'Standards.item2': 120,
-          'Standards.item3': 120,
+          'Standards.item3': 60,
           'Standards.item4': 120,
           'Standards.item5': 120,
           'Standards.item6': 120,
