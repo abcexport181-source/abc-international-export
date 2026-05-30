@@ -23,6 +23,7 @@ export interface SiteContent {
   content_value: string;
   char_limit: number;
   language_code: string;
+  is_placeholder?: boolean; // true when the record is not yet saved to DB (only a local placeholder)
 }
 
 

@@ -370,7 +370,8 @@ export default function AdminDashboard() {
               content_key: engItem.content_key,
               content_value: engItem.content_value, // Use English value as fallback placeholder
               char_limit: engItem.char_limit || 500,
-              language_code: currentLanguage
+              language_code: currentLanguage,
+              is_placeholder: true, // Not in DB yet - needs translation
             });
           }
         }
@@ -478,6 +479,40 @@ export default function AdminDashboard() {
   };
 
   const getCharLimit = (text: string) => Math.max(Math.ceil(text.length * 1.5), 30);
+
+  // Returns count of placeholder (untranslated) fields for the current page
+  const getPlaceholderCount = (page: string) => 
+    siteContent.filter(c => c.page_name === page && c.is_placeholder).length;
+
+  // Saves all placeholder fields for a page to Supabase with empty strings so admin can fill them in
+  const saveMissingTranslations = async (page: string) => {
+    const placeholders = siteContent.filter(c => c.page_name === page && c.is_placeholder);
+    if (placeholders.length === 0) return;
+
+    setIsSaving(true);
+    const updatesArray = placeholders.map(item => ({
+      id: item.id,
+      content_value: '',  // save as empty so admin must fill in real translation
+      page_name: item.page_name,
+      section_name: item.section_name,
+      content_key: item.content_key,
+      language_code: currentLanguage
+    }));
+
+    try {
+      const result = await upsertSiteContent(updatesArray);
+      if (result.success) {
+        setMessage({ text: `Created ${placeholders.length} empty translation entries for ${currentLanguage}. Please fill in the translations and save.`, type: 'success' });
+        await fetchSiteContent();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      setMessage({ text: 'Error creating entries: ' + err.message, type: 'error' });
+    }
+    setIsSaving(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const getEnglishReference = (type: 'industry' | 'product', id: string) => {
     const cleanId = stripLanguagePrefix(id);
@@ -2169,7 +2204,54 @@ export default function AdminDashboard() {
                 );
               }
 
-              return finalSections.map(section => (
+              const pagePlaceholderCount = currentLanguage !== 'en' ? getPlaceholderCount(currentPage) : 0;
+
+              return (
+                <>
+                {pagePlaceholderCount > 0 && (
+                  <div style={{
+                    padding: '1.2rem 1.5rem',
+                    background: '#fff7ed',
+                    border: '1px solid #fed7aa',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                    flexWrap: 'wrap'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <FiAlertCircle style={{ fontSize: '1.4rem', color: '#ea580c', flexShrink: 0 }} />
+                      <div>
+                        <strong style={{ color: '#9a3412', fontSize: '0.95rem' }}>
+                          {pagePlaceholderCount} fields are NOT yet translated
+                        </strong>
+                        <p style={{ color: '#c2410c', fontSize: '0.85rem', margin: '0.2rem 0 0 0' }}>
+                          Fields highlighted in orange below are showing English on the live site. Click "Create Empty Slots" to add them to the database, then fill in the {currentLanguage.toUpperCase()} translations.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => saveMissingTranslations(currentPage)}
+                      disabled={isSaving}
+                      style={{
+                        background: '#ea580c',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '0.6rem 1.2rem',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        cursor: isSaving ? 'not-allowed' : 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {isSaving ? 'Creating...' : `Create ${pagePlaceholderCount} Empty Slots`}
+                    </button>
+                  </div>
+                )}
+
+                {finalSections.map(section => (
                 <div key={section} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '2rem' }}>
                   <h3 style={{ marginBottom: '1.5rem' }}>{section}</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -2227,9 +2309,46 @@ export default function AdminDashboard() {
                         const footerSocialLabel = footerSocialFields.find(field => field.key === item.content_key)?.label;
                         const displayLabel = footerSocialLabel || item.content_key.replace(/_/g, ' ').replace(/\d/g, '').replace('item', 'Point ').replace('step', 'Step ');
 
+                        const isPlaceholder = !!item.is_placeholder;
+                        const englishRef = isPlaceholder ? englishSiteContent.find(e =>
+                          e.page_name === item.page_name &&
+                          e.section_name === item.section_name &&
+                          e.content_key === item.content_key
+                        ) : null;
+
                         return (
-                          <div key={item.id}>
-                            <label style={label}>{displayLabel} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
+                          <div key={item.id} style={isPlaceholder ? {
+                            padding: '1rem',
+                            background: '#fff7ed',
+                            border: '2px solid #fb923c',
+                            borderRadius: '8px'
+                          } : {}}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
+                              <label style={label}>{displayLabel} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
+                              {isPlaceholder && (
+                                <span style={{
+                                  background: '#ea580c',
+                                  color: '#fff',
+                                  fontSize: '0.7rem',
+                                  fontWeight: 700,
+                                  padding: '0.15rem 0.5rem',
+                                  borderRadius: '4px',
+                                  whiteSpace: 'nowrap'
+                                }}>⚠ NOT TRANSLATED</span>
+                              )}
+                            </div>
+                            {isPlaceholder && englishRef && (
+                              <div style={{
+                                fontSize: '0.8rem',
+                                color: '#7c2d12',
+                                background: '#ffedd5',
+                                padding: '0.4rem 0.6rem',
+                                borderRadius: '4px',
+                                marginBottom: '0.4rem'
+                              }}>
+                                <strong>English:</strong> {englishRef.content_value}
+                              </div>
+                            )}
                             {isMediaField ? (
                               <DirectUpload 
                                 label={item.content_key.replace(/_/g, ' ')} 
@@ -2251,16 +2370,23 @@ export default function AdminDashboard() {
                                 value={currentValue} 
                                 onChange={e => updateLocalContent(item.id, e.target.value)}
                                 maxLength={effectiveCharLimit}
-                                style={{...field, height: item.content_key === 'content' ? '200px' : '80px'}}
-                                placeholder={helpText || undefined}
+                                style={{
+                                  ...field,
+                                  height: item.content_key === 'content' ? '200px' : '80px',
+                                  ...(isPlaceholder ? { borderColor: '#fb923c' } : {})
+                                }}
+                                placeholder={isPlaceholder ? `Enter ${currentLanguage.toUpperCase()} translation here...` : (helpText || undefined)}
                               />
                             ) : (
                               <input 
                                 value={currentValue} 
                                 onChange={e => updateLocalContent(item.id, e.target.value)}
                                 maxLength={effectiveCharLimit}
-                                style={field}
-                                placeholder={helpText || undefined}
+                                style={{
+                                  ...field,
+                                  ...(isPlaceholder ? { borderColor: '#fb923c' } : {})
+                                }}
+                                placeholder={isPlaceholder ? `Enter ${currentLanguage.toUpperCase()} translation here...` : (helpText || undefined)}
                               />
                             )}
                             {helpText && <small className="muted" style={{ display: 'block', marginTop: '0.4rem' }}>{helpText}</small>}
@@ -2286,7 +2412,9 @@ export default function AdminDashboard() {
                     )}
                   </div>
                 </div>
-              ));
+              ))}
+                </>
+              );
             })()}
           </div>
         )}
