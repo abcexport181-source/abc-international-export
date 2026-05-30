@@ -126,7 +126,7 @@ const qualityPackagingPageFields = [
   { section: 'Options', key: 'type3_tag2', val: 'Modified atmosphere', limit: 120 },
   { section: 'Options', key: 'type3_tag3', val: 'Temperature controlled', limit: 120 },
   { section: 'Options', key: 'type3_tag4', val: 'Anti-static', limit: 120 },
-  { section: 'Options', key: 'type3_tag5', val: 'Hazmat compliant', limit: 120 },
+  { section: 'Options', key: 'type3_tag5', val: 'Hazmat compliant', limit: 50 },
 
   { section: 'Sustainable', key: 'title', val: 'Sustainable Packaging Solutions', limit: 120 },
   { section: 'Sustainable', key: 'desc', val: 'Environmentally responsible packaging options without compromising protection or quality', limit: 240 },
@@ -1323,7 +1323,7 @@ export default function AdminDashboard() {
         { page: 'quality-packaging', section: 'Options', key: 'type3_tag2', val: 'Modified atmosphere' },
         { page: 'quality-packaging', section: 'Options', key: 'type3_tag3', val: 'Temperature controlled' },
         { page: 'quality-packaging', section: 'Options', key: 'type3_tag4', val: 'Anti-static' },
-        { page: 'quality-packaging', section: 'Options', key: 'type3_tag5', val: 'Hazmat compliant' },
+        { page: 'quality-packaging', section: 'Options', key: 'type3_tag5', val: 'Hazmat compliant', limit: 50 },
         { page: 'quality-packaging', section: 'Sustainable', key: 'title', val: 'Sustainable Packaging Solutions' },
         { page: 'quality-packaging', section: 'Sustainable', key: 'desc', val: 'Environmentally responsible packaging options without compromising protection or quality' },
         { page: 'quality-packaging', section: 'Sustainable', key: 'item1_title', val: 'Eco-Friendly Packaging' },
