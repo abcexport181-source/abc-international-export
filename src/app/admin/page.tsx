@@ -70,6 +70,93 @@ const industriesPageFieldKeys = new Set(
   industriesPageFields.map((field) => `${field.section}.${field.key}`)
 );
 
+// QUALITY-PACKAGING page expected fields (used to create missing placeholders)
+const qualityPackagingPageFields = [
+  { section: 'Hero', key: 'title', val: 'Quality Assurance & Export Packaging', limit: 150 },
+  { section: 'Hero', key: 'desc', val: 'Reliable quality checks and secure export packaging to deliver consistent products worldwide.', limit: 320 },
+
+  { section: 'Inspection', key: 'title', val: 'Quality Inspection Process', limit: 150 },
+  { section: 'Inspection', key: 'item1_title', val: 'Supplier Verification', limit: 80 },
+  { section: 'Inspection', key: 'item1_desc', val: 'Thorough vetting of manufacturers including facility audits, certifications review, and capability assessment', limit: 240 },
+  { section: 'Inspection', key: 'item2_title', val: 'Sample Approval', limit: 80 },
+  { section: 'Inspection', key: 'item2_desc', val: 'Comprehensive testing of samples against your specifications before production authorization', limit: 240 },
+  { section: 'Inspection', key: 'item3_title', val: 'Pre-Shipment Inspection', limit: 80 },
+  { section: 'Inspection', key: 'item3_desc', val: 'Final quality check before shipping including visual inspection, measurements, and functionality tests', limit: 240 },
+  { section: 'Inspection', key: 'item4_title', val: 'Documentation', limit: 80 },
+  { section: 'Inspection', key: 'item4_desc', val: 'Complete quality certificates, test reports, and compliance documentation for your records', limit: 240 },
+
+  { section: 'Standards', key: 'title', val: 'Our Inspection Standards', limit: 150 },
+  { section: 'Standards', key: 'desc', val: 'We implement comprehensive quality checks at every stage to ensure your products meet the highest standards.', limit: 320 },
+  { section: 'Standards', key: 'item1', val: 'Factory audit and capability assessment', limit: 120 },
+  { section: 'Standards', key: 'item2', val: 'Raw material verification', limit: 120 },
+  { section: 'Standards', key: 'item3', val: 'In-process quality monitoring', limit: 120 },
+  { section: 'Standards', key: 'item4', val: 'Finished product inspection', limit: 120 },
+  { section: 'Standards', key: 'item5', val: 'Packaging and labeling verification', limit: 120 },
+  { section: 'Standards', key: 'item6', val: 'Documentation compliance check', limit: 120 },
+  { section: 'Standards', key: 'note_bold', val: 'Third-party inspection services', limit: 120 },
+  { section: 'Standards', key: 'note_desc', val: 'are available on request for additional assurance', limit: 240 },
+
+  { section: 'Solutions', key: 'title', val: 'Packaging Solutions', limit: 150 },
+  { section: 'Solutions', key: 'desc', val: 'Professional packaging designed for safe international transit and market-ready presentation', limit: 240 },
+  { section: 'Solutions', key: 'item1_title', val: 'Export Packaging', limit: 80 },
+  { section: 'Solutions', key: 'item1_desc', val: 'Heavy-duty packaging designed for international shipping, including palletization and containerization', limit: 240 },
+  { section: 'Solutions', key: 'item2_title', val: 'Retail Packaging', limit: 80 },
+  { section: 'Solutions', key: 'item2_desc', val: 'Consumer-ready packaging with custom branding, labels, and presentation materials', limit: 240 },
+  { section: 'Solutions', key: 'item3_title', val: 'Private Label Packaging', limit: 80 },
+  { section: 'Solutions', key: 'item3_desc', val: 'Complete white-label packaging solutions with your brand identity and specifications', limit: 240 },
+  { section: 'Solutions', key: 'item4_title', val: 'Protective Packaging', limit: 80 },
+  { section: 'Solutions', key: 'item4_desc', val: 'Specialized packaging for fragile, hazardous, or temperature-sensitive products', limit: 240 },
+
+  { section: 'Options', key: 'title', val: 'Comprehensive Packaging Options', limit: 150 },
+  { section: 'Options', key: 'desc', val: 'From industrial bulk packaging to retail-ready presentation, we provide solutions for every need.', limit: 240 },
+  { section: 'Options', key: 'type1_title', val: 'Industrial Packaging', limit: 120 },
+  { section: 'Options', key: 'type1_tag1', val: 'Corrugated boxes', limit: 120 },
+  { section: 'Options', key: 'type1_tag2', val: 'Wooden crates', limit: 120 },
+  { section: 'Options', key: 'type1_tag3', val: 'Pallets', limit: 120 },
+  { section: 'Options', key: 'type1_tag4', val: 'Stretch wrap', limit: 120 },
+  { section: 'Options', key: 'type1_tag5', val: 'Industrial drums', limit: 120 },
+  { section: 'Options', key: 'type2_title', val: 'Consumer Packaging', limit: 120 },
+  { section: 'Options', key: 'type2_tag1', val: 'Folding cartons', limit: 120 },
+  { section: 'Options', key: 'type2_tag2', val: 'Blister packs', limit: 120 },
+  { section: 'Options', key: 'type2_tag3', val: 'Pouches', limit: 120 },
+  { section: 'Options', key: 'type2_tag4', val: 'Bottles & jars', limit: 120 },
+  { section: 'Options', key: 'type2_tag5', val: 'Display boxes', limit: 120 },
+  { section: 'Options', key: 'type3_title', val: 'Specialty Packaging', limit: 120 },
+  { section: 'Options', key: 'type3_tag1', val: 'Vacuum packaging', limit: 120 },
+  { section: 'Options', key: 'type3_tag2', val: 'Modified atmosphere', limit: 120 },
+  { section: 'Options', key: 'type3_tag3', val: 'Temperature controlled', limit: 120 },
+  { section: 'Options', key: 'type3_tag4', val: 'Anti-static', limit: 120 },
+  { section: 'Options', key: 'type3_tag5', val: 'Hazmat compliant', limit: 120 },
+
+  { section: 'Sustainable', key: 'title', val: 'Sustainable Packaging Solutions', limit: 120 },
+  { section: 'Sustainable', key: 'desc', val: 'Environmentally responsible packaging options without compromising protection or quality', limit: 240 },
+  { section: 'Sustainable', key: 'item1_title', val: 'Eco-Friendly Packaging', limit: 120 },
+  { section: 'Sustainable', key: 'item1_desc', val: 'Biodegradable and sustainable packaging materials that reduce environmental impact', limit: 240 },
+  { section: 'Sustainable', key: 'item2_title', val: 'Recyclable Materials', limit: 120 },
+  { section: 'Sustainable', key: 'item2_desc', val: 'Packaging solutions using recyclable materials compliant with global environmental standards', limit: 240 },
+  { section: 'Sustainable', key: 'feat1', val: 'Biodegradable Options', limit: 120 },
+  { section: 'Sustainable', key: 'feat2', val: 'FSC Certified Materials', limit: 120 },
+  { section: 'Sustainable', key: 'feat3', val: 'Carbon Neutral Shipping', limit: 120 },
+
+  { section: 'Compliance', key: 'title', val: 'Compliance & Certification', limit: 120 },
+  { section: 'Compliance', key: 'desc', val: 'All our quality and packaging solutions comply with international standards and country-specific regulations.', limit: 240 },
+  { section: 'Compliance', key: 'cert1', val: 'ISO Certified', limit: 80 },
+  { section: 'Compliance', key: 'cert2', val: 'FDA Compliant', limit: 80 },
+  { section: 'Compliance', key: 'cert3', val: 'FSSAI Approved', limit: 80 },
+  { section: 'Compliance', key: 'cert4', val: 'CE Marking', limit: 80 },
+
+  { section: 'CTA', key: 'title', val: 'Need Quality Assurance or Packaging Solutions?', limit: 150 },
+  { section: 'CTA', key: 'desc', val: 'Speak with our team for product-specific support.', limit: 240 },
+  { section: 'CTA', key: 'btn_text', val: 'Contact Us', limit: 80 }
+] as const;
+
+const qualityPackagingPageFieldKeys = new Set(
+  qualityPackagingPageFields.map((field) => `${field.section}.${field.key}`)
+);
+
+const isQualityPackagingPageContentField = (item: SiteContent) =>
+  item.page_name === 'quality-packaging' && qualityPackagingPageFieldKeys.has(`${item.section_name}.${item.content_key}`);
+
 const industriesSectionLabels: Record<string, string> = {
   Hero: 'Page Header (badge, title, description)',
   Sourcing: 'Global Sourcing Section (left column)',
@@ -354,6 +441,23 @@ export default function AdminDashboard() {
           language_code: currentLanguage
         }));
 
+      const existingQualityPackagingPageFields = new Set(
+        data
+          .filter((item: SiteContent) => item.page_name === 'quality-packaging')
+          .map((item: SiteContent) => `${item.section_name}.${item.content_key}`)
+      );
+      const missingQualityPackagingPageFields = qualityPackagingPageFields
+        .filter(field => !existingQualityPackagingPageFields.has(`${field.section}.${field.key}`))
+        .map(field => ({
+          id: `${currentLanguage}_quality-packaging_${field.section.replace(/\s+/g, '_').toLowerCase()}_${field.key}`,
+          page_name: 'quality-packaging',
+          section_name: field.section,
+          content_key: field.key,
+          content_value: field.val,
+          char_limit: field.limit,
+          language_code: currentLanguage
+        }));
+
       const missingTranslationFields: SiteContent[] = [];
       if (currentLanguage !== 'en' && englishContentData) {
         const existingKeys = new Set(
@@ -382,12 +486,16 @@ export default function AdminDashboard() {
           ...item,
           content_value: getCurrentIndustriesContentValue(item)
         }))
-        .filter((item: SiteContent) => item.page_name !== 'industries' || isIndustriesPageContentField(item));
+        .filter((item: SiteContent) =>
+          (item.page_name !== 'industries' || isIndustriesPageContentField(item)) &&
+          (item.page_name !== 'quality-packaging' || isQualityPackagingPageContentField(item))
+        );
 
       setSiteContent([
         ...normalizedContent,
         ...missingFooterSocialFields,
         ...missingIndustriesPageFields,
+        ...missingQualityPackagingPageFields,
         ...missingTranslationFields
       ]);
       setEnglishSiteContent(englishContentData || []);
