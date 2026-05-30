@@ -14,7 +14,7 @@ type Tab = 'home-content' | 'about-content' | 'sourcing-content' | 'logistics-co
 import { auth } from '@/lib/firebase/config';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { createSession, removeSession, getSession } from '@/app/actions/auth';
-import { updateSiteContentBatch, syncInitialDataBatch, upsertSiteContent, updateBlogMenuVisibilityAction } from '@/app/actions/content';
+import { updateSiteContentBatch, syncInitialDataBatch, upsertSiteContent, updateBlogMenuVisibilityAction, deleteSiteContentKeyAction } from '@/app/actions/content';
 
 import { saveIndustryAction, deleteIndustryAction, toggleIndustryVisibilityAction } from '@/app/actions/industries';
 import { saveProductAction, deleteProductAction, toggleProductVisibilityAction } from '@/app/actions/products';
@@ -458,6 +458,7 @@ export default function AdminDashboard() {
       );
       const missingQualityPackagingPageFields = qualityPackagingPageFields
         .filter(field => !existingQualityPackagingPageFields.has(`${field.section}.${field.key}`))
+        .filter(field => !field.key.match(/^type\d+_tag\d+$/)) // Do not auto-inject deleted tags as placeholders
         .map(field => ({
           id: `${currentLanguage}_quality-packaging_${field.section.replace(/\s+/g, '_').toLowerCase()}_${field.key}`,
           page_name: 'quality-packaging',
@@ -1497,7 +1498,7 @@ export default function AdminDashboard() {
   };
 
   const addTypeTag = async (typeNum: string) => {
-    // Find highest tag number for this type
+    // Find highest tag number for this type across siteContent (even placehoders)
     const existingTags = siteContent.filter(c => c.page_name === 'quality-packaging' && c.content_key.startsWith(`type${typeNum}_tag`));
     let maxNum = 0;
     existingTags.forEach(t => {
@@ -1529,7 +1530,7 @@ export default function AdminDashboard() {
       setMessage({ text: `Added new tag for all languages.`, type: 'success' });
       await fetchSiteContent();
     } else {
-      setMessage({ text: `Failed to add tag.`, type: 'error' });
+      setMessage({ text: `Failed to add tag: ${result.error}`, type: 'error' });
     }
     setIsSaving(false);
   };
@@ -1537,15 +1538,10 @@ export default function AdminDashboard() {
   const deleteTypeTag = async (contentKey: string) => {
     if (!confirm(`Are you sure you want to delete ${contentKey} across ALL languages? There will be no traces left.`)) return;
     setIsSaving(true);
-    // Delete from Supabase where page_name = 'quality-packaging' and content_key = contentKey
-    const { error } = await supabase
-      .from('site_content')
-      .delete()
-      .eq('page_name', 'quality-packaging')
-      .eq('content_key', contentKey);
+    const result = await deleteSiteContentKeyAction('quality-packaging', contentKey);
       
-    if (error) {
-      setMessage({ text: `Failed to delete: ${error.message}`, type: 'error' });
+    if (!result.success) {
+      setMessage({ text: `Failed to delete: ${result.error}`, type: 'error' });
     } else {
       setMessage({ text: `Successfully deleted ${contentKey} from all languages.`, type: 'success' });
       await fetchSiteContent();

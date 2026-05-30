@@ -5,6 +5,37 @@ import { requireAdminSession } from './auth';
 import { languages } from '@/lib/languages';
 // Force re-deployment and re-sync check
 
+export async function deleteSiteContentKeyAction(page: string, key: string) {
+  try {
+    await requireAdminSession();
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return { success: false, error: 'SERVER ERROR: SUPABASE_SERVICE_ROLE_KEY is missing.' };
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+  
+  try {
+    const { error } = await supabaseAdmin
+      .from('site_content')
+      .delete()
+      .eq('page_name', page)
+      .eq('content_key', key);
+
+    if (error) throw error;
+    revalidatePath('/', 'layout');
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
 export async function updateSiteContentBatch(updates: { id: string, value: string }[]) {
   try {
     await requireAdminSession();
