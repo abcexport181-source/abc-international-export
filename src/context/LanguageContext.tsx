@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { defaultLanguage } from '@/lib/languages';
+import { defaultLanguage, normalizeLanguage } from '@/lib/languages';
 
 type LanguageContextType = {
   language: string;
@@ -30,10 +30,11 @@ export function LanguageProvider({
   }, [language]);
 
   const setLanguage = (lang: string) => {
-    setLanguageState(lang);
-    localStorage.setItem('site_language', lang);
+    const normalizedLang = normalizeLanguage(lang);
+    setLanguageState(normalizedLang);
+    localStorage.setItem('site_language', normalizedLang);
     // Also set a cookie for server components if needed
-    document.cookie = `site_language=${lang}; path=/; max-age=31536000; samesite=lax`;
+    document.cookie = `site_language=${normalizedLang}; path=/; max-age=31536000; samesite=lax`;
     router.refresh();
   };
 

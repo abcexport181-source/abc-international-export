@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BackToTop from '@/components/common/BackToTop'
 import { LanguageProvider } from '@/context/LanguageContext'
+import { defaultLanguage, normalizeLanguage } from '@/lib/languages'
 import { Analytics } from '@vercel/analytics/react'
 
 export const dynamic = 'force-dynamic';
@@ -78,7 +79,7 @@ function cleanUrl(value: string) {
 
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies();
-  const languageCookie = cookieStore.get('site_language')?.value || 'en';
+  const languageCookie = normalizeLanguage(cookieStore.get('site_language')?.value || defaultLanguage);
   const seo = await getSeoContent(languageCookie);
   const siteUrl = cleanUrl(seo.canonical_url);
   const ogImage = seo.og_image || seo.twitter_image;
@@ -126,7 +127,7 @@ export default async function RootLayout({
 }) {
   let isBlogVisible = true;
   const cookieStore = await cookies();
-  const languageCookie = cookieStore.get('site_language')?.value || 'en';
+  const languageCookie = normalizeLanguage(cookieStore.get('site_language')?.value || defaultLanguage);
 
   const supabase = getSupabaseForCms();
   if (supabase) {

@@ -9,12 +9,12 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 import { cookies } from 'next/headers';
-import { defaultLanguage, stripLanguagePrefix } from '@/lib/languages';
+import { defaultLanguage, normalizeLanguage, stripLanguagePrefix } from '@/lib/languages';
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const cookieStore = await cookies();
-  const lang = cookieStore.get('site_language')?.value || defaultLanguage;
+  const lang = normalizeLanguage(cookieStore.get('site_language')?.value || defaultLanguage);
 
   const langSlug = slug.includes(':') ? slug : `${lang}:${slug}`;
   const baseSlug = stripLanguagePrefix(slug);

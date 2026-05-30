@@ -21,5 +21,6 @@ export const defaultLanguage = 'en';
 
 export const languageCodes = languages.map(language => language.code);
 export const languagePrefixPattern = new RegExp(`^(${languageCodes.join('|')}):`);
-
+export const isSupportedLanguage = (lang: string) => languageCodes.includes(lang);
+export const normalizeLanguage = (lang: string) => isSupportedLanguage(lang) ? lang : defaultLanguage;
 export const stripLanguagePrefix = (id: string) => id.replace(languagePrefixPattern, '');

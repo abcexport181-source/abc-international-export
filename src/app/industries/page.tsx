@@ -5,7 +5,7 @@ import { industriesData, productsData } from '@/data/products';
 import { FiArrowRight } from 'react-icons/fi';
 
 import { cookies } from 'next/headers';
-import { defaultLanguage, stripLanguagePrefix } from '@/lib/languages';
+import { defaultLanguage, normalizeLanguage, stripLanguagePrefix } from '@/lib/languages';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -173,7 +173,7 @@ async function getIndustriesContent(lang: string) {
 
 export default async function IndustriesPage() {
   const cookieStore = await cookies();
-  const lang = cookieStore.get('site_language')?.value || defaultLanguage;
+  const lang = normalizeLanguage(cookieStore.get('site_language')?.value || defaultLanguage);
 
   const { industries, products } = await getIndustriesAndProducts(lang);
   const content = await getIndustriesContent(lang);
