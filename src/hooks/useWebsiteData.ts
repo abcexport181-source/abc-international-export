@@ -27,6 +27,21 @@ export const useWebsiteData = () => {
               console.error('Supabase fetch ERROR:', error);
             } else if (data) {
               console.log(`Successfully fetched ${data.length} items for ${language}`);
+              
+              // Debug: Log quality-packaging content
+              const qualityPackagingItems = data.filter(c => c.page_name === 'quality-packaging');
+              if (qualityPackagingItems.length > 0) {
+                const byLanguage = {};
+                qualityPackagingItems.forEach(item => {
+                  byLanguage[item.language_code] = (byLanguage[item.language_code] || 0) + 1;
+                });
+                console.log(`Quality-packaging content by language:`, byLanguage);
+                if (language === 'ar') {
+                  const arabicItems = qualityPackagingItems.filter(c => c.language_code === 'ar');
+                  console.log(`Arabic quality-packaging items: ${arabicItems.length}`, arabicItems.slice(0, 3));
+                }
+              }
+              
               setContent(data);
             }
         } catch (error) {
@@ -62,24 +77,40 @@ export const useWebsiteData = () => {
             c.content_key === key &&
             c.language_code === language
         );
-        const englishMediaItem = isMediaKey(key) ? content.find(c =>
-            c.page_name === page &&
-            c.section_name.toLowerCase() === section.toLowerCase() &&
-            c.content_key === key &&
-            c.language_code === 'en'
-        ) : null;
-
-        if (englishMediaItem) {
-            return englishMediaItem.content_value;
+        
+        // For media keys (img/image), prefer English if available
+        // But ONLY for media keys - not for text content
+        if (isMediaKey(key)) {
+            const englishMediaItem = content.find(c =>
+                c.page_name === page &&
+                c.section_name.toLowerCase() === section.toLowerCase() &&
+                c.content_key === key &&
+                c.language_code === 'en'
+            );
+            if (englishMediaItem?.content_value) {
+                return englishMediaItem.content_value;
+            }
         }
 
+        // If we found the item in the requested language, return it
+        if (item?.content_value) {
+            return item.content_value;
+        }
+
+        // Otherwise fall back to English version
         const englishFallback = content.find(c =>
             c.page_name === page &&
             c.section_name.toLowerCase() === section.toLowerCase() &&
             c.content_key === key &&
             c.language_code === 'en'
         );
-        return item ? item.content_value : englishFallback ? englishFallback.content_value : defaultValue;
+        
+        if (englishFallback?.content_value) {
+            return englishFallback.content_value;
+        }
+        
+        // Last resort: use default
+        return defaultValue;
     };
 
     return { getContent, loading, refresh: fetchData };
