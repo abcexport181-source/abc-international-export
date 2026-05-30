@@ -817,7 +817,7 @@ export default function AdminDashboard() {
         }}
         onClick={() => {
           if (readOnly) return;
-          console.log('Upload area clicked for:', fieldLabel);
+
           fileInputRef.current?.click();
         }}
         onMouseOver={e => e.currentTarget.style.borderColor = '#1f5ff5'}
@@ -844,7 +844,7 @@ export default function AdminDashboard() {
               style={{ display: 'none' }} 
               onChange={async (e) => {
               const file = e.target.files?.[0];
-              console.log('File selected:', file?.name, 'Size:', file?.size);
+
               if (file) {
                 const isAllowedMedia = file.type.startsWith('image/') || ['video/webm', 'video/mp4', 'video/quicktime'].includes(file.type);
                 if (!isAllowedMedia) {
@@ -860,9 +860,7 @@ export default function AdminDashboard() {
                   return;
                 }
                 setUploading(true);
-                console.log('Starting upload to Cloudinary...');
                 const url = await handleImageUpload(file);
-                console.log('Upload result URL:', url);
                 if (url) onChange(url);
                 setUploading(false);
               }
@@ -1488,67 +1486,6 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
-  // Creates empty translation slots in Supabase for ALL supported languages for the current page.
-  const initializeAllLanguagesForPage = async () => {
-    const isContentTab = activeTab.endsWith('-content');
-    if (!isContentTab) return;
-
-    // Derive page name from activeTab (e.g. 'quality-packaging-content' → 'quality-packaging')
-    const pageName = activeTab.replace('-content', '');
-
-    setIsSaving(true);
-    setMessage({ text: 'Creating translation slots for all languages...', type: 'success' });
-
-    const englishItems = englishSiteContent.filter(c => c.page_name === pageName);
-    if (englishItems.length === 0) {
-      setMessage({ text: 'No English content found for this page. Run "Sync English Data" first.', type: 'error' });
-      setIsSaving(false);
-      return;
-    }
-
-    const targetLanguages = languages.filter(l => l.code !== 'en');
-    let totalCreated = 0;
-    let errors = 0;
-
-    for (const lang of targetLanguages) {
-      const { data: existing } = await supabase
-        .from('site_content')
-        .select('content_key, section_name')
-        .eq('language_code', lang.code)
-        .eq('page_name', pageName);
-
-      const existingKeys = new Set(
-        (existing || []).map((r: any) => `${r.section_name}.${r.content_key}`)
-      );
-
-      const missing = englishItems
-        .filter(e => !existingKeys.has(`${e.section_name}.${e.content_key}`))
-        .map(e => ({
-          id: `${lang.code}_${e.page_name}_${e.section_name.replace(/\s+/g, '_').toLowerCase()}_${e.content_key}`,
-          page_name: e.page_name,
-          section_name: e.section_name,
-          content_key: e.content_key,
-          content_value: '',
-          language_code: lang.code,
-          char_limit: e.char_limit || 500
-        }));
-
-      if (missing.length > 0) {
-        const result = await upsertSiteContent(missing);
-        if (result.success) { totalCreated += missing.length; } else { errors++; }
-      }
-    }
-
-    if (errors === 0) {
-      setMessage({ text: `✅ Created ${totalCreated} empty slots across ${targetLanguages.length} languages for "${pageName}". Switch to each language and fill in translations.`, type: 'success' });
-    } else {
-      setMessage({ text: `Created ${totalCreated} slots with ${errors} error(s).`, type: 'error' });
-    }
-
-    await fetchSiteContent();
-    setIsSaving(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const toggleVisibility = async (type: 'industries' | 'products' | 'blogs', id: string, currentStatus: boolean) => {
     const isEnglish = !id.includes(':') || id.startsWith('en:');
@@ -1591,7 +1528,7 @@ export default function AdminDashboard() {
 
 
   const handleAddNew = () => {
-    console.log('Adding new item for tab:', activeTab);
+
     if (activeTab === 'industries') {
       setEditingIndustry({
         id: '',
@@ -2160,17 +2097,7 @@ export default function AdminDashboard() {
             >
               Sync English Data
             </button>
-            {activeTab.endsWith('-content') && currentLanguage === 'en' && (
-              <button
-                onClick={initializeAllLanguagesForPage}
-                disabled={isSaving}
-                className="btnSecondary"
-                style={{ fontSize: '0.85rem', color: '#7c3aed', borderColor: '#ddd6fe', fontWeight: 600, whiteSpace: 'nowrap' }}
-                title={`Create empty translation slots for ALL languages for this page`}
-              >
-                🌐 Init All Languages
-              </button>
-            )}
+
             {(activeTab === 'industries' || activeTab === 'products' || activeTab === 'blogs') && (
               <button onClick={handleAddNew} className="btnPrimary" style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <FiPlus /> Add New {activeTab === 'industries' ? 'Industry' : activeTab === 'products' ? 'Product' : 'Blog'}

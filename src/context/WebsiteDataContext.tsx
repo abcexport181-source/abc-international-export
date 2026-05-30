@@ -90,11 +90,9 @@ export function WebsiteDataProvider({ children }: { children: React.ReactNode })
     fetchingForRef.current = cacheKey;
 
     setLoading(true);
-    console.log(`[WebsiteData] Fetching ALL content for: ${langCodes.join(', ')}`);
 
     try {
       const rows = await fetchAllContentRows(langCodes);
-      console.log(`[WebsiteData] Total rows fetched: ${rows.length} (language: ${language})`);
       setContent(rows);
     } catch (err) {
       console.error('[WebsiteData] Fetch failed:', err);
