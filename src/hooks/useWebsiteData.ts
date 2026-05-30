@@ -23,13 +23,20 @@ export const useWebsiteData = () => {
                 .in('language_code', Array.from(new Set(['en', language])))
                 .filter('id', 'neq', `cache_buster_${Date.now()}`);
             
-            if (error) {
-              console.error('Supabase fetch ERROR:', error);
-            } else if (data) {
-              console.log(`Successfully fetched ${data.length} items for ${language}`);
-              
+                        if (error) {
+                            console.error('Supabase fetch ERROR:', error);
+                        } else if (data) {
+                            console.log(`Successfully fetched ${data.length} items for ${language}`);
+
+                            // Normalize language_code values from the DB to avoid mismatches
+                            // (examples: 'AR', 'ar ', null) — convert to trimmed lowercase strings
+                            const normalizedData = (data as any[]).map((item: any) => ({
+                                ...item,
+                                language_code: String(item.language_code || 'en').toLowerCase().trim()
+                            }));
+
                             // Debug: Log quality-packaging content
-                            const qualityPackagingItems = (data as any[]).filter((c: any) => c.page_name === 'quality-packaging');
+                            const qualityPackagingItems = normalizedData.filter((c: any) => c.page_name === 'quality-packaging');
                             if (qualityPackagingItems.length > 0) {
                                 const byLanguage: Record<string, number> = {};
                                 qualityPackagingItems.forEach((item: any) => {
@@ -41,9 +48,9 @@ export const useWebsiteData = () => {
                                     console.log(`Arabic quality-packaging items: ${arabicItems.length}`, arabicItems.slice(0, 3));
                                 }
                             }
-              
-              setContent(data);
-            }
+
+                            setContent(normalizedData);
+                        }
         } catch (error) {
             console.error('Error fetching website content:', error);
         } finally {
