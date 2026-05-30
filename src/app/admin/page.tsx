@@ -775,34 +775,32 @@ export default function AdminDashboard() {
   const syncInitialData = async () => {
     setLoading(true);
     try {
-      // Catalog mock data is English source data. Keep it out of translated rows.
-      if (currentLanguage === 'en') {
-        for (const ind of industriesData) {
-          await supabase.from('industries').upsert({
-            id: `en:${ind.id}`,
-            title: ind.title,
-            icon: ind.icon,
-            description_short: ind.desc,
-            full_info: ind.fullInfo,
-            keys: ind.keys,
-            is_visible: true,
-            language_code: 'en'
-          });
-        }
-        for (const prod of productsData) {
-          await supabase.from('products').upsert({
-            id: `en:${prod.id}`,
-            category_id: `en:${prod.category}`,
-            name: prod.name,
-            description: prod.description,
-            image: prod.image,
-            features: prod.features,
-            specs: prod.specs,
-            export_details: prod.exportDetails,
-            is_visible: true,
-            language_code: 'en'
-          });
-        }
+      // Always seed English baseline industries and products
+      for (const ind of industriesData) {
+        await supabase.from('industries').upsert({
+          id: `en:${ind.id}`,
+          title: ind.title,
+          icon: ind.icon,
+          description_short: ind.desc,
+          full_info: ind.fullInfo,
+          keys: ind.keys,
+          is_visible: true,
+          language_code: 'en'
+        });
+      }
+      for (const prod of productsData) {
+        await supabase.from('products').upsert({
+          id: `en:${prod.id}`,
+          category_id: `en:${prod.category}`,
+          name: prod.name,
+          description: prod.description,
+          image: prod.image,
+          features: prod.features,
+          specs: prod.specs,
+          export_details: prod.exportDetails,
+          is_visible: true,
+          language_code: 'en'
+        });
       }
       // Sync Site Content - COMPLETE LIST
       const initialContent = [
@@ -1292,7 +1290,12 @@ export default function AdminDashboard() {
 
 
 
-      const result = await syncInitialDataBatch(initialContent, currentLanguage);
+      // Always sync English baseline site content first
+      let result = await syncInitialDataBatch(initialContent, 'en');
+
+      if (currentLanguage !== 'en') {
+        result = await syncInitialDataBatch(initialContent, currentLanguage);
+      }
 
       
       if (result.success) {
