@@ -23,34 +23,45 @@ export const useWebsiteData = () => {
                 .in('language_code', Array.from(new Set(['en', language])))
                 .filter('id', 'neq', `cache_buster_${Date.now()}`);
             
-                        if (error) {
-                            console.error('Supabase fetch ERROR:', error);
-                        } else if (data) {
-                            console.log(`Successfully fetched ${data.length} items for ${language}`);
+            if (error) {
+              console.error('Supabase fetch ERROR:', error);
+            } else if (data) {
+              console.log(`Successfully fetched ${data.length} items for ${language}`);
 
-                            // Normalize language_code values from the DB to avoid mismatches
-                            // (examples: 'AR', 'ar ', null) — convert to trimmed lowercase strings
-                            const normalizedData = (data as any[]).map((item: any) => ({
-                                ...item,
-                                language_code: String(item.language_code || 'en').toLowerCase().trim()
-                            }));
+              // Normalize language_code values from the DB to avoid mismatches
+              // (examples: 'AR', 'ar ', null) — convert to trimmed lowercase strings
+              const normalizedData = (data as any[]).map((item: any) => ({
+                ...item,
+                language_code: String(item.language_code || 'en').toLowerCase().trim()
+              }));
 
-                            // Debug: Log quality-packaging content
-                            const qualityPackagingItems = normalizedData.filter((c: any) => c.page_name === 'quality-packaging');
-                            if (qualityPackagingItems.length > 0) {
-                                const byLanguage: Record<string, number> = {};
-                                qualityPackagingItems.forEach((item: any) => {
-                                    byLanguage[item.language_code] = (byLanguage[item.language_code] || 0) + 1;
-                                });
-                                console.log(`Quality-packaging content by language:`, byLanguage);
-                                if (language === 'ar') {
-                                    const arabicItems = qualityPackagingItems.filter((c: any) => c.language_code === 'ar');
-                                    console.log(`Arabic quality-packaging items: ${arabicItems.length}`, arabicItems.slice(0, 3));
+              // Debug: Log quality-packaging content
+              const qualityPackagingItems = normalizedData.filter((c: any) => c.page_name === 'quality-packaging');
+              if (qualityPackagingItems.length > 0) {
+                const byLanguage: Record<string, number> = {};
+                qualityPackagingItems.forEach((item: any) => {
+                  byLanguage[item.language_code] = (byLanguage[item.language_code] || 0) + 1;
+                });
+                console.log(`Quality-packaging content by language:`, byLanguage);
+                if (language === 'ar') {
+                  const arabicItems = qualityPackagingItems.filter((c: any) => c.language_code === 'ar');
+                  console.log(`Arabic quality-packaging items: ${arabicItems.length}`, arabicItems.slice(0, 3));
                   
                   // Show all Inspection section items for Arabic
                   const inspectionItems = arabicItems.filter((c: any) => c.section_name === 'Inspection');
                   console.log(`[DEBUG] Inspection section Arabic items (${inspectionItems.length}):`, 
                     inspectionItems.map((i: any) => `${i.content_key}=${i.content_value.substring(0, 20)}`));
+                }
+              }
+
+              setContent(normalizedData);
+            }
+        } catch (error) {
+            console.error('Error fetching website content:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchData();
