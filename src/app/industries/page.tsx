@@ -61,7 +61,13 @@ const getCurrentContentValue = (
 
 const getSupabaseClient = () => {
   if (!supabaseUrl.startsWith('http') || !supabaseServiceKey) return null;
-  return createClient(supabaseUrl, supabaseServiceKey);
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    global: {
+      fetch: (url, options) => {
+        return fetch(url, { ...options, cache: 'no-store' });
+      }
+    }
+  });
 };
 
 const getMockIndustries = (): IndustryListItem[] =>

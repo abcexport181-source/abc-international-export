@@ -23,7 +23,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   // Try fetching from Supabase first
   if (supabaseUrl && supabaseServiceKey) {
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: 'no-store' });
+        }
+      }
+    });
     const { data } = await supabase
       .from('products')
       .select('*')

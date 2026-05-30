@@ -23,7 +23,13 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   let products: any[] = [];
 
   if (supabaseUrl && supabaseServiceKey) {
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: 'no-store' });
+        }
+      }
+    });
     
     // Fetch industry
     const { data: ind } = await supabase
