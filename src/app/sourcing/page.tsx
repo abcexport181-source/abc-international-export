@@ -73,7 +73,7 @@ export default function SourcingPage() {
           </p>
           <div style={{ marginTop: '1rem' }}>
             <a href="/contact" className="btnPrimary">
-              Source From India
+              {getContent('sourcing', 'Hero', 'btn_text', 'Source From India')}
             </a>
           </div>
         </div>

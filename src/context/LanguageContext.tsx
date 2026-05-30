@@ -22,12 +22,14 @@ export function LanguageProvider({
   const router = useRouter();
 
   useEffect(() => {
-    // Load language from localStorage if available
+    // Load language from localStorage only once on mount.
+    // Using [] so localStorage doesn't override the server-set initialLanguage on every re-render.
     const savedLang = localStorage.getItem('site_language');
     if (savedLang && savedLang !== language) {
       setLanguageState(savedLang);
     }
-  }, [language]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const setLanguage = (lang: string) => {
     const normalizedLang = normalizeLanguage(lang);

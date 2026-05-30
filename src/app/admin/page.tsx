@@ -967,6 +967,7 @@ export default function AdminDashboard() {
         // SOURCING PAGE
         { page: 'sourcing', section: 'Hero', key: 'title', val: 'Global Product Sourcing from India' },
         { page: 'sourcing', section: 'Hero', key: 'desc', val: 'End-to-end sourcing from India with verified suppliers and product solutions tailored for your market.' },
+        { page: 'sourcing', section: 'Hero', key: 'btn_text', val: 'Source From India' },
         { page: 'sourcing', section: 'Source', key: 'title', val: 'What We Source' },
         { page: 'sourcing', section: 'Source', key: 'desc', val: 'From raw materials to finished products, we source across all categories to meet your business needs' },
         { page: 'sourcing', section: 'Source', key: 'item1_title', val: 'Products' },
