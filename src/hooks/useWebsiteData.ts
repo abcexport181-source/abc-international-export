@@ -85,6 +85,17 @@ export const useWebsiteData = () => {
             c.language_code === language
         );
         
+        // Debug: if Arabic and quality-packaging, log what we're looking for and what we found
+        if (language === 'ar' && page === 'quality-packaging') {
+            console.log(`[getContent] Looking for: page=${page}, section=${section}, key=${key}, lang=${language}`);
+            console.log(`[getContent] Found item:`, item ? `YES - value="${item.content_value.substring(0, 30)}..."` : 'NO');
+            if (!item) {
+                // Log what's available in content for this page+section combo
+                const available = content.filter(c => c.page_name === page && c.section_name.toLowerCase() === section.toLowerCase());
+                console.log(`[getContent] Available rows for ${page}.${section}:`, available.slice(0, 3));
+            }
+        }
+        
         // For media keys (img/image), prefer English if available
         // But ONLY for media keys - not for text content
         if (isMediaKey(key)) {
@@ -113,6 +124,9 @@ export const useWebsiteData = () => {
         );
         
         if (englishFallback?.content_value) {
+            if (language === 'ar' && page === 'quality-packaging') {
+                console.log(`[getContent] FALLBACK TO ENGLISH for ${key}`);
+            }
             return englishFallback.content_value;
         }
         
