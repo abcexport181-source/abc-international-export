@@ -28,19 +28,19 @@ export const useWebsiteData = () => {
             } else if (data) {
               console.log(`Successfully fetched ${data.length} items for ${language}`);
               
-              // Debug: Log quality-packaging content
-              const qualityPackagingItems = data.filter(c => c.page_name === 'quality-packaging');
-              if (qualityPackagingItems.length > 0) {
-                const byLanguage = {};
-                qualityPackagingItems.forEach(item => {
-                  byLanguage[item.language_code] = (byLanguage[item.language_code] || 0) + 1;
-                });
-                console.log(`Quality-packaging content by language:`, byLanguage);
-                if (language === 'ar') {
-                  const arabicItems = qualityPackagingItems.filter(c => c.language_code === 'ar');
-                  console.log(`Arabic quality-packaging items: ${arabicItems.length}`, arabicItems.slice(0, 3));
-                }
-              }
+                            // Debug: Log quality-packaging content
+                            const qualityPackagingItems = (data as any[]).filter((c: any) => c.page_name === 'quality-packaging');
+                            if (qualityPackagingItems.length > 0) {
+                                const byLanguage: Record<string, number> = {};
+                                qualityPackagingItems.forEach((item: any) => {
+                                    byLanguage[item.language_code] = (byLanguage[item.language_code] || 0) + 1;
+                                });
+                                console.log(`Quality-packaging content by language:`, byLanguage);
+                                if (language === 'ar') {
+                                    const arabicItems = qualityPackagingItems.filter((c: any) => c.language_code === 'ar');
+                                    console.log(`Arabic quality-packaging items: ${arabicItems.length}`, arabicItems.slice(0, 3));
+                                }
+                            }
               
               setContent(data);
             }
