@@ -18,11 +18,14 @@ export async function saveIndustryAction(industry: any) {
   try {
     await requireAdminSession();
     const supabaseAdmin = getSupabaseAdmin();
+    const langCode = industry.language_code || 'en';
+    const baseId = stripLanguagePrefix(industry.id);
     const { error } = await supabaseAdmin
       .from('industries')
       .upsert({
         ...industry,
-        id: industry.id.startsWith(industry.language_code + ':') ? industry.id : `${industry.language_code}:${industry.id}`
+        language_code: langCode,
+        id: `${langCode}:${baseId}`
       });
 
 

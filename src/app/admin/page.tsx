@@ -484,8 +484,14 @@ export default function AdminDashboard() {
       const baselineProducts = ((allProd || []) as ProductData[]).filter((item) => 
         !item.language_code || item.language_code === 'en'
       );
-      const currentBaselineIndustries = preferLanguageRows(baselineIndustries, 'en');
-      const currentBaselineProducts = preferLanguageRows(baselineProducts, 'en');
+      const currentBaselineIndustries = preferLanguageRows(baselineIndustries, 'en').map(item => ({
+        ...item,
+        language_code: item.language_code || 'en'
+      }));
+      const currentBaselineProducts = preferLanguageRows(baselineProducts, 'en').map(item => ({
+        ...item,
+        language_code: item.language_code || 'en'
+      }));
 
       // 3. Filter target language data
       const targetIndustries = ((allInd || []) as IndustryData[]).filter((item) => 

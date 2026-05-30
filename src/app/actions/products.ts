@@ -18,11 +18,16 @@ export async function saveProductAction(product: any) {
   try {
     await requireAdminSession();
     const supabaseAdmin = getSupabaseAdmin();
+    const langCode = product.language_code || 'en';
+    const baseId = stripLanguagePrefix(product.id);
+    const baseCategoryId = stripLanguagePrefix(product.category_id);
     const { error } = await supabaseAdmin
       .from('products')
       .upsert({
         ...product,
-        id: product.id.startsWith(product.language_code + ':') ? product.id : `${product.language_code}:${product.id}`
+        language_code: langCode,
+        id: `${langCode}:${baseId}`,
+        category_id: `${langCode}:${baseCategoryId}`
       });
 
     if (error) throw error;

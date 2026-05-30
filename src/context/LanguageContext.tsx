@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { defaultLanguage } from '@/lib/languages';
 
 type LanguageContextType = {
@@ -18,6 +19,7 @@ export function LanguageProvider({
   initialLanguage?: string;
 }) {
   const [language, setLanguageState] = useState(initialLanguage);
+  const router = useRouter();
 
   useEffect(() => {
     // Load language from localStorage if available
@@ -32,6 +34,7 @@ export function LanguageProvider({
     localStorage.setItem('site_language', lang);
     // Also set a cookie for server components if needed
     document.cookie = `site_language=${lang}; path=/; max-age=31536000; samesite=lax`;
+    router.refresh();
   };
 
   return (
