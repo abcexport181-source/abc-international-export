@@ -1493,10 +1493,13 @@ export default function AdminDashboard() {
     const isContentTab = activeTab.endsWith('-content');
     if (!isContentTab) return;
 
+    // Derive page name from activeTab (e.g. 'quality-packaging-content' → 'quality-packaging')
+    const pageName = activeTab.replace('-content', '');
+
     setIsSaving(true);
     setMessage({ text: 'Creating translation slots for all languages...', type: 'success' });
 
-    const englishItems = englishSiteContent.filter(c => c.page_name === currentPage);
+    const englishItems = englishSiteContent.filter(c => c.page_name === pageName);
     if (englishItems.length === 0) {
       setMessage({ text: 'No English content found for this page. Run "Sync English Data" first.', type: 'error' });
       setIsSaving(false);
@@ -1512,7 +1515,7 @@ export default function AdminDashboard() {
         .from('site_content')
         .select('content_key, section_name')
         .eq('language_code', lang.code)
-        .eq('page_name', currentPage);
+        .eq('page_name', pageName);
 
       const existingKeys = new Set(
         (existing || []).map((r: any) => `${r.section_name}.${r.content_key}`)
@@ -1537,7 +1540,7 @@ export default function AdminDashboard() {
     }
 
     if (errors === 0) {
-      setMessage({ text: `✅ Created ${totalCreated} empty slots across ${targetLanguages.length} languages for "${currentPage}". Switch to each language and fill in translations.`, type: 'success' });
+      setMessage({ text: `✅ Created ${totalCreated} empty slots across ${targetLanguages.length} languages for "${pageName}". Switch to each language and fill in translations.`, type: 'success' });
     } else {
       setMessage({ text: `Created ${totalCreated} slots with ${errors} error(s).`, type: 'error' });
     }
