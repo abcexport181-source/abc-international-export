@@ -164,7 +164,8 @@ const isQualityPackagingPageContentField = (item: SiteContent) =>
   item.page_name === 'quality-packaging' && (
     qualityPackagingPageFieldKeys.has(`${item.section_name}.${item.content_key}`) ||
     item.content_key.includes('img') ||
-    item.content_key.includes('image')
+    item.content_key.includes('image') ||
+    item.content_key.match(/^type\d+_(title|tag\d+)$/)
   );
 
 const industriesSectionLabels: Record<string, string> = {
@@ -1500,6 +1501,14 @@ export default function AdminDashboard() {
   const addTypeTag = async (typeNum: string) => {
     // Find highest tag number for this type across siteContent (even placehoders)
     const existingTags = siteContent.filter(c => c.page_name === 'quality-packaging' && c.content_key.startsWith(`type${typeNum}_tag`));
+    
+    // Limit to 8 tags per type title
+    const uniqueTagCount = new Set(existingTags.map(c => c.content_key)).size;
+    if (uniqueTagCount >= 8) {
+      setMessage({ text: `Maximum limit of 8 tags reached for this type.`, type: 'error' });
+      return;
+    }
+    
     let maxNum = 0;
     existingTags.forEach(t => {
       const match = t.content_key.match(new RegExp(`^type${typeNum}_tag(\\d+)$`));
@@ -1545,6 +1554,77 @@ export default function AdminDashboard() {
     } else {
       setMessage({ text: `Successfully deleted ${contentKey} from all languages.`, type: 'success' });
       await fetchSiteContent();
+    }
+    setIsSaving(false);
+  };
+
+  const deleteTypeTitle = async (typeNum: string) => {
+    if (!confirm(`Are you sure you want to delete Type ${typeNum} and ALL its tags across ALL languages?`)) return;
+    setIsSaving(true);
+    const keysToDelete = siteContent
+      .filter(c => c.page_name === 'quality-packaging' && c.content_key.startsWith(`type${typeNum}_`))
+      .map(c => c.content_key);
+      
+    // Deduplicate keys
+    const uniqueKeys = Array.from(new Set(keysToDelete));
+    
+    for (const key of uniqueKeys) {
+      await deleteSiteContentKeyAction('quality-packaging', key);
+    }
+    
+    setMessage({ text: `Successfully deleted Type ${typeNum} and its tags.`, type: 'success' });
+    await fetchSiteContent();
+    setIsSaving(false);
+  };
+
+  const addNewTypeTitle = async () => {
+    // find max type num
+    let maxTypeNum = 0;
+    siteContent.filter(c => c.page_name === 'quality-packaging').forEach(t => {
+      const match = t.content_key.match(/^type(\d+)_/);
+      if (match) {
+        const num = parseInt(match[1]);
+        if (num > maxTypeNum) maxTypeNum = num;
+      }
+    });
+    
+    const countTypes = new Set(siteContent.filter(c => c.page_name === 'quality-packaging' && c.content_key.match(/^type\d+_title$/)).map(c => c.content_key)).size;
+    
+    if (countTypes >= 5) {
+      setMessage({ text: `Maximum limit of 5 Type Titles reached.`, type: 'error' });
+      return;
+    }
+    
+    const newTypeNum = maxTypeNum + 1;
+    setIsSaving(true);
+    
+    const newSlots = languages.flatMap(lang => [
+      {
+        id: `${lang.code}_quality-packaging_options_type${newTypeNum}_title`,
+        page_name: 'quality-packaging',
+        section_name: 'Options',
+        content_key: `type${newTypeNum}_title`,
+        content_value: lang.code === 'en' ? `New Type Title ${newTypeNum}` : '',
+        language_code: lang.code,
+        char_limit: 120
+      },
+      {
+        id: `${lang.code}_quality-packaging_options_type${newTypeNum}_tag1`,
+        page_name: 'quality-packaging',
+        section_name: 'Options',
+        content_key: `type${newTypeNum}_tag1`,
+        content_value: lang.code === 'en' ? `New Tag 1` : '',
+        language_code: lang.code,
+        char_limit: 120
+      }
+    ]);
+    
+    const result = await upsertSiteContent(newSlots);
+    if (result.success) {
+      setMessage({ text: `Added new type title for all languages.`, type: 'success' });
+      await fetchSiteContent();
+    } else {
+      setMessage({ text: `Failed to add type title: ${result.error}`, type: 'error' });
     }
     setIsSaving(false);
   };
@@ -2432,6 +2512,14 @@ export default function AdminDashboard() {
                         self.findIndex(t => t.content_key === c.content_key) === index
                       )
                       .sort((a, b) => {
+                        const matchA = a.content_key.match(/^type(\\d+)_(title|tag(\\d+))$/);
+                        const matchB = b.content_key.match(/^type(\\d+)_(title|tag(\\d+))$/);
+                        if (matchA && matchB) {
+                          if (matchA[1] !== matchB[1]) return parseInt(matchA[1]) - parseInt(matchB[1]);
+                          if (matchA[2] === 'title') return -1;
+                          if (matchB[2] === 'title') return 1;
+                          return parseInt(matchA[3]) - parseInt(matchB[3]);
+                        }
                         const keyPriority: Record<string, number> = {
                           'title': 0, 'desc': 1,
                           // Navigation
@@ -2458,7 +2546,13 @@ export default function AdminDashboard() {
                         if (pA !== pB) return pA - pB;
                         return a.content_key.localeCompare(b.content_key);
                       })
-                      .map(item => {
+                      .map((item, idx, sortedArray) => {
+                        const isTypeField = item.content_key.match(/^type(\\d+)_(title|tag\\d+)$/);
+                        const typeNum = isTypeField ? isTypeField[1] : null;
+                        const nextItem = sortedArray[idx + 1];
+                        const nextIsDifferentType = !nextItem || !nextItem.content_key.startsWith(`type${typeNum}_`);
+                        const showAddTagBtn = currentLanguage === 'en' && item.page_name === 'quality-packaging' && typeNum && nextIsDifferentType;
+                        const showAddTitleBtn = currentLanguage === 'en' && item.page_name === 'quality-packaging' && typeNum && (!nextItem || !nextItem.content_key.match(/^type\\d+_/));
                         const effectiveCharLimit = 
                           isFooterSocialField(item)
                             ? 300
@@ -2507,11 +2601,11 @@ export default function AdminDashboard() {
                                   whiteSpace: 'nowrap'
                                 }}>⚠ NOT TRANSLATED</span>
                               )}
-                              {currentLanguage === 'en' && item.page_name === 'quality-packaging' && item.content_key.match(/^type\d+_tag\d+$/) && (
-                                <button onClick={() => deleteTypeTag(item.content_key)} style={{ background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '4px', padding: '0.15rem 0.5rem', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 'bold' }}>Delete Tag</button>
+                              {currentLanguage === 'en' && item.page_name === 'quality-packaging' && item.content_key.match(/^type\d+_title$/) && (
+                                <button onClick={() => deleteTypeTitle(item.content_key.match(/^type(\d+)_title$/)![1])} style={{ background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '4px', padding: '0.15rem 0.5rem', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 'bold' }}>Delete Entire Type</button>
                               )}
-                              {currentLanguage === 'en' && item.page_name === 'quality-packaging' && item.content_key.match(/^type(\d+)_title$/) && (
-                                <button onClick={() => addTypeTag(item.content_key.match(/^type(\d+)_title$/)![1])} style={{ background: '#dbeafe', color: '#3b82f6', border: 'none', borderRadius: '4px', padding: '0.15rem 0.5rem', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 'bold' }}>+ Add Tag</button>
+                              {isMediaField && currentLanguage === 'en' && (
+                                <small className="muted">You can upload .jpg, .png, or .mp4 files. Other languages will use this file.</small>
                               )}
                             </div>
                             {isPlaceholder && englishRef && (
@@ -2571,6 +2665,16 @@ export default function AdminDashboard() {
                               <small className="muted">{currentValue.length} / {effectiveCharLimit} characters</small>
                               {pendingChanges[item.id] !== undefined && <small style={{ color: '#059669', fontWeight: 600 }}>Unsaved changes</small>}
                             </div>
+                            {showAddTagBtn && typeNum && (
+                                <div style={{ marginTop: '0.8rem', marginBottom: '0.8rem' }}>
+                                  <button onClick={() => addTypeTag(typeNum)} style={{ background: '#dbeafe', color: '#3b82f6', border: 'none', borderRadius: '4px', padding: '0.4rem 0.8rem', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 'bold' }}>+ Add New Type Tag</button>
+                                </div>
+                            )}
+                            {showAddTitleBtn && (
+                                <div style={{ marginTop: '1.5rem', marginBottom: '0.5rem', borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem' }}>
+                                  <button onClick={() => addNewTypeTitle()} style={{ background: '#1f5ff5', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '0.5rem 1rem', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 'bold' }}>+ Add New Type Title</button>
+                                </div>
+                            )}
                           </div>
                         );
                       })}
