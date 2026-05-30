@@ -92,7 +92,7 @@ const qualityPackagingPageFields = [
   { section: 'Standards', key: 'item3', val: 'In-process quality monitoring', limit: 60 },
   { section: 'Standards', key: 'item4', val: 'Finished product inspection', limit: 120 },
   { section: 'Standards', key: 'item5', val: 'Packaging and labeling verification', limit: 120 },
-  { section: 'Standards', key: 'item6', val: 'Documentation compliance check', limit: 120 },
+  { section: 'Standards', key: 'item6', val: 'Documentation compliance check', limit: 70 },
   { section: 'Standards', key: 'note_bold', val: 'Third-party inspection services', limit: 120 },
   { section: 'Standards', key: 'note_desc', val: 'are available on request for additional assurance', limit: 240 },
 
@@ -2566,7 +2566,9 @@ export default function AdminDashboard() {
                                   ? 50
                                   : (item.page_name === 'quality-packaging' && item.section_name === 'Standards' && item.content_key === 'item3')
                                     ? 60
-                                    : item.char_limit;
+                                    : (item.page_name === 'quality-packaging' && item.section_name === 'Standards' && item.content_key === 'item6')
+                                      ? 70
+                                      : item.char_limit;
                         const isMediaField = item.content_key.includes('img') || item.content_key.includes('image');
                         const englishMediaItem = isMediaField ? getEnglishMediaContent(item) : null;
                         const currentValue = isMediaField && currentLanguage !== 'en'
