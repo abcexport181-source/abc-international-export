@@ -2512,8 +2512,8 @@ export default function AdminDashboard() {
                         self.findIndex(t => t.content_key === c.content_key) === index
                       )
                       .sort((a, b) => {
-                        const matchA = a.content_key.match(/^type(\\d+)_(title|tag(\\d+))$/);
-                        const matchB = b.content_key.match(/^type(\\d+)_(title|tag(\\d+))$/);
+                        const matchA = a.content_key.match(/^type(\d+)_(title|tag(\d+))$/);
+                        const matchB = b.content_key.match(/^type(\d+)_(title|tag(\d+))$/);
                         if (matchA && matchB) {
                           if (matchA[1] !== matchB[1]) return parseInt(matchA[1]) - parseInt(matchB[1]);
                           if (matchA[2] === 'title') return -1;
@@ -2547,12 +2547,12 @@ export default function AdminDashboard() {
                         return a.content_key.localeCompare(b.content_key);
                       })
                       .map((item, idx, sortedArray) => {
-                        const isTypeField = item.content_key.match(/^type(\\d+)_(title|tag\\d+)$/);
+                        const isTypeField = item.content_key.match(/^type(\d+)_(title|tag\d+)$/);
                         const typeNum = isTypeField ? isTypeField[1] : null;
                         const nextItem = sortedArray[idx + 1];
                         const nextIsDifferentType = !nextItem || !nextItem.content_key.startsWith(`type${typeNum}_`);
                         const showAddTagBtn = currentLanguage === 'en' && item.page_name === 'quality-packaging' && typeNum && nextIsDifferentType;
-                        const showAddTitleBtn = currentLanguage === 'en' && item.page_name === 'quality-packaging' && typeNum && (!nextItem || !nextItem.content_key.match(/^type\\d+_/));
+                        const showAddTitleBtn = currentLanguage === 'en' && item.page_name === 'quality-packaging' && typeNum && (!nextItem || !nextItem.content_key.match(/^type\d+_/));
                         const effectiveCharLimit = 
                           isFooterSocialField(item)
                             ? 300
@@ -2600,6 +2600,9 @@ export default function AdminDashboard() {
                                   borderRadius: '4px',
                                   whiteSpace: 'nowrap'
                                 }}>⚠ NOT TRANSLATED</span>
+                              )}
+                              {currentLanguage === 'en' && item.page_name === 'quality-packaging' && item.content_key.match(/^type\d+_tag\d+$/) && (
+                                <button onClick={() => deleteTypeTag(item.content_key)} style={{ background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '4px', padding: '0.15rem 0.5rem', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 'bold' }}>Delete Tag</button>
                               )}
                               {currentLanguage === 'en' && item.page_name === 'quality-packaging' && item.content_key.match(/^type\d+_title$/) && (
                                 <button onClick={() => deleteTypeTitle(item.content_key.match(/^type(\d+)_title$/)![1])} style={{ background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '4px', padding: '0.15rem 0.5rem', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 'bold' }}>Delete Entire Type</button>
