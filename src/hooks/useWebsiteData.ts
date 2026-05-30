@@ -46,17 +46,11 @@ export const useWebsiteData = () => {
                                 if (language === 'ar') {
                                     const arabicItems = qualityPackagingItems.filter((c: any) => c.language_code === 'ar');
                                     console.log(`Arabic quality-packaging items: ${arabicItems.length}`, arabicItems.slice(0, 3));
-                                }
-                            }
-
-                            setContent(normalizedData);
-                        }
-        } catch (error) {
-            console.error('Error fetching website content:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+                  
+                  // Show all Inspection section items for Arabic
+                  const inspectionItems = arabicItems.filter((c: any) => c.section_name === 'Inspection');
+                  console.log(`[DEBUG] Inspection section Arabic items (${inspectionItems.length}):`, 
+                    inspectionItems.map((i: any) => `${i.content_key}=${i.content_value.substring(0, 20)}`));
 
     useEffect(() => {
         fetchData();
@@ -85,14 +79,18 @@ export const useWebsiteData = () => {
             c.language_code === language
         );
         
-        // Debug: if Arabic and quality-packaging, log what we're looking for and what we found
-        if (language === 'ar' && page === 'quality-packaging') {
-            console.log(`[getContent] Looking for: page=${page}, section=${section}, key=${key}, lang=${language}`);
-            console.log(`[getContent] Found item:`, item ? `YES - value="${item.content_value.substring(0, 30)}..."` : 'NO');
-            if (!item) {
-                // Log what's available in content for this page+section combo
-                const available = content.filter(c => c.page_name === page && c.section_name.toLowerCase() === section.toLowerCase());
-                console.log(`[getContent] Available rows for ${page}.${section}:`, available.slice(0, 3));
+        // Debug: if Arabic and quality-packaging Inspection section, log details
+        if (language === 'ar' && page === 'quality-packaging' && section === 'Inspection') {
+            if (key === 'item2_title' || key === 'title') {
+                console.log(`[DEBUG-DETAIL] Looking for: page=${page}, section=${section}, key=${key}, lang=${language}`);
+                console.log(`[DEBUG-DETAIL] Found item:`, item ? `YES - "${item.content_value}"` : 'NO');
+                
+                // Show ALL rows in content for debugging
+                const allInspectionRows = content.filter(c => c.page_name === page && c.section_name === section);
+                console.log(`[DEBUG-DETAIL] Total rows for ${page}.${section}:`, allInspectionRows.length);
+                console.log(`[DEBUG-DETAIL] All keys available:`, allInspectionRows.map(r => r.content_key));
+                console.log(`[DEBUG-DETAIL] Arabic rows:`, 
+                  allInspectionRows.filter(r => r.language_code === 'ar').map(r => `${r.content_key}(lang:${r.language_code})`));
             }
         }
         
