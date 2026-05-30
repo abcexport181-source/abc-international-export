@@ -354,6 +354,28 @@ export default function AdminDashboard() {
           language_code: currentLanguage
         }));
 
+      const missingTranslationFields: SiteContent[] = [];
+      if (currentLanguage !== 'en' && englishContentData) {
+        const existingKeys = new Set(
+          (data || []).map((item: SiteContent) => `${item.page_name}.${item.section_name.toLowerCase()}.${item.content_key}`)
+        );
+
+        for (const engItem of englishContentData) {
+          const key = `${engItem.page_name}.${engItem.section_name.toLowerCase()}.${engItem.content_key}`;
+          if (!existingKeys.has(key)) {
+            missingTranslationFields.push({
+              id: `${currentLanguage}_${engItem.page_name}_${engItem.section_name.replace(/\s+/g, '_').toLowerCase()}_${engItem.content_key}`,
+              page_name: engItem.page_name,
+              section_name: engItem.section_name,
+              content_key: engItem.content_key,
+              content_value: engItem.content_value, // Use English value as fallback placeholder
+              char_limit: engItem.char_limit || 500,
+              language_code: currentLanguage
+            });
+          }
+        }
+      }
+
       const normalizedContent = data
         .map((item: SiteContent) => ({
           ...item,
@@ -361,7 +383,12 @@ export default function AdminDashboard() {
         }))
         .filter((item: SiteContent) => item.page_name !== 'industries' || isIndustriesPageContentField(item));
 
-      setSiteContent([...normalizedContent, ...missingFooterSocialFields, ...missingIndustriesPageFields]);
+      setSiteContent([
+        ...normalizedContent,
+        ...missingFooterSocialFields,
+        ...missingIndustriesPageFields,
+        ...missingTranslationFields
+      ]);
       setEnglishSiteContent(englishContentData || []);
       const blogVis = data.find((c: SiteContent) =>
         c.page_name === 'global' &&
