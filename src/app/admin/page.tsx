@@ -1496,6 +1496,63 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
+  const addTypeTag = async (typeNum: string) => {
+    // Find highest tag number for this type
+    const existingTags = siteContent.filter(c => c.page_name === 'quality-packaging' && c.content_key.startsWith(`type${typeNum}_tag`));
+    let maxNum = 0;
+    existingTags.forEach(t => {
+      const match = t.content_key.match(new RegExp(`^type${typeNum}_tag(\\d+)$`));
+      if (match) {
+        const num = parseInt(match[1]);
+        if (num > maxNum) maxNum = num;
+      }
+    });
+    
+    const newTagNum = maxNum + 1;
+    const newContentKey = `type${typeNum}_tag${newTagNum}`;
+    
+    setIsSaving(true);
+    
+    // Create for ALL languages immediately
+    const newSlots = languages.map(lang => ({
+      id: `${lang.code}_quality-packaging_options_${newContentKey}`,
+      page_name: 'quality-packaging',
+      section_name: 'Options',
+      content_key: newContentKey,
+      content_value: lang.code === 'en' ? `New Tag ${newTagNum}` : '',
+      language_code: lang.code,
+      char_limit: 120
+    }));
+    
+    const result = await upsertSiteContent(newSlots);
+    if (result.success) {
+      setMessage({ text: `Added new tag for all languages.`, type: 'success' });
+      await fetchSiteContent();
+    } else {
+      setMessage({ text: `Failed to add tag.`, type: 'error' });
+    }
+    setIsSaving(false);
+  };
+
+  const deleteTypeTag = async (contentKey: string) => {
+    if (!confirm(`Are you sure you want to delete ${contentKey} across ALL languages? There will be no traces left.`)) return;
+    setIsSaving(true);
+    // Delete from Supabase where page_name = 'quality-packaging' and content_key = contentKey
+    const { error } = await supabase
+      .from('site_content')
+      .delete()
+      .eq('page_name', 'quality-packaging')
+      .eq('content_key', contentKey);
+      
+    if (error) {
+      setMessage({ text: `Failed to delete: ${error.message}`, type: 'error' });
+    } else {
+      setMessage({ text: `Successfully deleted ${contentKey} from all languages.`, type: 'success' });
+      await fetchSiteContent();
+    }
+    setIsSaving(false);
+  };
+
 
   const toggleVisibility = async (type: 'industries' | 'products' | 'blogs', id: string, currentStatus: boolean) => {
     const isEnglish = !id.includes(':') || id.startsWith('en:');
@@ -2441,7 +2498,7 @@ export default function AdminDashboard() {
                             border: '2px solid #fb923c',
                             borderRadius: '8px'
                           } : {}}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem', flexWrap: 'wrap' }}>
                               <label style={label}>{displayLabel} <span style={{fontSize: '0.8rem', color: '#94a3b8'}}>({item.content_key})</span></label>
                               {isPlaceholder && (
                                 <span style={{
@@ -2453,6 +2510,12 @@ export default function AdminDashboard() {
                                   borderRadius: '4px',
                                   whiteSpace: 'nowrap'
                                 }}>⚠ NOT TRANSLATED</span>
+                              )}
+                              {currentLanguage === 'en' && item.page_name === 'quality-packaging' && item.content_key.match(/^type\d+_tag\d+$/) && (
+                                <button onClick={() => deleteTypeTag(item.content_key)} style={{ background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '4px', padding: '0.15rem 0.5rem', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 'bold' }}>Delete Tag</button>
+                              )}
+                              {currentLanguage === 'en' && item.page_name === 'quality-packaging' && item.content_key.match(/^type(\d+)_title$/) && (
+                                <button onClick={() => addTypeTag(item.content_key.match(/^type(\d+)_title$/)![1])} style={{ background: '#dbeafe', color: '#3b82f6', border: 'none', borderRadius: '4px', padding: '0.15rem 0.5rem', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 'bold' }}>+ Add Tag</button>
                               )}
                             </div>
                             {isPlaceholder && englishRef && (

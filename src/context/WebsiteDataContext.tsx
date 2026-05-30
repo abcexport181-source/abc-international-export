@@ -18,6 +18,7 @@ type ContentRow = {
 
 type WebsiteDataContextType = {
   getContent: (page: string, section: string, key: string, defaultValue: string) => string;
+  getKeysByPrefix: (page: string, section: string, prefix: string) => string[];
   loading: boolean;
   refresh: () => void;
 };
@@ -143,8 +144,31 @@ export function WebsiteDataProvider({ children }: { children: React.ReactNode })
     [content, language]
   );
 
+  const getKeysByPrefix = useCallback(
+    (page: string, section: string, prefix: string): string[] => {
+      const sectionLower = section.toLowerCase();
+      // Gather all unique content keys that match the prefix for this page and section (usually from 'en' baseline)
+      const keys = new Set<string>();
+      content.forEach(c => {
+        if (c.page_name === page && c.section_name.toLowerCase() === sectionLower && c.content_key.startsWith(prefix)) {
+          keys.add(c.content_key);
+        }
+      });
+      // Sort them numerically if they end with numbers, or alphabetically
+      return Array.from(keys).sort((a, b) => {
+        const aMatch = a.match(/(\d+)$/);
+        const bMatch = b.match(/(\d+)$/);
+        if (aMatch && bMatch) {
+          return parseInt(aMatch[1]) - parseInt(bMatch[1]);
+        }
+        return a.localeCompare(b);
+      });
+    },
+    [content]
+  );
+
   return (
-    <WebsiteDataContext.Provider value={{ getContent, loading, refresh: fetchData }}>
+    <WebsiteDataContext.Provider value={{ getContent, getKeysByPrefix, loading, refresh: fetchData }}>
       {children}
     </WebsiteDataContext.Provider>
   );

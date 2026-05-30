@@ -67,7 +67,7 @@ const packagingTypes = [
 ];
 
 export default function QualityPackagingPage() {
-  const { getContent, loading } = useWebsiteData();
+  const { getContent, getKeysByPrefix, loading } = useWebsiteData();
 
   if (loading) {
     return (
@@ -189,8 +189,8 @@ export default function QualityPackagingPage() {
       </section>
 
       <section id="packaging" className="section">
-        <div className="container split">
-          <div>
+        <div className="container split" style={{ alignItems: 'stretch' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <h2>{getContent('quality-packaging', 'Options', 'title', 'Comprehensive Packaging Options')}</h2>
             <p className="muted" style={{ marginTop: '0.7rem', marginBottom: '2rem' }}>
               {getContent('quality-packaging', 'Options', 'desc', 'From industrial bulk packaging to retail-ready presentation, we provide solutions for every need.')}
@@ -200,17 +200,27 @@ export default function QualityPackagingPage() {
                 <article className="card" key={idx} style={{ padding: '1.5rem', textAlign: 'left' }}>
                   <h3 style={{ fontSize: '1.1rem', marginBottom: '0.8rem' }}>{getContent('quality-packaging', 'Options', `type${idx+1}_title`, pt.title)}</h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    {pt.tags.map((tag, tIdx) => (
-                      <span key={tIdx} style={{ background: '#f0f5ff', color: '#1f5ff5', fontSize: '0.85rem', padding: '0.3rem 0.8rem', borderRadius: '20px' }}>
-                        {getContent('quality-packaging', 'Options', `type${idx+1}_tag${tIdx+1}`, tag)}
-                      </span>
-                    ))}
+                    {(() => {
+                      const dynamicKeys = getKeysByPrefix('quality-packaging', 'Options', `type${idx+1}_tag`);
+                      if (dynamicKeys.length === 0) {
+                        return pt.tags.map((tag, tIdx) => (
+                          <span key={tIdx} style={{ background: '#f0f5ff', color: '#1f5ff5', fontSize: '0.85rem', padding: '0.3rem 0.8rem', borderRadius: '20px' }}>
+                            {getContent('quality-packaging', 'Options', `type${idx+1}_tag${tIdx+1}`, tag)}
+                          </span>
+                        ));
+                      }
+                      return dynamicKeys.map((key) => (
+                        <span key={key} style={{ background: '#f0f5ff', color: '#1f5ff5', fontSize: '0.85rem', padding: '0.3rem 0.8rem', borderRadius: '20px' }}>
+                          {getContent('quality-packaging', 'Options', key, '')}
+                        </span>
+                      ));
+                    })()}
                   </div>
                 </article>
               ))}
             </div>
           </div>
-          <MediaBlock className="imageBlock" url={getContent('quality-packaging', 'Options', 'side_img', 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000')} alt="Packaging options" />
+          <MediaBlock className="imageBlock" style={{ height: '100%', minHeight: '400px' }} url={getContent('quality-packaging', 'Options', 'side_img', 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000')} alt="Packaging options" />
         </div>
       </section>
 
