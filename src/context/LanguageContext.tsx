@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { defaultLanguage, normalizeLanguage } from '@/lib/languages';
 
@@ -21,21 +21,17 @@ export function LanguageProvider({
   const [language, setLanguageState] = useState(initialLanguage);
   const router = useRouter();
 
-  useEffect(() => {
-    // Load language from localStorage only once on mount.
-    // Using [] so localStorage doesn't override the server-set initialLanguage on every re-render.
-    const savedLang = localStorage.getItem('site_language');
-    if (savedLang && savedLang !== language) {
-      setLanguageState(savedLang);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // No localStorage useEffect here.
+  // setLanguage() writes to BOTH localStorage and the cookie at the same time.
+  // The server reads the cookie to set initialLanguage, so this component always
+  // starts with the correct language. Reading localStorage on mount was causing a
+  // bug: stale localStorage ('en') would overwrite a valid cookie-based language ('ar').
 
   const setLanguage = (lang: string) => {
     const normalizedLang = normalizeLanguage(lang);
     setLanguageState(normalizedLang);
     localStorage.setItem('site_language', normalizedLang);
-    // Also set a cookie for server components if needed
+    // Set cookie for server components so initialLanguage is correct on next render
     document.cookie = `site_language=${normalizedLang}; path=/; max-age=31536000; samesite=lax`;
     router.refresh();
   };
