@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BackToTop from '@/components/common/BackToTop'
 import { LanguageProvider } from '@/context/LanguageContext'
+import { WebsiteDataProvider } from '@/context/WebsiteDataContext'
 import { defaultLanguage, normalizeLanguage } from '@/lib/languages'
 import { Analytics } from '@vercel/analytics/react'
 
@@ -151,11 +152,13 @@ export default async function RootLayout({
     <html lang="en">
       <body>
         <LanguageProvider initialLanguage={languageCookie}>
-          <Header isBlogVisible={isBlogVisible} />
-          <main>{children}</main>
-          <Footer />
-          <BackToTop />
-          <Analytics />
+          <WebsiteDataProvider>
+            <Header isBlogVisible={isBlogVisible} />
+            <main>{children}</main>
+            <Footer />
+            <BackToTop />
+            <Analytics />
+          </WebsiteDataProvider>
         </LanguageProvider>
       </body>
     </html>
