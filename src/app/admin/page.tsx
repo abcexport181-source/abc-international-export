@@ -147,7 +147,13 @@ const qualityPackagingPageFields = [
 
   { section: 'CTA', key: 'title', val: 'Need Quality Assurance or Packaging Solutions?', limit: 150 },
   { section: 'CTA', key: 'desc', val: 'Speak with our team for product-specific support.', limit: 240 },
-  { section: 'CTA', key: 'btn_text', val: 'Contact Us', limit: 80 }
+  { section: 'CTA', key: 'btn_text', val: 'Contact Us', limit: 80 },
+
+  // Image / media fields — editable in English, read-only in other languages
+  { section: 'Hero', key: 'bg_img', val: 'https://images.unsplash.com/photo-1521331908054-9a180b7d3912?auto=format&fit=crop&q=80&w=2000', limit: 500 },
+  { section: 'Standards', key: 'side_img', val: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000', limit: 500 },
+  { section: 'Options', key: 'side_img', val: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1000', limit: 500 },
+  { section: 'CTA', key: 'bg_img', val: 'https://images.unsplash.com/photo-1566367576585-051277d52997?auto=format&fit=crop&q=80&w=2000', limit: 500 }
 ] as const;
 
 const qualityPackagingPageFieldKeys = new Set(
@@ -155,7 +161,11 @@ const qualityPackagingPageFieldKeys = new Set(
 );
 
 const isQualityPackagingPageContentField = (item: SiteContent) =>
-  item.page_name === 'quality-packaging' && qualityPackagingPageFieldKeys.has(`${item.section_name}.${item.content_key}`);
+  item.page_name === 'quality-packaging' && (
+    qualityPackagingPageFieldKeys.has(`${item.section_name}.${item.content_key}`) ||
+    item.content_key.includes('img') ||
+    item.content_key.includes('image')
+  );
 
 const industriesSectionLabels: Record<string, string> = {
   Hero: 'Page Header (badge, title, description)',
