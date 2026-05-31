@@ -272,7 +272,7 @@ export async function upsertSiteContent(updates: {
           'Sustainable.item2_desc': 240,
           'Sustainable.feat1': 120,
           'Sustainable.feat2': 120,
-          'Sustainable.feat3': 120,
+          'Sustainable.feat3': 60,
           'Compliance.title': 120,
           'Compliance.desc': 240,
           'Compliance.cert1': 80,

@@ -136,7 +136,7 @@ const qualityPackagingPageFields = [
   { section: 'Sustainable', key: 'item2_desc', val: 'Packaging solutions using recyclable materials compliant with global environmental standards', limit: 240 },
   { section: 'Sustainable', key: 'feat1', val: 'Biodegradable Options', limit: 120 },
   { section: 'Sustainable', key: 'feat2', val: 'FSC Certified Materials', limit: 120 },
-  { section: 'Sustainable', key: 'feat3', val: 'Carbon Neutral Shipping', limit: 120 },
+  { section: 'Sustainable', key: 'feat3', val: 'Carbon Neutral Shipping', limit: 60 },
 
   { section: 'Compliance', key: 'title', val: 'Compliance & Certification', limit: 120 },
   { section: 'Compliance', key: 'desc', val: 'All our quality and packaging solutions comply with international standards and country-specific regulations.', limit: 240 },
@@ -2576,6 +2576,8 @@ export default function AdminDashboard() {
                                             ? 60
                                             : (item.page_name === 'quality-packaging' && item.section_name === 'CTA' && item.content_key === 'title')
                                               ? 80
+                                              : (item.page_name === 'quality-packaging' && item.section_name === 'Sustainable' && item.content_key === 'feat3')
+                                                ? 60
                                               : (item.page_name === 'quality-packaging' && item.section_name === 'Options' && item.content_key.match(/^type\d+_(title|tag\d+)$/))
                                                 ? 120
                                                 : item.char_limit;
