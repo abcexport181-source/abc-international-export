@@ -557,7 +557,8 @@ export default function AdminDashboard() {
         page_name: original?.page_name || '',
         section_name: original?.section_name || '',
         content_key: original?.content_key || '',
-        language_code: currentLanguage
+        language_code: currentLanguage,
+        char_limit: original?.char_limit
       };
     });
     
@@ -616,7 +617,8 @@ export default function AdminDashboard() {
       page_name: item.page_name,
       section_name: item.section_name,
       content_key: item.content_key,
-      language_code: currentLanguage
+      language_code: currentLanguage,
+      char_limit: item.char_limit
     }));
 
     try {

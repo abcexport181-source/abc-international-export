@@ -109,7 +109,11 @@ export async function syncInitialDataBatch(initialContent: any[], languageCode: 
   
   try {
     const dataToUpsert = initialContent.map(c => {
-      const calculatedLimit = c.limit || Math.max(Math.ceil(String(c.val).length * 1.5), 40);
+      let calculatedLimit = c.limit || Math.max(Math.ceil(String(c.val).length * 1.5), 40);
+      if (c.page === 'logistics') {
+        calculatedLimit += 30;
+      }
+      
       return {
         id: `${languageCode}_${c.page}_${c.section.replace(/\s+/g, '_').toLowerCase()}_${c.key}`,
         page_name: c.page,
@@ -159,7 +163,8 @@ export async function upsertSiteContent(updates: {
   section_name: string, 
   content_key: string, 
   content_value: string,
-  language_code: string
+  language_code: string,
+  char_limit?: number
 }[]) {
   try {
     await requireAdminSession();
@@ -289,6 +294,12 @@ export async function upsertSiteContent(updates: {
           charLimit = 120;
         }
       }
+      
+      // If the client sent a char_limit (e.g. they preserved the DB limit), respect it!
+      if (u.char_limit !== undefined) {
+        charLimit = u.char_limit;
+      }
+
       return {
         id: u.id || `${u.language_code}_${u.page_name}_${u.section_name.replace(/\s+/g, '_').toLowerCase()}_${u.content_key}`,
         page_name: u.page_name,
