@@ -145,7 +145,7 @@ const qualityPackagingPageFields = [
   { section: 'Compliance', key: 'cert3', val: 'FSSAI Approved', limit: 80 },
   { section: 'Compliance', key: 'cert4', val: 'CE Marking', limit: 80 },
 
-  { section: 'CTA', key: 'title', val: 'Need Quality Assurance or Packaging Solutions?', limit: 150 },
+  { section: 'CTA', key: 'title', val: 'Need Quality Assurance or Packaging Solutions?', limit: 80 },
   { section: 'CTA', key: 'desc', val: 'Speak with our team for product-specific support.', limit: 240 },
   { section: 'CTA', key: 'btn_text', val: 'Contact Us', limit: 80 },
 
@@ -2574,7 +2574,9 @@ export default function AdminDashboard() {
                                           ? 60
                                           : (item.page_name === 'quality-packaging' && item.section_name === 'Options' && item.content_key === 'type3_tag5')
                                             ? 60
-                                            : item.char_limit;
+                                            : (item.page_name === 'quality-packaging' && item.section_name === 'CTA' && item.content_key === 'title')
+                                              ? 80
+                                              : item.char_limit;
                         const isMediaField = item.content_key.includes('img') || item.content_key.includes('image');
                         const englishMediaItem = isMediaField ? getEnglishMediaContent(item) : null;
                         const currentValue = isMediaField && currentLanguage !== 'en'

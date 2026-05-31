@@ -279,7 +279,7 @@ export async function upsertSiteContent(updates: {
           'Compliance.cert2': 80,
           'Compliance.cert3': 80,
           'Compliance.cert4': 80,
-          'CTA.title': 150,
+          'CTA.title': 80,
           'CTA.desc': 240,
           'CTA.btn_text': 80,
         };
