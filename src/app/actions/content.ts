@@ -263,7 +263,7 @@ export async function upsertSiteContent(updates: {
           'Options.type3_tag2': 120,
           'Options.type3_tag3': 120,
           'Options.type3_tag4': 120,
-          'Options.type3_tag5': 120,
+          'Options.type3_tag5': 60,
           'Sustainable.title': 120,
           'Sustainable.desc': 240,
           'Sustainable.item1_title': 120,

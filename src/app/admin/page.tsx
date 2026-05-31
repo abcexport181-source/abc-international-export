@@ -126,7 +126,7 @@ const qualityPackagingPageFields = [
   { section: 'Options', key: 'type3_tag2', val: 'Modified atmosphere', limit: 120 },
   { section: 'Options', key: 'type3_tag3', val: 'Temperature controlled', limit: 120 },
   { section: 'Options', key: 'type3_tag4', val: 'Anti-static', limit: 120 },
-  { section: 'Options', key: 'type3_tag5', val: 'Hazmat compliant', limit: 50 },
+  { section: 'Options', key: 'type3_tag5', val: 'Hazmat compliant', limit: 60 },
 
   { section: 'Sustainable', key: 'title', val: 'Sustainable Packaging Solutions', limit: 120 },
   { section: 'Sustainable', key: 'desc', val: 'Environmentally responsible packaging options without compromising protection or quality', limit: 240 },
@@ -2572,7 +2572,9 @@ export default function AdminDashboard() {
                                         ? 70
                                         : (item.page_name === 'quality-packaging' && item.section_name === 'Solutions' && item.content_key === 'item2_title')
                                           ? 60
-                                          : item.char_limit;
+                                          : (item.page_name === 'quality-packaging' && item.section_name === 'Options' && item.content_key === 'type3_tag5')
+                                            ? 60
+                                            : item.char_limit;
                         const isMediaField = item.content_key.includes('img') || item.content_key.includes('image');
                         const englishMediaItem = isMediaField ? getEnglishMediaContent(item) : null;
                         const currentValue = isMediaField && currentLanguage !== 'en'
