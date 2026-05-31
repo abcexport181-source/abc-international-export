@@ -100,7 +100,7 @@ const qualityPackagingPageFields = [
   { section: 'Solutions', key: 'desc', val: 'Professional packaging designed for safe international transit and market-ready presentation', limit: 240 },
   { section: 'Solutions', key: 'item1_title', val: 'Export Packaging', limit: 80 },
   { section: 'Solutions', key: 'item1_desc', val: 'Heavy-duty packaging designed for international shipping, including palletization and containerization', limit: 240 },
-  { section: 'Solutions', key: 'item2_title', val: 'Retail Packaging', limit: 80 },
+  { section: 'Solutions', key: 'item2_title', val: 'Retail Packaging', limit: 60 },
   { section: 'Solutions', key: 'item2_desc', val: 'Consumer-ready packaging with custom branding, labels, and presentation materials', limit: 240 },
   { section: 'Solutions', key: 'item3_title', val: 'Private Label Packaging', limit: 80 },
   { section: 'Solutions', key: 'item3_desc', val: 'Complete white-label packaging solutions with your brand identity and specifications', limit: 240 },
@@ -2570,7 +2570,9 @@ export default function AdminDashboard() {
                                       ? 70
                                       : (item.page_name === 'quality-packaging' && item.section_name === 'Standards' && item.content_key === 'note_bold')
                                         ? 70
-                                        : item.char_limit;
+                                        : (item.page_name === 'quality-packaging' && item.section_name === 'Solutions' && item.content_key === 'item2_title')
+                                          ? 60
+                                          : item.char_limit;
                         const isMediaField = item.content_key.includes('img') || item.content_key.includes('image');
                         const englishMediaItem = isMediaField ? getEnglishMediaContent(item) : null;
                         const currentValue = isMediaField && currentLanguage !== 'en'

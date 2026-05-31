@@ -238,7 +238,7 @@ export async function upsertSiteContent(updates: {
           'Solutions.desc': 240,
           'Solutions.item1_title': 80,
           'Solutions.item1_desc': 240,
-          'Solutions.item2_title': 80,
+          'Solutions.item2_title': 60,
           'Solutions.item2_desc': 240,
           'Solutions.item3_title': 80,
           'Solutions.item3_desc': 240,
