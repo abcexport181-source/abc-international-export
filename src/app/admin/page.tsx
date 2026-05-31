@@ -1192,6 +1192,7 @@ export default function AdminDashboard() {
         // LOGISTICS PAGE
         { page: 'logistics', section: 'Hero', key: 'title', val: 'Logistics Backed Export Expertise' },
         { page: 'logistics', section: 'Hero', key: 'desc', val: 'From cargo planning to documentation, we ensure products move efficiently to global markets.' },
+        { page: 'logistics', section: 'Hero', key: 'btn_text', val: 'Explore Logistics Support', limit: 80 },
         { page: 'logistics', section: 'Expertise', key: 'title', val: 'Why Logistics Expertise Matters' },
         { page: 'logistics', section: 'Expertise', key: 'desc', val: 'Export success isn\'t just about finding the right product—it\'s about getting it to your destination safely, on time, and in compliance with all regulations.' },
         { page: 'logistics', section: 'Expertise', key: 'item1_title', val: 'Timely Delivery' },
@@ -2564,7 +2565,9 @@ export default function AdminDashboard() {
                                 ? 100
                                 : (item.page_name === 'sourcing' && item.section_name === 'CTA' && item.content_key === 'btn_text')
                                   ? 50
-                                  : (item.page_name === 'quality-packaging' && item.section_name === 'Standards' && item.content_key === 'item3')
+                                  : (item.page_name === 'logistics' && item.section_name === 'Hero' && item.content_key === 'btn_text')
+                                    ? 80
+                                    : (item.page_name === 'quality-packaging' && item.section_name === 'Standards' && item.content_key === 'item3')
                                     ? 60
                                     : (item.page_name === 'quality-packaging' && item.section_name === 'Standards' && item.content_key === 'item6')
                                       ? 70

@@ -160,7 +160,7 @@ export default function LogisticsSubPage() {
           <p>{getContent('logistics', 'Hero', 'desc', 'From cargo planning to documentation, we ensure products move efficiently to global markets.')}</p>
           <div style={{ marginTop: '1rem' }}>
             <a href="/contact" className="btnPrimary">
-              Explore Logistics Support
+              {getContent('logistics', 'Hero', 'btn_text', 'Explore Logistics Support')}
             </a>
           </div>
         </div>
