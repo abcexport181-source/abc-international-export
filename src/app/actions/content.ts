@@ -285,6 +285,9 @@ export async function upsertSiteContent(updates: {
         };
         const limitKey = `${u.section_name}.${u.content_key}`;
         if (qualityPackagingLimits[limitKey]) charLimit = qualityPackagingLimits[limitKey];
+        else if (u.section_name === 'Options' && u.content_key.match(/^type\d+_(title|tag\d+)$/)) {
+          charLimit = 120;
+        }
       }
       return {
         id: u.id || `${u.language_code}_${u.page_name}_${u.section_name.replace(/\s+/g, '_').toLowerCase()}_${u.content_key}`,

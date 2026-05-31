@@ -2576,7 +2576,9 @@ export default function AdminDashboard() {
                                             ? 60
                                             : (item.page_name === 'quality-packaging' && item.section_name === 'CTA' && item.content_key === 'title')
                                               ? 80
-                                              : item.char_limit;
+                                              : (item.page_name === 'quality-packaging' && item.section_name === 'Options' && item.content_key.match(/^type\d+_(title|tag\d+)$/))
+                                                ? 120
+                                                : item.char_limit;
                         const isMediaField = item.content_key.includes('img') || item.content_key.includes('image');
                         const englishMediaItem = isMediaField ? getEnglishMediaContent(item) : null;
                         const currentValue = isMediaField && currentLanguage !== 'en'
@@ -2651,25 +2653,14 @@ export default function AdminDashboard() {
                                 <option value="true">true</option>
                                 <option value="false">false</option>
                               </select>
-                            ) : item.content_key.includes('desc') || item.content_key.includes('content') || item.content_key.includes('p1') || item.content_key.includes('p2') || item.content_key.includes('address') ? (
+                            ) : (
                               <textarea 
                                 value={currentValue} 
                                 onChange={e => updateLocalContent(item.id, e.target.value)}
                                 maxLength={effectiveCharLimit}
                                 style={{
                                   ...field,
-                                  height: item.content_key === 'content' ? '200px' : '80px',
-                                  ...(isPlaceholder ? { borderColor: '#fb923c' } : {})
-                                }}
-                                placeholder={isPlaceholder ? `Enter ${currentLanguage.toUpperCase()} translation here...` : (helpText || undefined)}
-                              />
-                            ) : (
-                              <input 
-                                value={currentValue} 
-                                onChange={e => updateLocalContent(item.id, e.target.value)}
-                                maxLength={effectiveCharLimit}
-                                style={{
-                                  ...field,
+                                  height: item.content_key === 'content' ? '200px' : (item.content_key.includes('desc') || item.content_key.includes('address') ? '100px' : '50px'),
                                   ...(isPlaceholder ? { borderColor: '#fb923c' } : {})
                                 }}
                                 placeholder={isPlaceholder ? `Enter ${currentLanguage.toUpperCase()} translation here...` : (helpText || undefined)}
