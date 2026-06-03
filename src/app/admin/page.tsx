@@ -477,6 +477,8 @@ export default function AdminDashboard() {
         );
 
         for (const engItem of englishContentData) {
+          if (engItem.page_name === 'seo') continue;
+
           const key = `${engItem.page_name}.${engItem.section_name.toLowerCase()}.${engItem.content_key}`;
           if (!existingKeys.has(key)) {
             missingTranslationFields.push({
@@ -1468,7 +1470,7 @@ export default function AdminDashboard() {
       let result = await syncInitialDataBatch(initialContent, 'en');
 
       if (currentLanguage !== 'en') {
-        result = await syncInitialDataBatch(initialContent, currentLanguage);
+        result = await syncInitialDataBatch(initialContent.filter(item => item.page !== 'seo'), currentLanguage);
       }
 
       
@@ -1766,7 +1768,10 @@ export default function AdminDashboard() {
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as Tab)}
+              onClick={() => {
+                if (tab.id === 'seo-content') setCurrentLanguage('en');
+                setActiveTab(tab.id as Tab);
+              }}
               style={{
                 width: '100%',
                 display: 'flex',
@@ -1892,11 +1897,17 @@ export default function AdminDashboard() {
                       onChange={e => setEditingIndustry({...editingIndustry, keys: e.target.value as any})}
                       maxLength={200}
                       style={field} 
+                      readOnly={isTrans}
                       placeholder="e.g. Textiles, Fabrics, Home Decor"
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <small className="muted">{(Array.isArray(editingIndustry.keys) ? editingIndustry.keys.join(', ') : editingIndustry.keys || '').length} / 200</small>
                     </div>
+                    {isTrans && (
+                      <div style={{ padding: '0.4rem 0.8rem', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.85rem', color: '#475569', marginTop: '0.3rem' }}>
+                        Tags are managed only in English.
+                      </div>
+                    )}
                   </div>
 
 
@@ -2237,6 +2248,7 @@ export default function AdminDashboard() {
               <select 
                 value={currentLanguage} 
                 onChange={(e) => setCurrentLanguage(e.target.value)}
+                disabled={activeTab === 'seo-content'}
                 style={{ 
                   padding: '0.6rem 1rem', 
                   borderRadius: '8px', 
@@ -2244,7 +2256,8 @@ export default function AdminDashboard() {
                   fontSize: '0.85rem',
                   fontWeight: 600,
                   color: '#1b2638',
-                  background: '#fff'
+                  background: activeTab === 'seo-content' ? '#f1f5f9' : '#fff',
+                  cursor: activeTab === 'seo-content' ? 'not-allowed' : 'pointer'
                 }}
               >
                 {languages.map(lang => (
