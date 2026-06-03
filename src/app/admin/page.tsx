@@ -424,17 +424,19 @@ export default function AdminDashboard() {
           .filter((item: SiteContent) => item.page_name === 'global' && item.section_name === 'footer')
           .map((item: SiteContent) => item.content_key)
       );
-      const missingFooterSocialFields = footerSocialFields
-        .filter(field => !existingGlobalFooterKeys.has(field.key))
-        .map(field => ({
-          id: `${currentLanguage}_global_footer_${field.key}`,
-          page_name: 'global',
-          section_name: 'footer',
-          content_key: field.key,
-          content_value: '',
-          char_limit: 300,
-          language_code: currentLanguage
-        }));
+      const missingFooterSocialFields = currentLanguage === 'en'
+        ? footerSocialFields
+          .filter(field => !existingGlobalFooterKeys.has(field.key))
+          .map(field => ({
+            id: `${currentLanguage}_global_footer_${field.key}`,
+            page_name: 'global',
+            section_name: 'footer',
+            content_key: field.key,
+            content_value: '',
+            char_limit: 300,
+            language_code: currentLanguage
+          }))
+        : [];
       const existingIndustriesPageFields = new Set(
         data
           .filter((item: SiteContent) => item.page_name === 'industries')
@@ -478,6 +480,7 @@ export default function AdminDashboard() {
 
         for (const engItem of englishContentData) {
           if (engItem.page_name === 'seo') continue;
+          if (isFooterSocialField(engItem)) continue;
 
           const key = `${engItem.page_name}.${engItem.section_name.toLowerCase()}.${engItem.content_key}`;
           if (!existingKeys.has(key)) {
@@ -502,7 +505,8 @@ export default function AdminDashboard() {
         }))
         .filter((item: SiteContent) =>
           (item.page_name !== 'industries' || isIndustriesPageContentField(item)) &&
-          (item.page_name !== 'quality-packaging' || isQualityPackagingPageContentField(item))
+          (item.page_name !== 'quality-packaging' || isQualityPackagingPageContentField(item)) &&
+          (currentLanguage === 'en' || !isFooterSocialField(item))
         );
 
       setSiteContent([
@@ -1470,7 +1474,13 @@ export default function AdminDashboard() {
       let result = await syncInitialDataBatch(initialContent, 'en');
 
       if (currentLanguage !== 'en') {
-        result = await syncInitialDataBatch(initialContent.filter(item => item.page !== 'seo'), currentLanguage);
+        result = await syncInitialDataBatch(
+          initialContent.filter(item =>
+            item.page !== 'seo' &&
+            !(item.page === 'global' && item.section === 'footer' && footerSocialFields.some(field => field.key === item.key))
+          ),
+          currentLanguage
+        );
       }
 
       

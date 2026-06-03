@@ -27,7 +27,14 @@ type WebsiteDataContextType = {
 
 const WebsiteDataContext = createContext<WebsiteDataContextType | undefined>(undefined);
 
-const isMediaKey = (key: string) => key.includes('img') || key.includes('image');
+const isEnglishSharedKey = (page: string, section: string, key: string) =>
+  key.includes('img') ||
+  key.includes('image') ||
+  (
+    page === 'global' &&
+    section.toLowerCase() === 'footer' &&
+    ['social_linkedin', 'social_facebook', 'social_twitter'].includes(key)
+  );
 
 /**
  * Fetches ALL rows from site_content for the given language codes, paginating
@@ -119,12 +126,12 @@ export function WebsiteDataProvider({ children }: { children: React.ReactNode })
     (page: string, section: string, key: string, defaultValue: string): string => {
       const sectionLower = section.toLowerCase();
 
-      // For media keys: always use the English version (images are shared across languages)
-      if (isMediaKey(key)) {
-        const enMedia = content.find(
+      // Shared fields are managed in English and reused across languages.
+      if (isEnglishSharedKey(page, section, key)) {
+        const enShared = content.find(
           c => c.page_name === page && c.section_name.toLowerCase() === sectionLower && c.content_key === key && c.language_code === 'en'
         );
-        return enMedia?.content_value || defaultValue;
+        return enShared?.content_value || defaultValue;
       }
 
       // Language-specific record (exists in DB → use it even if empty)
