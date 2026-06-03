@@ -82,7 +82,7 @@ const Footer = () => {
         </div>
       </div>
       <div className={styles.translationDisclaimer} style={{ textAlign: 'center', padding: '0.75rem 0', color: '#94a3b8', fontSize: '0.95rem' }}>
-        Translations are provided for convenience. In case of discrepancies, the English version shall prevail.
+        {getContent('global', 'footer', 'translation_disclaimer', 'Translations are provided for convenience. In case of discrepancies, the English version shall prevail.')}
       </div>
       <div className={styles.bottom}>
         <div className={`container ${styles.bottomContent}`}>

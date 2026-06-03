@@ -1458,6 +1458,7 @@ export default function AdminDashboard() {
         { page: 'global', section: 'footer', key: 'social_linkedin', val: '', limit: 300 },
         { page: 'global', section: 'footer', key: 'social_facebook', val: '', limit: 300 },
         { page: 'global', section: 'footer', key: 'social_twitter', val: '', limit: 300 },
+        { page: 'global', section: 'footer', key: 'translation_disclaimer', val: 'Translations are provided for convenience. In case of discrepancies, the English version shall prevail.', limit: 180 },
         { page: 'global', section: 'footer', key: 'copyright', val: '© 2026 ABC International. All rights reserved.' }
       ];
 
