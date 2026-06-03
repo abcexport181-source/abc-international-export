@@ -118,6 +118,14 @@ export default function ContactPage() {
     }
   };
 
+  const contactReasons = [
+    { key: 'item1', fallback: 'Get personalized sourcing recommendations' },
+    { key: 'item2', fallback: 'Receive competitive pricing quotes' },
+    { key: 'item3', fallback: 'Discuss logistics and shipping options' },
+    { key: 'item4', fallback: 'Learn about compliance requirements' },
+    { key: 'item5', fallback: 'Schedule factory visits and inspections' }
+  ];
+
   return (
     <>
       {recaptchaSiteKey && (
@@ -221,12 +229,12 @@ export default function ContactPage() {
                   opacity: status === 'submitting' ? 0.7 : 1
                 }}
               >
-                {status === 'submitting' ? 'Submitting...' : getContent('contact', 'Form', 'submit_btn', 'Submit Inquiry')} <FiSend />
+                {status === 'submitting' ? getContent('contact', 'Form', 'submitting_text', 'Submitting...') : getContent('contact', 'Form', 'submit_btn', 'Submit Inquiry')} <FiSend />
               </button>
 
               {status === 'success' && (
                 <div style={{ padding: '1rem', background: '#d1e7dd', color: '#0f5132', borderRadius: '8px', fontSize: '0.95rem', fontWeight: 500 }}>
-                  Thank you! Your inquiry has been successfully sent. We will get back to you shortly.
+                  {getContent('contact', 'Form', 'success_message', 'Thank you! Your inquiry has been successfully sent. We will get back to you shortly.')}
                 </div>
               )}
               {status === 'error' && (
@@ -237,7 +245,7 @@ export default function ContactPage() {
 
               {recaptchaSiteKey && (
                 <p style={{ fontSize: '0.75rem', color: '#718096', textAlign: 'center', marginTop: '0.5rem' }}>
-                  Protected by Google reCAPTCHA.
+                  {getContent('contact', 'Form', 'recaptcha_text', 'Protected by Google reCAPTCHA.')}
                 </p>
               )}
             </form>
@@ -245,28 +253,28 @@ export default function ContactPage() {
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div>
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Company Information</h2>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>{getContent('contact', 'Info', 'title', 'Company Information')}</h2>
               <div style={{ background: '#f8faff', padding: '2rem', borderRadius: '12px', border: '1px solid #edf2ff' }}>
-                <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>ABC International</h3>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>{getContent('contact', 'Info', 'company_name', 'ABC International')}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.8rem' }}>
                   <div style={{ display: 'flex', gap: '1rem' }}>
                     <div style={iconBox}><FiMail /></div>
                     <div>
-                      <h4 style={h4}>Email</h4>
+                      <h4 style={h4}>{getContent('contact', 'Info', 'label_email', 'Email')}</h4>
                       <p className="muted" style={p}>{getContent('contact', 'Info', 'email', 'info@abc-international.co.in')}</p>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '1rem' }}>
                     <div style={iconBox}><FiPhone /></div>
                     <div>
-                      <h4 style={h4}>Phone</h4>
+                      <h4 style={h4}>{getContent('contact', 'Info', 'label_phone', 'Phone')}</h4>
                       <p className="muted" style={p}>{getContent('contact', 'Info', 'phone', '+91 XXXX XXXXXX')}</p>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '1rem' }}>
                     <div style={iconBox}><FiMapPin /></div>
                     <div>
-                      <h4 style={h4}>Address</h4>
+                      <h4 style={h4}>{getContent('contact', 'Info', 'label_address', 'Address')}</h4>
                       <p className="muted" style={p}>{getContent('contact', 'Info', 'address', 'Mumbai, Maharashtra, India')}</p>
                     </div>
                   </div>
@@ -275,18 +283,12 @@ export default function ContactPage() {
             </div>
             
             <div style={{ background: '#f0f6ff', padding: '2rem', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.2rem' }}>Why Contact Us?</h3>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.2rem' }}>{getContent('contact', 'Reasons', 'title', 'Why Contact Us?')}</h3>
               <ul className="checkList" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                {[
-                  'Get personalized sourcing recommendations',
-                  'Receive competitive pricing quotes',
-                  'Discuss logistics and shipping options',
-                  'Learn about compliance requirements',
-                  'Schedule factory visits and inspections'
-                ].map(item => (
-                  <li key={item} style={{ fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                {contactReasons.map(item => (
+                  <li key={item.key} style={{ fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#1f5ff5' }} />
-                    {item}
+                    {getContent('contact', 'Reasons', item.key, item.fallback)}
                   </li>
                 ))}
               </ul>
@@ -297,9 +299,9 @@ export default function ContactPage() {
 
       <section className="section sectionSoft" style={{ textAlign: 'center', paddingTop: 0 }}>
         <div className="container">
-          <h2>Quick Response Guarantee</h2>
+          <h2>{getContent('contact', 'Stats', 'title', 'Quick Response Guarantee')}</h2>
           <p className="muted" style={{ maxWidth: '760px', margin: '0 auto' }}>
-            Our sourcing team typically responds to inquiries within 24 hours during business days.
+            {getContent('contact', 'Stats', 'desc', 'Our sourcing team typically responds to inquiries within 24 hours during business days.')}
           </p>
           <div className="cardsGrid3" style={{ marginTop: '1rem' }}>
             <article className="card">
