@@ -64,8 +64,8 @@ export async function POST(request: Request) {
     if (!web3formsKey) {
       console.error('WEB3FORMS_KEY is not defined in environment variables');
       return NextResponse.json(
-        { message: 'Email service is not configured' },
-        { status: 500 }
+        { message: 'Email service is not configured locally. Please add WEB3FORMS_KEY to your .env.local file' },
+        { status: 400 }
       );
     }
 
@@ -108,7 +108,7 @@ export async function POST(request: Request) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
       { message },
-      { status: 500 }
+      { status: 400 }
     );
   }
 }
