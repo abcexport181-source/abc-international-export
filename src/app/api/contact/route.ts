@@ -89,7 +89,19 @@ export async function POST(request: Request) {
       })
     });
 
-    const responseData = await response.json();
+    let responseData;
+    const contentType = response.headers.get('content-type');
+    
+    if (contentType && contentType.includes('application/json')) {
+      responseData = await response.json();
+    } else {
+      const text = await response.text();
+      console.error('Web3Forms returned non-JSON response (possibly blocked):', text.substring(0, 200) + '...');
+      return NextResponse.json(
+        { message: 'Email service is temporarily unavailable. Please try again later.' },
+        { status: 502 }
+      );
+    }
 
     if (!response.ok || !responseData.success) {
       console.error('Web3Forms API Error:', responseData);
