@@ -90,16 +90,23 @@ export default function ContactPage() {
 
     try {
       const captchaToken = await getRecaptchaToken();
-      const res = await fetch('/api/contact', {
+      
+      const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify({ ...formData, captchaToken, captchaAction: RECAPTCHA_ACTION })
+        body: JSON.stringify({ 
+          access_key: '444d6af0-7e28-4184-bfe7-c082c606d2da',
+          ...formData, 
+          subject: `New Sourcing Inquiry from ${formData.name}`,
+          from_name: 'ABC International Website'
+        })
       });
 
-      if (!res.ok) {
-        const data = await res.json();
+      const data = await res.json();
+      if (!res.ok || !data.success) {
         throw new Error(data.message || 'Failed to submit inquiry. Please try again.');
       }
 
